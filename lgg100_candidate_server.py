@@ -197,6 +197,7 @@ def build_policy(checkpoint_dir: Path, action_horizon: int, default_prompt: str)
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--checkpoint-dir", type=Path, required=True)
+    parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--action-horizon", type=int, default=50)
     parser.add_argument("--default-prompt", default=DEFAULT_PROMPT)
@@ -218,13 +219,13 @@ def main() -> None:
 
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
-        host="0.0.0.0",
+        host=args.host,
         port=args.port,
         metadata=policy.metadata,
     )
     print(
         f"Strict LGG100 candidate restore succeeded on {socket.gethostname()}; "
-        f"serving output-only policy on port {args.port}"
+        f"serving output-only policy on {args.host}:{args.port}"
     )
     server.serve_forever()
 
