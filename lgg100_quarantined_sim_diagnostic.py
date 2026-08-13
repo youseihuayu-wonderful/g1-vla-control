@@ -120,8 +120,9 @@ def main() -> None:
         timestamps = np.arange(len(actions), dtype=np.float64) / POLICY_RATE_HZ
         chunk = EEFActionChunk(timestamps, actions)
         # The context builder uses live geometry/contact and controller state.
-        # Tracking error is conservatively measured from current policy state
-        # below instead of trusting optional preflight fields.
+        # A new chunk's first target displacement is command jump, not live
+        # controller tracking error. The jerk-limited EEF filter owns that jump;
+        # this offline shadow starts with no outstanding controller command.
         pelvis = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "pelvis")
         pelvis_position = source.xpos[pelvis]
         pelvis_rotation = source.xmat[pelvis].reshape(3, 3)
@@ -145,7 +146,7 @@ def main() -> None:
                 source,
                 commanded_grippers_rad=action[14:16],
                 measured_grippers_rad=measured_grippers,
-                eef_tracking_error_m=initial_jump,
+                eef_tracking_error_m=0.0,
                 observation_age_ms=20.0,
                 policy_response_age_ms=90.0,
                 preflight_passed=True,
