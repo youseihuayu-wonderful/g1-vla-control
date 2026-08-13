@@ -301,6 +301,10 @@ def main() -> None:
             gripper_tracking_error = float(np.max(np.abs(
                 executor.last_filtered_command[14:16] - measured_grippers
             )))
+            context_observation_age_ms = (
+                0.0 if args.paused_step_synchronous_diagnostic
+                else observation_age_after_inference_ms
+            )
             contexts = []
             context_evidence = []
             for action in analysis:
@@ -310,7 +314,7 @@ def main() -> None:
                     commanded_grippers_rad=action[14:16],
                     measured_grippers_rad=measured_grippers,
                     eef_tracking_error_m=eef_tracking_error,
-                    observation_age_ms=observation_age_after_inference_ms,
+                    observation_age_ms=context_observation_age_ms,
                     policy_response_age_ms=0.0,
                     preflight_passed=True,
                     collision_free=True,
@@ -329,12 +333,47 @@ def main() -> None:
             ]
             timestamps = np.arange(ACTION_HORIZON, dtype=np.float64) / POLICY_RATE_HZ
             nominal_chunk = EEFActionChunk(timestamps, analysis)
+            executed_chunk = nominal_chunk
+            retiming_record = None
+            if args.adaptive:
+                retiming = retimer.plan(nominal_chunk, contexts)
+                if not retiming.accepted or retiming.chunk is None:
+                    executor.hold()
+                    abort_reason = "adaptive_retimer_hold"
+                    records.append({
+                        "cycle": cycle,
+                        "execution_performed": False,
+                        "accepted": False,
+                        "reasons": [abort_reason, *retiming.reasons],
+                        "inference_latency_ms": latency_ms,
+                        "observation_age_after_inference_ms": (
+                            observation_age_after_inference_ms
+                        ),
+                        "context_observation_age_ms": (
+                            context_observation_age_ms
+                        ),
+                    })
+                    break
+                executed_chunk = retiming.chunk
+                retiming_record = {
+                    "scale_range": [
+                        float(retiming.scale_profile.min()),
+                        float(retiming.scale_profile.max()),
+                    ],
+                    "duration_s": retiming.metrics["duration_s"],
+                    "path_actions_byte_identical": (
+                        retiming.path_actions_byte_identical
+                    ),
+                }
             committed_count = max(2, int(np.searchsorted(
-                timestamps, args.prefix_duration_s, side="right"
+                executed_chunk.timestamps,
+                args.prefix_duration_s,
+                side="right",
             )))
             committed_count = min(committed_count, ACTION_HORIZON)
             committed_chunk = EEFActionChunk(
-                timestamps[:committed_count], analysis[:committed_count]
+                executed_chunk.timestamps[:committed_count],
+                executed_chunk.actions[:committed_count],
             )
             committed_phases = phases[:committed_count]
             # Swept preflight includes target reachability/error checks, joint
@@ -394,35 +433,6 @@ def main() -> None:
                 })
                 break
 
-            executed_chunk = nominal_chunk
-            retiming_record = None
-            if args.adaptive:
-                retiming = retimer.plan(nominal_chunk, contexts)
-                if not retiming.accepted or retiming.chunk is None:
-                    executor.hold()
-                    abort_reason = "adaptive_retimer_hold"
-                    records.append({
-                        "cycle": cycle,
-                        "execution_performed": False,
-                        "accepted": False,
-                        "reasons": [abort_reason, *retiming.reasons],
-                        "inference_latency_ms": latency_ms,
-                        "observation_age_after_inference_ms": (
-                            observation_age_after_inference_ms
-                        ),
-                    })
-                    break
-                executed_chunk = retiming.chunk
-                retiming_record = {
-                    "scale_range": [
-                        float(retiming.scale_profile.min()),
-                        float(retiming.scale_profile.max()),
-                    ],
-                    "duration_s": retiming.metrics["duration_s"],
-                    "path_actions_byte_identical": (
-                        retiming.path_actions_byte_identical
-                    ),
-                }
             execution = executor.execute_prefix(
                 executed_chunk,
                 phases,
@@ -443,6 +453,7 @@ def main() -> None:
                 "observation_age_after_inference_ms": (
                     observation_age_after_inference_ms
                 ),
+                "context_observation_age_ms": context_observation_age_ms,
                 "preflight_latency_ms": preflight_latency_ms,
                 "observation_age_at_commit_ms": observation_age_at_commit_ms,
                 "maximum_observation_age_ms": args.maximum_observation_age_ms,
