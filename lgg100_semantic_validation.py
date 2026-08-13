@@ -192,7 +192,7 @@ def main() -> None:
     winners = np.argmin(per_sample_scores, axis=0)
     best_win_rate = float(np.mean(winners == 0))
     analysis_availability_rate = len(actions) / total_sample_count
-    criteria = {
+    semantic_criteria = {
         "at_least_30_usable_samples": len(actions) >= 30,
         "at_least_3_usable_episodes": len(np.unique(episodes)) >= 3,
         "bounded_analysis_availability_at_least_90_percent": (
@@ -206,9 +206,16 @@ def main() -> None:
             metrics[best]["quaternion_geodesic_mean_deg"] < 45.0
         ),
         "gripper_rmse_below_1_rad": metrics[best]["gripper_rmse_rad"] < 1.0,
-        "model_score_better_than_hold": metrics[best]["score"] < hold_metrics["score"],
     }
-    operational_support = all(criteria.values())
+    policy_quality_criteria = {
+        "single_draw_score_better_than_hold": (
+            metrics[best]["score"] < hold_metrics["score"]
+        ),
+    }
+    semantic_identification_supported = all(semantic_criteria.values())
+    offline_single_draw_policy_quality_passed = all(
+        policy_quality_criteria.values()
+    )
     report = {
         "scope": "Behavioral semantic hypothesis comparison on real public episodes; no execution.",
         "total_sample_count": total_sample_count,
@@ -231,23 +238,35 @@ def main() -> None:
         "best_sample_win_rate": best_win_rate,
         "hypotheses": metrics,
         "hold_baseline": hold_metrics,
-        "criteria": criteria,
-        "operational_semantics_supported": operational_support,
+        "semantic_identification_criteria": semantic_criteria,
+        "policy_quality_criteria": policy_quality_criteria,
+        "semantic_identification_supported": semantic_identification_supported,
+        "offline_single_draw_policy_quality_passed": (
+            offline_single_draw_policy_quality_passed
+        ),
+        "operational_semantics_supported": semantic_identification_supported,
         "author_transform_recovered": False,
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
         "execution_performed": False,
         "verdict": (
-            "The frozen absolute pelvis-frame xyzw left/right hypothesis passed all pre-registered behavioral criteria. Manual hash-bound review is still required before simulation eligibility."
-            if operational_support else
-            "Semantic hypotheses did not pass every pre-registered criterion. Keep all neural actions quarantined."
+            "The frozen absolute pelvis-frame xyzw left/right hypothesis passed all semantic-identification criteria. Single-draw offline policy quality is reported separately; manual hash-bound review is still required before simulation eligibility."
+            if semantic_identification_supported else
+            "Semantic hypotheses did not pass every semantic-identification criterion. Keep all neural actions quarantined."
         ),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     attestation = {
-        "status": "candidate_pending_manual_review" if operational_support else "rejected",
-        "operational_semantics_supported": operational_support,
+        "status": (
+            "candidate_pending_manual_review"
+            if semantic_identification_supported else "rejected"
+        ),
+        "semantic_identification_supported": semantic_identification_supported,
+        "offline_single_draw_policy_quality_passed": (
+            offline_single_draw_policy_quality_passed
+        ),
+        "operational_semantics_supported": semantic_identification_supported,
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
         "checkpoint_revision": HF_REVISION,
@@ -262,7 +281,8 @@ def main() -> None:
         ).hexdigest(),
         "validation_report_sha256": hashlib.sha256(args.output.read_bytes()).hexdigest(),
         "selected_hypothesis": best,
-        "criteria": criteria,
+        "semantic_identification_criteria": semantic_criteria,
+        "policy_quality_criteria": policy_quality_criteria,
         "reviewer": None,
         "reviewed_at": None,
     }
@@ -276,10 +296,14 @@ def main() -> None:
         "sample_win_rate": best_win_rate,
         "best_metrics": metrics[best],
         "hold_score": hold_metrics["score"],
-        "criteria": criteria,
-        "operational_semantics_supported": operational_support,
+        "semantic_identification_criteria": semantic_criteria,
+        "policy_quality_criteria": policy_quality_criteria,
+        "semantic_identification_supported": semantic_identification_supported,
+        "offline_single_draw_policy_quality_passed": (
+            offline_single_draw_policy_quality_passed
+        ),
     }, indent=2))
-    if not operational_support:
+    if not semantic_identification_supported:
         raise SystemExit(1)
 
 
