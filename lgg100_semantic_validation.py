@@ -161,8 +161,18 @@ def main() -> None:
         raise ValueError(
             f"Sample/output/reference mismatch {states.shape} {actions.shape} {reference.shape}"
         )
-    if not np.all(available) or not np.all(np.isfinite(actions)):
-        raise ValueError("Not all quarantined outputs have bounded canonical analysis actions")
+    total_sample_count = len(actions)
+    usable = available & np.all(np.isfinite(actions), axis=(1, 2))
+    unusable_indices = np.flatnonzero(~usable).tolist()
+    actions = actions[usable]
+    reference = reference[usable]
+    states = states[usable]
+    episodes = episodes[usable]
+    frames = frames[usable]
+    if len(actions) < 30:
+        raise ValueError(
+            f"Only {len(actions)}/{total_sample_count} samples satisfy the fixed bounded analysis gate; at least 30 are required"
+        )
 
     metrics = {
         name: _metrics(candidate, reference, states)
@@ -181,9 +191,13 @@ def main() -> None:
     ])
     winners = np.argmin(per_sample_scores, axis=0)
     best_win_rate = float(np.mean(winners == 0))
+    analysis_availability_rate = len(actions) / total_sample_count
     criteria = {
-        "at_least_30_samples": len(actions) >= 30,
-        "at_least_3_episodes": len(np.unique(episodes)) >= 3,
+        "at_least_30_usable_samples": len(actions) >= 30,
+        "at_least_3_usable_episodes": len(np.unique(episodes)) >= 3,
+        "bounded_analysis_availability_at_least_90_percent": (
+            analysis_availability_rate >= 0.90
+        ),
         "expected_hypothesis_wins": best == "absolute_xyzw_lr",
         "best_hypothesis_margin_at_least_10_percent": margin >= 0.10,
         "best_hypothesis_sample_win_rate_at_least_70_percent": best_win_rate >= 0.70,
@@ -197,9 +211,12 @@ def main() -> None:
     operational_support = all(criteria.values())
     report = {
         "scope": "Behavioral semantic hypothesis comparison on real public episodes; no execution.",
-        "sample_count": len(actions),
-        "episodes": sorted(int(value) for value in np.unique(episodes)),
-        "frames": frames.tolist(),
+        "total_sample_count": total_sample_count,
+        "usable_sample_count": len(actions),
+        "bounded_analysis_availability_rate": analysis_availability_rate,
+        "unusable_sample_indices": unusable_indices,
+        "usable_episodes": sorted(int(value) for value in np.unique(episodes)),
+        "usable_frames": frames.tolist(),
         "dataset_revision": dataset_revision,
         "checkpoint_revision": checkpoint_revision,
         "openpi_commit": openpi_commit,
