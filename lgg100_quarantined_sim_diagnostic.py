@@ -67,12 +67,28 @@ def main() -> None:
             })
             continue
         phase_view = preflight["chunks"][index]["phase_views"]["free_space"]
+        swept_view = preflight["chunks"][index].get(
+            "swept_path_views", {}
+        ).get("free_space", {})
         if phase_view["all_accepted"] is not True:
             records.append({
                 "chunk": index,
                 "execution_performed": False,
                 "candidate_passed": False,
-                "reasons": ["free_space_preflight_failed"],
+                "reasons": ["free_space_target_preflight_failed"],
+            })
+            continue
+        if swept_view.get("accepted") is not True:
+            records.append({
+                "chunk": index,
+                "execution_performed": False,
+                "candidate_passed": False,
+                "reasons": [
+                    f"free_space_swept_preflight_failed:{swept_view.get('reason')}"
+                ],
+                "swept_collision_reasons": swept_view.get(
+                    "collision_reasons", []
+                ),
             })
             continue
         timestamps = np.arange(len(actions), dtype=np.float64) / POLICY_RATE_HZ

@@ -11,11 +11,12 @@ from pathlib import Path
 import mujoco
 import numpy as np
 
-from action_schema import pelvis_vla_action_to_world_mujoco
+from action_schema import EEFActionChunk, pelvis_vla_action_to_world_mujoco
 from g1_policy_contract import POLICY_RATE_HZ
 from neural_action_audit import audit_neural_action_chunk
 from safety_governor import G1TargetPreflight
 from stack_scene import build_model, reset_to_reference_pose
+from swept_path_preflight import G1SweptPathPreflight
 
 ROOT = Path(__file__).resolve().parent
 
@@ -78,6 +79,7 @@ def main() -> None:
     reset_to_reference_pose(model, source)
     pelvis = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "pelvis")
     gate = G1TargetPreflight(model)
+    swept_gate = G1SweptPathPreflight(model)
     chunk_records: list[dict] = []
     for chunk_index, raw in enumerate(raw_chunks):
         audit = audit_neural_action_chunk(raw)
@@ -90,6 +92,7 @@ def main() -> None:
             "raw_max_quaternion_norm_error": audit.raw_max_quaternion_norm_error,
             "motion": None,
             "phase_views": {},
+            "swept_path_views": {},
         }
         if analysis is None:
             record["reasons"] = list(audit.reasons)
@@ -124,6 +127,25 @@ def main() -> None:
                 },
                 "targets": targets,
             }
+            timestamps = np.arange(len(analysis), dtype=np.float64) / POLICY_RATE_HZ
+            swept = swept_gate.check(
+                source, EEFActionChunk(timestamps, analysis), phase=phase
+            )
+            record["swept_path_views"][phase] = {
+                "accepted": swept.accepted,
+                "checked_targets": swept.checked_targets,
+                "checked_interpolated_configurations": (
+                    swept.checked_interpolated_configurations
+                ),
+                "maximum_position_error_m": swept.maximum_position_error_m,
+                "maximum_orientation_error_rad": (
+                    swept.maximum_orientation_error_rad
+                ),
+                "rejection_target_index": swept.rejection_target_index,
+                "rejection_substep": swept.rejection_substep,
+                "reason": swept.reason,
+                "collision_reasons": list(swept.collision_reasons),
+            }
         chunk_records.append(record)
 
     report = {
@@ -147,6 +169,13 @@ def main() -> None:
             "all_targets_accepted_by_phase": {
                 phase: sum(
                     bool(record["phase_views"].get(phase, {}).get("all_accepted"))
+                    for record in chunk_records
+                )
+                for phase in ("free_space", "grasp", "place")
+            },
+            "swept_paths_accepted_by_phase": {
+                phase: sum(
+                    bool(record["swept_path_views"].get(phase, {}).get("accepted"))
                     for record in chunk_records
                 )
                 for phase in ("free_space", "grasp", "place")
