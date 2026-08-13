@@ -17,5 +17,8 @@ __pycache__/
 wandb/
 checkpoints/
 
-# Public dataset reference videos are reproducible and not source code
+# Public dataset reference/calibration artifacts are reproducible and not source code
 reference/
+results/reference_ep0/
+results/camera_calibration_remote/
+results/camera_calibration_v2_remote/

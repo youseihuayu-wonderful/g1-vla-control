@@ -63,6 +63,7 @@ def _run_scale(
     scale: float,
     use_filter: bool,
     use_joint_filter: bool = False,
+    phase_schedule: tuple[str, ...] | list[str] | None = None,
 ) -> dict:
     model = build_model()
     data = mujoco.MjData(model)
@@ -88,6 +89,14 @@ def _run_scale(
     dt = model.opt.timestep
     path_duration = float(chunk.timestamps[-1] / scale)
     total_duration = path_duration + 2.0
+    if phase_schedule is not None:
+        if len(phase_schedule) != len(chunk.timestamps):
+            raise ValueError("phase_schedule must match the action horizon")
+        unknown = set(phase_schedule) - {
+            "free_space", "approach", "grasp", "lift", "place", "retreat"
+        }
+        if unknown:
+            raise ValueError(f"unknown phase schedule entries: {sorted(unknown)}")
 
     previous_command = initial.copy()
     previous_velocity = np.zeros((2, 3))
@@ -121,6 +130,10 @@ def _run_scale(
     contact_steps_manipulation = 0
     free_space_contact_reasons: Counter = Counter()
     manipulation_contact_reasons: Counter = Counter()
+    phase_aware_contact_steps = 0
+    phase_aware_contact_reasons: Counter = Counter()
+    phase_step_counts: Counter = Counter()
+    first_phase_aware_contact_event: dict = {}
     minimum_pelvis = float(data.xpos[pelvis, 2])
     step_count = int(np.ceil(total_duration / dt))
     command = initial.copy()
@@ -265,6 +278,38 @@ def _run_scale(
         manipulation_violations = manipulator_contact_violations(
             model, data, "grasp"
         )
+        scheduled_phase = None
+        phase_aware_violations: tuple[str, ...] = ()
+        if phase_schedule is not None:
+            phase_index = int(np.clip(
+                np.searchsorted(chunk.timestamps, path_time, side="right") - 1,
+                0,
+                len(phase_schedule) - 1,
+            ))
+            scheduled_phase = phase_schedule[phase_index]
+            collision_phase = {
+                "free_space": "free_space",
+                "approach": "free_space",
+                "grasp": "grasp",
+                "lift": "grasp",
+                "place": "place",
+                "retreat": "free_space",
+            }[scheduled_phase]
+            phase_aware_violations = manipulator_contact_violations(
+                model, data, collision_phase
+            )
+            phase_step_counts[scheduled_phase] += 1
+            if phase_aware_violations and not first_phase_aware_contact_event:
+                first_phase_aware_contact_event = {
+                    "time_s": elapsed,
+                    "path_time_s": path_time,
+                    "phase_index": phase_index,
+                    "scheduled_phase": scheduled_phase,
+                    "collision_phase": collision_phase,
+                    "reasons": list(phase_aware_violations),
+                }
+            phase_aware_contact_steps += int(bool(phase_aware_violations))
+            phase_aware_contact_reasons.update(phase_aware_violations)
         contact_steps_free_space += int(bool(free_space_violations))
         contact_steps_manipulation += int(bool(manipulation_violations))
         free_space_contact_reasons.update(free_space_violations)
@@ -315,6 +360,14 @@ def _run_scale(
         "manipulation_contact_step_rate": contact_steps_manipulation / step_count,
         "free_space_contact_reason_counts": dict(free_space_contact_reasons),
         "manipulation_contact_reason_counts": dict(manipulation_contact_reasons),
+        "phase_schedule_enabled": phase_schedule is not None,
+        "phase_aware_contact_step_rate": (
+            phase_aware_contact_steps / step_count
+            if phase_schedule is not None else None
+        ),
+        "phase_aware_contact_reason_counts": dict(phase_aware_contact_reasons),
+        "phase_step_counts": dict(phase_step_counts),
+        "first_phase_aware_contact_event": first_phase_aware_contact_event,
         "finite": bool(np.all(np.isfinite(data.qpos)) and np.all(np.isfinite(data.qvel))),
         "worst_actual_joint_jerk_event": worst_actual_jerk_event,
         "maxima": maxima,

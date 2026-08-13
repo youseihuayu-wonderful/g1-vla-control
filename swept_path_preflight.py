@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import mujoco
@@ -59,17 +60,35 @@ class G1SweptPathPreflight:
         source: mujoco.MjData,
         chunk: EEFActionChunk,
         *,
-        phase: str,
+        phase: str | Sequence[str],
     ) -> SweptPathResult:
-        if phase not in {"free_space", "grasp", "place"}:
-            raise ValueError("phase must be free_space, grasp, or place")
+        if isinstance(phase, str):
+            phase_schedule = (phase,) * len(chunk.actions)
+        else:
+            phase_schedule = tuple(phase)
+        if len(phase_schedule) != len(chunk.actions):
+            raise ValueError("phase schedule must match the action horizon")
+        phase_map = {
+            "free_space": "free_space",
+            "approach": "free_space",
+            "grasp": "grasp",
+            "lift": "grasp",
+            "place": "place",
+            "retreat": "free_space",
+        }
+        unknown = set(phase_schedule) - set(phase_map)
+        if unknown:
+            raise ValueError(f"unknown phase schedule entries: {sorted(unknown)}")
+        collision_schedule = tuple(
+            phase_map[item] for item in phase_schedule
+        )
         data = mujoco.MjData(self.model)
         data.qpos[:] = source.qpos
         data.qvel[:] = 0.0
         data.ctrl[:] = source.ctrl
         mujoco.mj_forward(self.model, data)
         initial_violations = manipulator_contact_violations(
-            self.model, data, phase
+            self.model, data, collision_schedule[0]
         )
         if initial_violations:
             return SweptPathResult(
@@ -164,7 +183,7 @@ class G1SweptPathPreflight:
                 mujoco.mj_fwdPosition(self.model, data)
                 checked_configurations += 1
                 violations = manipulator_contact_violations(
-                    self.model, data, phase
+                    self.model, data, collision_schedule[target_index]
                 )
                 if violations:
                     return SweptPathResult(

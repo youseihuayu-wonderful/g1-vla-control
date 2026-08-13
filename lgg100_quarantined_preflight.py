@@ -12,7 +12,9 @@ import mujoco
 import numpy as np
 
 from action_schema import EEFActionChunk, pelvis_vla_action_to_world_mujoco
+from dex1_gripper import Dex1Controller
 from g1_policy_contract import POLICY_RATE_HZ
+from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
 from safety_governor import G1TargetPreflight
 from stack_scene import build_model, reset_to_reference_pose
@@ -80,6 +82,7 @@ def main() -> None:
     pelvis = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "pelvis")
     gate = G1TargetPreflight(model)
     swept_gate = G1SweptPathPreflight(model)
+    measured_grippers = Dex1Controller(model).motor_states(source)
     chunk_records: list[dict] = []
     for chunk_index, raw in enumerate(raw_chunks):
         audit = audit_neural_action_chunk(raw)
@@ -93,6 +96,8 @@ def main() -> None:
             "motion": None,
             "phase_views": {},
             "swept_path_views": {},
+            "inferred_phase_schedule": None,
+            "swept_scheduled_view": None,
         }
         if analysis is None:
             record["reasons"] = list(audit.reasons)
@@ -146,6 +151,50 @@ def main() -> None:
                 "reason": swept.reason,
                 "collision_reasons": list(swept.collision_reasons),
             }
+        inferred_contexts = [
+            build_simulation_speed_context(
+                model,
+                source,
+                commanded_grippers_rad=action[14:16],
+                measured_grippers_rad=measured_grippers,
+                eef_tracking_error_m=0.0,
+                observation_age_ms=20.0,
+                policy_response_age_ms=90.0,
+                preflight_passed=True,
+                collision_free=True,
+                command_limits_passed=True,
+            )[0]
+            for action in analysis
+        ]
+        phase_schedule = tuple(
+            context.task_phase for context in inferred_contexts
+        )
+        scheduled_swept = swept_gate.check(
+            source,
+            EEFActionChunk(
+                np.arange(len(analysis), dtype=np.float64) / POLICY_RATE_HZ,
+                analysis,
+            ),
+            phase=phase_schedule,
+        )
+        record["inferred_phase_schedule"] = {
+            "phases": list(phase_schedule),
+            "counts": {
+                phase: phase_schedule.count(phase)
+                for phase in sorted(set(phase_schedule))
+            },
+        }
+        record["swept_scheduled_view"] = {
+            "accepted": scheduled_swept.accepted,
+            "checked_targets": scheduled_swept.checked_targets,
+            "checked_interpolated_configurations": (
+                scheduled_swept.checked_interpolated_configurations
+            ),
+            "rejection_target_index": scheduled_swept.rejection_target_index,
+            "rejection_substep": scheduled_swept.rejection_substep,
+            "reason": scheduled_swept.reason,
+            "collision_reasons": list(scheduled_swept.collision_reasons),
+        }
         chunk_records.append(record)
 
     report = {
@@ -180,6 +229,10 @@ def main() -> None:
                 )
                 for phase in ("free_space", "grasp", "place")
             },
+            "inferred_schedule_swept_paths_accepted": sum(
+                bool((record.get("swept_scheduled_view") or {}).get("accepted"))
+                for record in chunk_records
+            ),
         },
         "verdict": "Preflight is diagnostic only. No result in this report grants simulation or hardware execution.",
     }

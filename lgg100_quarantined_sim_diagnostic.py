@@ -66,16 +66,32 @@ def main() -> None:
                 "reasons": list(audit.reasons),
             })
             continue
-        phase_view = preflight["chunks"][index]["phase_views"]["free_space"]
-        swept_view = preflight["chunks"][index].get(
-            "swept_path_views", {}
-        ).get("free_space", {})
-        if phase_view["all_accepted"] is not True:
+        preflight_chunk = preflight["chunks"][index]
+        evidence_schedule = tuple(
+            preflight_chunk["inferred_phase_schedule"]["phases"]
+        )
+        required_preflight_phases = {
+            {
+                "free_space": "free_space",
+                "approach": "free_space",
+                "grasp": "grasp",
+                "lift": "grasp",
+                "place": "place",
+                "retreat": "free_space",
+            }[phase]
+            for phase in evidence_schedule
+        }
+        target_views_passed = all(
+            preflight_chunk["phase_views"][phase]["all_accepted"]
+            for phase in required_preflight_phases
+        )
+        swept_view = preflight_chunk["swept_scheduled_view"]
+        if not target_views_passed:
             records.append({
                 "chunk": index,
                 "execution_performed": False,
                 "candidate_passed": False,
-                "reasons": ["free_space_target_preflight_failed"],
+                "reasons": ["scheduled_target_preflight_failed"],
             })
             continue
         if swept_view.get("accepted") is not True:
@@ -84,7 +100,7 @@ def main() -> None:
                 "execution_performed": False,
                 "candidate_passed": False,
                 "reasons": [
-                    f"free_space_swept_preflight_failed:{swept_view.get('reason')}"
+                    f"scheduled_swept_preflight_failed:{swept_view.get('reason')}"
                 ],
                 "swept_collision_reasons": swept_view.get(
                     "collision_reasons", []
@@ -111,18 +127,34 @@ def main() -> None:
             np.linalg.norm(actions[0, 0:3] - current_positions[0]),
             np.linalg.norm(actions[0, 7:10] - current_positions[1]),
         ))
-        context, evidence = build_simulation_speed_context(
-            model,
-            source,
-            commanded_grippers_rad=actions[0, 14:16],
-            measured_grippers_rad=measured_grippers,
-            eef_tracking_error_m=initial_jump,
-            observation_age_ms=20.0,
-            policy_response_age_ms=90.0,
-            preflight_passed=True,
-            collision_free=True,
-            command_limits_passed=True,
-        )
+        contexts = []
+        context_evidence = []
+        for action in actions:
+            context, evidence = build_simulation_speed_context(
+                model,
+                source,
+                commanded_grippers_rad=action[14:16],
+                measured_grippers_rad=measured_grippers,
+                eef_tracking_error_m=initial_jump,
+                observation_age_ms=20.0,
+                policy_response_age_ms=90.0,
+                preflight_passed=True,
+                collision_free=True,
+                command_limits_passed=True,
+            )
+            contexts.append(context)
+            context_evidence.append(evidence)
+        phase_schedule = tuple(context.task_phase for context in contexts)
+        if phase_schedule != evidence_schedule:
+            records.append({
+                "chunk": index,
+                "execution_performed": False,
+                "candidate_passed": False,
+                "reasons": ["phase_schedule_does_not_match_preflight_evidence"],
+            })
+            continue
+        context = contexts[0]
+        evidence = context_evidence[0]
         if context.task_phase not in {"free_space", "approach"}:
             records.append({
                 "chunk": index,
@@ -131,7 +163,7 @@ def main() -> None:
                 "reasons": [f"unexpected_initial_phase:{context.task_phase}"],
             })
             continue
-        retiming = ContextAwareRetimer().plan(chunk, context)
+        retiming = ContextAwareRetimer().plan(chunk, contexts)
         if not retiming.accepted or retiming.chunk is None:
             records.append({
                 "chunk": index,
@@ -144,17 +176,19 @@ def main() -> None:
         baseline = _run_scale(
             chunk, measured_grippers, scale=1.0,
             use_filter=True, use_joint_filter=True,
+            phase_schedule=phase_schedule,
         )
         guarded = _run_scale(
             retiming.chunk, measured_grippers, scale=1.0,
             use_filter=True, use_joint_filter=True,
+            phase_schedule=phase_schedule,
         )
         candidate_passed = bool(
             baseline["hard_command_limits_pass"]
             and guarded["hard_command_limits_pass"]
             and guarded["finite"]
             and guarded["endpoint_error_m"] <= baseline["endpoint_error_m"] + 0.005
-            and guarded["free_space_contact_step_rate"] == 0.0
+            and guarded["phase_aware_contact_step_rate"] == 0.0
             and guarded["maxima"]["actual_joint_jerk_rad_s3"]
             <= baseline["maxima"]["actual_joint_jerk_rad_s3"] + 1e-6
         )
@@ -168,6 +202,11 @@ def main() -> None:
                 "task_phase": context.task_phase,
                 "minimum_clearance_m": context.minimum_clearance_m,
                 "contact": context.contact,
+                "phase_schedule": list(phase_schedule),
+                "phase_counts": {
+                    phase: phase_schedule.count(phase)
+                    for phase in sorted(set(phase_schedule))
+                },
                 "joint_limit_margin_rad": evidence.joint_limit_margin_rad,
                 "pelvis_stability": evidence.pelvis_stability,
             },
@@ -195,6 +234,10 @@ def main() -> None:
                 "free_space_contact_rate_delta": (
                     guarded["free_space_contact_step_rate"]
                     - baseline["free_space_contact_step_rate"]
+                ),
+                "phase_aware_contact_rate_delta": (
+                    guarded["phase_aware_contact_step_rate"]
+                    - baseline["phase_aware_contact_step_rate"]
                 ),
                 "actual_joint_jerk_delta_rad_s3": (
                     guarded["maxima"]["actual_joint_jerk_rad_s3"]

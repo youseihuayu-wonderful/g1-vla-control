@@ -107,37 +107,49 @@ def main() -> None:
             np.linalg.norm(actions[:, 0:3] - actions[-1, 0:3], axis=1),
             np.linalg.norm(actions[:, 7:10] - actions[-1, 7:10], axis=1),
         )
-        inferred_context, inferred_evidence = build_simulation_speed_context(
-            model,
-            source,
-            commanded_grippers_rad=actions[0, 14:16],
-            measured_grippers_rad=measured_grippers,
-            eef_tracking_error_m=float(initial_jump),
-            observation_age_ms=20.0,
-            policy_response_age_ms=90.0,
-            preflight_passed=True,
-            collision_free=True,
-            command_limits_passed=True,
+        inferred_contexts = []
+        inferred_evidence = []
+        for action in actions:
+            context, evidence = build_simulation_speed_context(
+                model,
+                source,
+                commanded_grippers_rad=action[14:16],
+                measured_grippers_rad=measured_grippers,
+                eef_tracking_error_m=float(initial_jump),
+                observation_age_ms=20.0,
+                policy_response_age_ms=90.0,
+                preflight_passed=True,
+                collision_free=True,
+                command_limits_passed=True,
+            )
+            inferred_contexts.append(context)
+            inferred_evidence.append(evidence)
+        phase_schedule = tuple(
+            context.task_phase for context in inferred_contexts
         )
-        preflight_phase = {
-            "free_space": "free_space",
-            "approach": "free_space",
-            "grasp": "grasp",
-            "lift": "grasp",
-            "place": "place",
-            "retreat": "free_space",
-        }[inferred_context.task_phase]
+        preflight_phases = {
+            {
+                "free_space": "free_space",
+                "approach": "free_space",
+                "grasp": "grasp",
+                "lift": "grasp",
+                "place": "place",
+                "retreat": "free_space",
+            }[phase]
+            for phase in phase_schedule
+        }
         try:
-            preflight_passed = bool(
-                preflight["chunks"][index]["phase_views"][preflight_phase][
+            preflight_passed = all(
+                preflight["chunks"][index]["phase_views"][phase][
                     "all_accepted"
                 ]
+                for phase in preflight_phases
             )
         except (IndexError, KeyError, TypeError) as exc:
             raise ValueError("Preflight report does not match source chunks") from exc
         if not preflight_passed:
             raise ValueError(
-                f"Chunk {index} did not pass {preflight_phase} preflight"
+                f"Chunk {index} did not pass required phase preflight"
             )
         scenario_results: dict[str, dict] = {}
         for name, context_factory in scenarios.items():
@@ -155,7 +167,7 @@ def main() -> None:
                 "metrics": result.metrics,
                 "path_actions_byte_identical": result.path_actions_byte_identical,
             }
-        inferred_result = ContextAwareRetimer().plan(chunk, inferred_context)
+        inferred_result = ContextAwareRetimer().plan(chunk, inferred_contexts)
         scenario_results["inferred_sim_context"] = {
             "accepted": inferred_result.accepted,
             "hold": inferred_result.hold,
@@ -170,24 +182,40 @@ def main() -> None:
                 inferred_result.path_actions_byte_identical
             ),
             "context": {
-                "task_phase": inferred_context.task_phase,
-                "distance_to_goal_m": inferred_context.distance_to_goal_m,
-                "minimum_clearance_m": inferred_context.minimum_clearance_m,
-                "eef_tracking_error_m": inferred_context.eef_tracking_error_m,
-                "gripper_tracking_error_rad": (
-                    inferred_context.gripper_tracking_error_rad
+                "phase_schedule": list(phase_schedule),
+                "phase_counts": {
+                    phase: phase_schedule.count(phase)
+                    for phase in sorted(set(phase_schedule))
+                },
+                "minimum_clearance_m": float(min(
+                    context.minimum_clearance_m for context in inferred_contexts
+                )),
+                "maximum_eef_tracking_error_m": float(max(
+                    context.eef_tracking_error_m for context in inferred_contexts
+                )),
+                "maximum_gripper_tracking_error_rad": float(max(
+                    context.gripper_tracking_error_rad
+                    for context in inferred_contexts
+                )),
+                "contact": any(
+                    context.contact for context in inferred_contexts
                 ),
-                "contact": inferred_context.contact,
             },
             "evidence": {
-                "task_phase": inferred_evidence.task_phase,
-                "minimum_dex_cube_clearance_m": (
-                    inferred_evidence.minimum_dex_cube_clearance_m
+                "minimum_dex_cube_clearance_m": float(min(
+                    evidence.minimum_dex_cube_clearance_m
+                    for evidence in inferred_evidence
+                )),
+                "dex_cube_contact": any(
+                    evidence.dex_cube_contact for evidence in inferred_evidence
                 ),
-                "dex_cube_contact": inferred_evidence.dex_cube_contact,
-                "gripper_error_rad": list(inferred_evidence.gripper_error_rad),
-                "joint_limit_margin_rad": inferred_evidence.joint_limit_margin_rad,
-                "pelvis_stability": inferred_evidence.pelvis_stability,
+                "joint_limit_margin_rad": float(min(
+                    evidence.joint_limit_margin_rad
+                    for evidence in inferred_evidence
+                )),
+                "pelvis_stability": float(min(
+                    evidence.pelvis_stability for evidence in inferred_evidence
+                )),
             },
         }
         records.append({
