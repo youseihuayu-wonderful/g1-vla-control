@@ -16,7 +16,10 @@ from camera_calibration_search_v2 import _lighten_skybox, _wrist_quaternion
 from dex1_gripper import Dex1Controller
 from g1_mujoco_bridge import policy_state_from_mujoco
 from g1_policy_contract import IMAGE_KEYS, preprocess_rgb_image, validate_observation
-from stack_scene import CAMERA_NAMES, TASK_PROMPT, build_model, reset_to_reference_pose
+from stack_scene import (
+    CAMERA_NAMES, TASK_PROMPT, build_model, reset_to_reference_pose,
+    translate_cubes,
+)
 
 ROOT = Path(__file__).resolve().parent
 
@@ -26,6 +29,7 @@ def main() -> None:
     parser.add_argument("--calibration-report", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--evidence", type=Path, required=True)
+    parser.add_argument("--cube-x-offset-m", type=float, default=0.0)
     args = parser.parse_args()
     calibration = json.loads(args.calibration_report.read_text())
     best = {
@@ -40,6 +44,8 @@ def main() -> None:
     for _ in range(250):
         data.ctrl[:] = hold
         mujoco.mj_step(model, data)
+    cube_translation = np.array([args.cube_x_offset_m, 0.0, 0.0])
+    translate_cubes(model, data, cube_translation)
 
     high = mujoco.mj_name2id(
         model, mujoco.mjtObj.mjOBJ_CAMERA, "cam_left_high"
@@ -97,6 +103,7 @@ def main() -> None:
         calibration_report_sha256=np.asarray(
             hashlib.sha256(args.calibration_report.read_bytes()).hexdigest()
         ),
+        cube_translation_m=cube_translation,
         experimental=np.asarray(True),
         contract_eligible=np.asarray(False),
     )
@@ -112,6 +119,7 @@ def main() -> None:
         ).hexdigest(),
         "camera_parameters": best,
         "experimental": True,
+        "cube_translation_m": cube_translation.tolist(),
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,

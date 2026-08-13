@@ -17,7 +17,7 @@ from g1_policy_contract import POLICY_RATE_HZ
 from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
 from safety_governor import G1TargetPreflight
-from stack_scene import build_model, reset_to_reference_pose
+from stack_scene import build_model, reset_to_reference_pose, translate_cubes
 from swept_path_preflight import G1SweptPathPreflight
 
 ROOT = Path(__file__).resolve().parent
@@ -64,6 +64,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--chunks", type=Path, required=True)
     parser.add_argument("--semantic-report", type=Path, required=True)
+    parser.add_argument("--cube-x-offset-m", type=float, default=0.0)
     parser.add_argument(
         "--output", type=Path,
         default=ROOT / "results" / "lgg100_quarantined_preflight.json",
@@ -79,6 +80,8 @@ def main() -> None:
     model = build_model()
     source = mujoco.MjData(model)
     reset_to_reference_pose(model, source)
+    cube_translation = np.array([args.cube_x_offset_m, 0.0, 0.0])
+    translate_cubes(model, source, cube_translation)
     pelvis = mujoco.mj_name2id(model, mujoco.mjtObj.mjOBJ_BODY, "pelvis")
     gate = G1TargetPreflight(model)
     swept_gate = G1SweptPathPreflight(model)
@@ -203,6 +206,7 @@ def main() -> None:
     report = {
         "scope": "Diagnostic IK/collision preflight of quarantined real LGG100 chunks; no dynamics or hardware execution.",
         "source_chunks": str(args.chunks),
+        "cube_translation_m": cube_translation.tolist(),
         "source_chunks_sha256": hashlib.sha256(args.chunks.read_bytes()).hexdigest(),
         "semantic_report_sha256": hashlib.sha256(
             args.semantic_report.read_bytes()

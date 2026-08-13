@@ -19,7 +19,9 @@ from safety_governor import (
     G1TargetPreflight, JerkLimitedActionFilter, JerkLimitedJointFilter,
     JointMotionEnvelope, MotionEnvelope, manipulator_contact_violations,
 )
-from stack_scene import build_model, reset_to_reference_pose, reset_to_stand
+from stack_scene import (
+    build_model, reset_to_reference_pose, reset_to_stand, translate_cubes,
+)
 
 ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "results"
@@ -65,10 +67,13 @@ def _run_scale(
     use_joint_filter: bool = False,
     phase_schedule: tuple[str, ...] | list[str] | None = None,
     abort_on_phase_aware_contact: bool = False,
+    cube_translation_m: np.ndarray | None = None,
 ) -> dict:
     model = build_model()
     data = mujoco.MjData(model)
     reset_to_reference_pose(model, data)
+    if cube_translation_m is not None:
+        translate_cubes(model, data, cube_translation_m)
     hold_control = data.ctrl.copy()
     solver = G1DualArmIK(model, data)
     solver.reset()
@@ -351,6 +356,11 @@ def _run_scale(
     ) if use_joint_filter else False
     return {
         "scale": scale,
+        "cube_translation_m": (
+            [0.0, 0.0, 0.0]
+            if cube_translation_m is None
+            else np.asarray(cube_translation_m, dtype=np.float64).tolist()
+        ),
         "filter_enabled": use_filter,
         "joint_filter_enabled": use_joint_filter,
         "nominal_path_duration_s": path_duration,

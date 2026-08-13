@@ -8,7 +8,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from stack_scene import (
-    build_model, reset_to_stand, reset_to_reference_pose,
+    build_model, reset_to_stand, reset_to_reference_pose, translate_cubes,
     CAMERA_NAMES, REFERENCE_EP0_STATE,
 )
 from dex1_gripper import (
@@ -130,6 +130,25 @@ class StackSceneTests(unittest.TestCase):
                 ),
                 command,
             )
+
+    def test_explicit_cube_translation_preserves_relative_layout(self):
+        data = mujoco.MjData(self.model)
+        reset_to_reference_pose(self.model, data)
+        before = []
+        for color in ("red", "blue", "yellow"):
+            body = mujoco.mj_name2id(
+                self.model, mujoco.mjtObj.mjOBJ_BODY, f"{color}_cube"
+            )
+            before.append(data.xpos[body].copy())
+        translation = np.array([0.12, -0.03, 0.01])
+        translate_cubes(self.model, data, translation)
+        after = []
+        for color in ("red", "blue", "yellow"):
+            body = mujoco.mj_name2id(
+                self.model, mujoco.mjtObj.mjOBJ_BODY, f"{color}_cube"
+            )
+            after.append(data.xpos[body].copy())
+        np.testing.assert_allclose(np.asarray(after) - np.asarray(before), translation)
 
     def test_robot_and_cubes_remain_stable(self):
         reset_to_stand(self.model, self.data)

@@ -18,7 +18,7 @@ from g1_policy_contract import POLICY_RATE_HZ
 from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
 from retiming_safety_validation import _run_scale
-from stack_scene import build_model, reset_to_reference_pose
+from stack_scene import build_model, reset_to_reference_pose, translate_cubes
 
 ROOT = Path(__file__).resolve().parent
 
@@ -28,6 +28,7 @@ def main() -> None:
     parser.add_argument("--chunks", type=Path, required=True)
     parser.add_argument("--semantic-report", type=Path, required=True)
     parser.add_argument("--preflight-report", type=Path, required=True)
+    parser.add_argument("--cube-x-offset-m", type=float, default=0.0)
     parser.add_argument(
         "--output", type=Path,
         default=ROOT / "results" / "lgg100_quarantined_sim_diagnostic.json",
@@ -38,6 +39,14 @@ def main() -> None:
         raise SystemExit("Explicit diagnostic acknowledgement is required")
     semantics = json.loads(args.semantic_report.read_text())
     preflight = json.loads(args.preflight_report.read_text())
+    cube_translation = np.array([args.cube_x_offset_m, 0.0, 0.0])
+    if not np.allclose(
+        preflight.get("cube_translation_m", [0.0, 0.0, 0.0]),
+        cube_translation,
+        rtol=0.0,
+        atol=1e-12,
+    ):
+        raise ValueError("Preflight scene translation does not match simulation")
     if semantics.get("semantic_identification_supported") is not True:
         raise ValueError("Semantic identification is not passing")
     if semantics.get("g1_contract_verified") is not False:
@@ -53,6 +62,7 @@ def main() -> None:
     model = build_model()
     source = mujoco.MjData(model)
     reset_to_reference_pose(model, source)
+    translate_cubes(model, source, cube_translation)
     measured_grippers = Dex1Controller(model).motor_states(source)
     records: list[dict] = []
     for index, raw in enumerate(raw_chunks):
@@ -174,12 +184,14 @@ def main() -> None:
             use_filter=True, use_joint_filter=True,
             phase_schedule=phase_schedule,
             abort_on_phase_aware_contact=True,
+            cube_translation_m=cube_translation,
         )
         guarded = _run_scale(
             retiming.chunk, measured_grippers, scale=1.0,
             use_filter=True, use_joint_filter=True,
             phase_schedule=phase_schedule,
             abort_on_phase_aware_contact=True,
+            cube_translation_m=cube_translation,
         )
         candidate_passed = bool(
             baseline["hard_command_limits_pass"]
@@ -249,6 +261,7 @@ def main() -> None:
     executed = [record for record in records if record["execution_performed"]]
     report = {
         "scope": "Quarantined single-chunk MuJoCo dynamics diagnostic; never G1 hardware and not task success.",
+        "cube_translation_m": cube_translation.tolist(),
         "source_chunks_sha256": hashlib.sha256(args.chunks.read_bytes()).hexdigest(),
         "semantic_report_sha256": hashlib.sha256(
             args.semantic_report.read_bytes()

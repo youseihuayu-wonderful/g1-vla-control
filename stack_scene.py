@@ -236,6 +236,26 @@ def reset_to_stand(model: mujoco.MjModel, data: mujoco.MjData) -> None:
     mujoco.mj_forward(model, data)
 
 
+def translate_cubes(
+    model: mujoco.MjModel,
+    data: mujoco.MjData,
+    translation_m: np.ndarray,
+) -> None:
+    """Translate all three free cube poses for explicit scene randomization."""
+    translation = np.asarray(translation_m, dtype=np.float64)
+    if translation.shape != (3,) or not np.all(np.isfinite(translation)):
+        raise ValueError("cube translation must contain three finite values")
+    for color in ("red", "blue", "yellow"):
+        joint = mujoco.mj_name2id(
+            model, mujoco.mjtObj.mjOBJ_JOINT, f"{color}_cube_free"
+        )
+        if joint < 0:
+            raise ValueError(f"Missing {color} cube free joint")
+        qpos = int(model.jnt_qposadr[joint])
+        data.qpos[qpos:qpos + 3] += translation
+    mujoco.mj_forward(model, data)
+
+
 def reset_to_reference_pose(model: mujoco.MjModel, data: mujoco.MjData) -> None:
     """Reset to the synchronized first state of public dataset episode 0."""
     reset_to_stand(model, data)
