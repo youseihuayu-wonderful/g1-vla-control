@@ -47,6 +47,15 @@ class ActionSchemaTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             EEFActionChunk(np.array([0.0, 1.0]), np.zeros((2, 15)))
 
+    def test_repeated_chunk_construction_preserves_canonical_actions_bytewise(self):
+        timestamps = np.arange(3, dtype=np.float64) / 30.0
+        actions = np.zeros((3, 16), dtype=np.float64)
+        actions[:, 3:7] = np.array([0.1, -0.2, 0.3, 0.9])
+        actions[:, 10:14] = np.array([-0.2, 0.3, 0.1, 0.9])
+        first = EEFActionChunk(timestamps, actions)
+        second = EEFActionChunk(first.timestamps, first.actions)
+        np.testing.assert_array_equal(second.actions, first.actions)
+
 
 class RetimerTests(unittest.TestCase):
     def setUp(self):

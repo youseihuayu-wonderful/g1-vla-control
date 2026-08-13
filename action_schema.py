@@ -116,8 +116,16 @@ class EEFActionChunk:
             raise ValueError("timestamps must be strictly increasing")
         actions = actions.copy()
         for index in range(len(actions)):
-            actions[index, LEFT_QUAT] = normalize_quaternion(actions[index, LEFT_QUAT])
-            actions[index, RIGHT_QUAT] = normalize_quaternion(actions[index, RIGHT_QUAT])
+            for quaternion_slice in (LEFT_QUAT, RIGHT_QUAT):
+                quaternion = actions[index, quaternion_slice]
+                norm = float(np.linalg.norm(quaternion))
+                if norm < 1e-9:
+                    raise ValueError("Quaternion norm is zero")
+                # Preserve already-canonical samples byte-for-byte. This makes
+                # repeated chunk construction idempotent while still
+                # canonicalizing genuinely non-unit inputs at the boundary.
+                if abs(norm - 1.0) > 1e-12:
+                    actions[index, quaternion_slice] = quaternion / norm
         object.__setattr__(self, "timestamps", timestamps)
         object.__setattr__(self, "actions", actions)
 
