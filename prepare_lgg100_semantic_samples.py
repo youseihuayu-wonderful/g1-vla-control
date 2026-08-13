@@ -40,17 +40,24 @@ def _download(relative_path: str, cache: Path) -> Path:
 
 
 def _decode_selected_frames(path: Path, indices: set[int]) -> dict[int, np.ndarray]:
-    try:
-        import av
-    except ImportError as exc:
-        raise RuntimeError("Install PyAV in the G1 simulation environment") from exc
+    """Decode only selected RGB frames with the bundled imageio-ffmpeg binary."""
+    import imageio_ffmpeg
+
+    reader = imageio_ffmpeg.read_frames(str(path), pix_fmt="rgb24")
+    metadata = next(reader)
+    width, height = metadata["size"]
     selected: dict[int, np.ndarray] = {}
-    with av.open(str(path)) as container:
-        for index, frame in enumerate(container.decode(video=0)):
+    try:
+        for index, frame_bytes in enumerate(reader):
             if index in indices:
-                selected[index] = frame.to_ndarray(format="rgb24")
+                frame = np.frombuffer(frame_bytes, dtype=np.uint8).reshape(
+                    height, width, 3
+                )
+                selected[index] = frame.copy()
             if len(selected) == len(indices):
                 break
+    finally:
+        reader.close()
     missing = sorted(indices - set(selected))
     if missing:
         raise RuntimeError(f"Video {path} is missing frames {missing}")
