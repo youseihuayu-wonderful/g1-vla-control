@@ -8,12 +8,16 @@ import hashlib
 import json
 from pathlib import Path
 
+import mujoco
 import numpy as np
 
 from action_schema import EEFActionChunk
 from adaptive_speed_context import AdaptiveSafetyContext, ContextAwareRetimer
+from dex1_gripper import Dex1Controller
 from g1_policy_contract import POLICY_RATE_HZ
+from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
+from stack_scene import build_model, reset_to_reference_pose
 
 ROOT = Path(__file__).resolve().parent
 
@@ -47,6 +51,7 @@ def main() -> None:
     parser.add_argument("--chunks", type=Path, required=True)
     parser.add_argument("--observation", type=Path, required=True)
     parser.add_argument("--semantic-report", type=Path, required=True)
+    parser.add_argument("--preflight-report", type=Path, required=True)
     parser.add_argument(
         "--output", type=Path,
         default=ROOT / "results" / "lgg100_speed_context_diagnostic.json",
@@ -56,8 +61,15 @@ def main() -> None:
     if semantic.get("semantic_identification_supported") is not True:
         raise ValueError("Semantic identification must pass before this diagnostic")
     raw_chunks = _load_chunks(args.chunks)
+    preflight = json.loads(args.preflight_report.read_text())
+    if preflight.get("execution_performed") is not False:
+        raise ValueError("Expected a diagnostic-only preflight report")
     with np.load(args.observation, allow_pickle=False) as payload:
         state = np.asarray(payload["state"], dtype=np.float64)
+    model = build_model()
+    source = mujoco.MjData(model)
+    reset_to_reference_pose(model, source)
+    measured_grippers = Dex1Controller(model).motor_states(source)
 
     scenarios = {
         "safe_free_space": lambda distance: _context("free_space", distance),
@@ -95,6 +107,38 @@ def main() -> None:
             np.linalg.norm(actions[:, 0:3] - actions[-1, 0:3], axis=1),
             np.linalg.norm(actions[:, 7:10] - actions[-1, 7:10], axis=1),
         )
+        inferred_context, inferred_evidence = build_simulation_speed_context(
+            model,
+            source,
+            commanded_grippers_rad=actions[0, 14:16],
+            measured_grippers_rad=measured_grippers,
+            eef_tracking_error_m=float(initial_jump),
+            observation_age_ms=20.0,
+            policy_response_age_ms=90.0,
+            preflight_passed=True,
+            collision_free=True,
+            command_limits_passed=True,
+        )
+        preflight_phase = {
+            "free_space": "free_space",
+            "approach": "free_space",
+            "grasp": "grasp",
+            "lift": "grasp",
+            "place": "place",
+            "retreat": "free_space",
+        }[inferred_context.task_phase]
+        try:
+            preflight_passed = bool(
+                preflight["chunks"][index]["phase_views"][preflight_phase][
+                    "all_accepted"
+                ]
+            )
+        except (IndexError, KeyError, TypeError) as exc:
+            raise ValueError("Preflight report does not match source chunks") from exc
+        if not preflight_passed:
+            raise ValueError(
+                f"Chunk {index} did not pass {preflight_phase} preflight"
+            )
         scenario_results: dict[str, dict] = {}
         for name, context_factory in scenarios.items():
             contexts = [context_factory(float(distance)) for distance in distances]
@@ -111,6 +155,41 @@ def main() -> None:
                 "metrics": result.metrics,
                 "path_actions_byte_identical": result.path_actions_byte_identical,
             }
+        inferred_result = ContextAwareRetimer().plan(chunk, inferred_context)
+        scenario_results["inferred_sim_context"] = {
+            "accepted": inferred_result.accepted,
+            "hold": inferred_result.hold,
+            "reasons": list(inferred_result.reasons),
+            "scale_range": [
+                float(inferred_result.scale_profile.min()),
+                float(inferred_result.scale_profile.max()),
+            ],
+            "duration_s": inferred_result.metrics.get("duration_s"),
+            "metrics": inferred_result.metrics,
+            "path_actions_byte_identical": (
+                inferred_result.path_actions_byte_identical
+            ),
+            "context": {
+                "task_phase": inferred_context.task_phase,
+                "distance_to_goal_m": inferred_context.distance_to_goal_m,
+                "minimum_clearance_m": inferred_context.minimum_clearance_m,
+                "eef_tracking_error_m": inferred_context.eef_tracking_error_m,
+                "gripper_tracking_error_rad": (
+                    inferred_context.gripper_tracking_error_rad
+                ),
+                "contact": inferred_context.contact,
+            },
+            "evidence": {
+                "task_phase": inferred_evidence.task_phase,
+                "minimum_dex_cube_clearance_m": (
+                    inferred_evidence.minimum_dex_cube_clearance_m
+                ),
+                "dex_cube_contact": inferred_evidence.dex_cube_contact,
+                "gripper_error_rad": list(inferred_evidence.gripper_error_rad),
+                "joint_limit_margin_rad": inferred_evidence.joint_limit_margin_rad,
+                "pelvis_stability": inferred_evidence.pelvis_stability,
+            },
+        }
         records.append({
             "chunk": index,
             "available": True,
@@ -130,11 +209,15 @@ def main() -> None:
         and record["scenarios"]["contact"]["accepted"]
         and record["scenarios"]["stale"]["hold"]
         and record["scenarios"]["unknown_phase"]["hold"]
+        and record["scenarios"]["inferred_sim_context"]["accepted"]
         for record in records
     )
     report = {
         "scope": "Fail-closed speed-context diagnostic on quarantined real LGG100 chunks; no dynamics or hardware execution.",
         "source_sha256": hashlib.sha256(args.chunks.read_bytes()).hexdigest(),
+        "preflight_report_sha256": hashlib.sha256(
+            args.preflight_report.read_bytes()
+        ).hexdigest(),
         "semantic_identification_supported": True,
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
