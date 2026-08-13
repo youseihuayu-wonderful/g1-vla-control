@@ -25,8 +25,8 @@ from g1_policy_contract import (
     CONTRACT_SHA256,
     POLICY_RATE_HZ,
     contract_metadata,
-    validate_action_chunk,
 )
+from neural_action_audit import audit_neural_action_chunk
 
 ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "results"
@@ -122,13 +122,26 @@ def main() -> None:
             latencies.append(latency_ms)
             contract_valid = False
             contract_error = None
+            bounded_normalization_passed = False
+            normalization_applied = False
+            maximum_quaternion_adjustment = None
+            canonicalized_sha256 = None
             if finite and shape_ok:
                 chunks.append(actions.copy())
-                try:
-                    validate_action_chunk(actions, expected_horizon=ACTION_HORIZON)
-                    contract_valid = True
-                except ValueError as exc:
-                    contract_error = str(exc)
+                audit = audit_neural_action_chunk(
+                    actions, expected_horizon=ACTION_HORIZON
+                )
+                contract_valid = audit.raw_contract_passed
+                bounded_normalization_passed = (
+                    audit.bounded_quaternion_normalization_passed
+                )
+                normalization_applied = audit.normalization_applied
+                maximum_quaternion_adjustment = (
+                    audit.maximum_quaternion_component_adjustment
+                )
+                canonicalized_sha256 = audit.canonicalized_sha256
+                if not contract_valid:
+                    contract_error = "; ".join(audit.reasons)
             left_norm = np.linalg.norm(actions[:, 3:7], axis=1) if shape_ok else np.array([])
             right_norm = np.linalg.norm(actions[:, 10:14], axis=1) if shape_ok else np.array([])
             records.append({
@@ -139,6 +152,10 @@ def main() -> None:
                 "valid_16d_chunk": shape_ok,
                 "g1_action_contract_valid": contract_valid,
                 "g1_action_contract_error": contract_error,
+                "bounded_quaternion_normalization_for_analysis_passed": bounded_normalization_passed,
+                "quaternion_normalization_applied_for_analysis": normalization_applied,
+                "maximum_quaternion_component_adjustment": maximum_quaternion_adjustment,
+                "canonicalized_action_sha256": canonicalized_sha256,
                 "action_min": float(actions.min()) if actions.size else None,
                 "action_max": float(actions.max()) if actions.size else None,
                 "left_quaternion_norm_range": [float(left_norm.min()), float(left_norm.max())] if left_norm.size else None,
@@ -167,6 +184,10 @@ def main() -> None:
     )
     output_contract_valid_calls = sum(
         bool(record.get("g1_action_contract_valid")) for record in records
+    )
+    bounded_normalization_calls = sum(
+        bool(record.get("bounded_quaternion_normalization_for_analysis_passed"))
+        for record in records
     )
     neural_output_passed = bool(
         strict_neural_restore
@@ -213,13 +234,14 @@ def main() -> None:
             "calls": args.calls,
             "valid_calls": valid_calls,
             "output_contract_valid_calls": output_contract_valid_calls,
+            "bounded_normalization_for_analysis_calls": bounded_normalization_calls,
             "warmup_errors": warmup_errors,
             "unique_action_shapes": [list(shape) for shape in sorted(shapes)],
             "latency_ms": latency_summary,
         },
         "calls": records,
         "verdict": (
-            "Neural output passed, but shape/quaternion/Dex1 structural validation failed. Do not save or execute a chunk."
+            "Neural output passed, but strict structural validation failed. A quarantined raw/analysis artifact is saved; do not execute it."
             if neural_output_passed and not structural_output_passed else
             "Neural and structural output passed, but semantics are not verified against the frozen G1 EDU contract. Keep output-only; simulation and hardware remain blocked."
             if structural_output_passed and not g1_sim_eligible else
@@ -233,24 +255,33 @@ def main() -> None:
     print(args.output)
     print(json.dumps(report["summary"], indent=2))
 
-    if structural_output_passed:
+    if neural_output_passed and chunks:
         selected = chunks[0]
-        timestamps = np.arange(len(selected), dtype=np.float64) / args.action_rate_hz
-        args.chunk_output.parent.mkdir(parents=True, exist_ok=True)
-        np.savez_compressed(
-            args.chunk_output,
-            actions=selected,
-            timestamps=timestamps,
-            observation_state=np.asarray(observation["observation/state"]),
-            action_sha256=np.asarray(hashlib.sha256(selected.tobytes()).hexdigest()),
-            hf_revision=np.asarray(HF_REVISION),
-            g1_policy_contract_id=np.asarray(CONTRACT_ID),
-            g1_policy_contract_sha256=np.asarray(CONTRACT_SHA256),
-            g1_sim_eligible=np.asarray(g1_sim_eligible),
-            source_report=np.asarray(str(args.output)),
+        selected_audit = audit_neural_action_chunk(
+            selected, expected_horizon=ACTION_HORIZON
         )
+        timestamps = np.arange(len(selected), dtype=np.float64) / args.action_rate_hz
+        payload = {
+            "actions": selected,
+            "timestamps": timestamps,
+            "observation_state": np.asarray(observation["observation/state"]),
+            "action_sha256": np.asarray(hashlib.sha256(selected.tobytes()).hexdigest()),
+            "hf_revision": np.asarray(HF_REVISION),
+            "g1_policy_contract_id": np.asarray(CONTRACT_ID),
+            "g1_policy_contract_sha256": np.asarray(CONTRACT_SHA256),
+            "g1_sim_eligible": np.asarray(g1_sim_eligible),
+            "executable": np.asarray(False),
+            "quarantined": np.asarray(not g1_sim_eligible),
+            "source_report": np.asarray(str(args.output)),
+        }
+        if selected_audit.canonicalized_actions_for_analysis is not None:
+            payload["canonicalized_actions_for_analysis"] = (
+                selected_audit.canonicalized_actions_for_analysis
+            )
+        args.chunk_output.parent.mkdir(parents=True, exist_ok=True)
+        np.savez_compressed(args.chunk_output, **payload)
         print(args.chunk_output)
-    else:
+    if not structural_output_passed:
         raise SystemExit(1)
 
 

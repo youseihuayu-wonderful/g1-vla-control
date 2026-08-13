@@ -68,8 +68,8 @@ def _stats(values: np.ndarray) -> dict[str, list[float]]:
     }
 
 
-def _fk_transform(values: np.ndarray) -> np.ndarray:
-    """Reconstruct the suspected training EEF transform from raw arm joints."""
+def _fk_transform(values: np.ndarray, eef_offset_m: float = 0.050) -> np.ndarray:
+    """Reconstruct a candidate pelvis-frame EEF transform from raw arm joints."""
     model = build_model()
     data = mujoco.MjData(model)
     reset_to_stand(model, data)
@@ -87,7 +87,9 @@ def _fk_transform(values: np.ndarray) -> np.ndarray:
         for side in ("left", "right")
     ]
     output = np.empty_like(values, dtype=np.float64)
-    offset = np.array([0.050, 0.0, 0.0])
+    if not np.isfinite(eef_offset_m):
+        raise ValueError("eef_offset_m must be finite")
+    offset = np.array([eef_offset_m, 0.0, 0.0])
     for row, source in zip(output, values, strict=True):
         data.qpos[addresses] = source[:14]
         mujoco.mj_kinematics(model, data)
