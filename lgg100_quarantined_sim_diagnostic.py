@@ -173,16 +173,20 @@ def main() -> None:
             chunk, measured_grippers, scale=1.0,
             use_filter=True, use_joint_filter=True,
             phase_schedule=phase_schedule,
+            abort_on_phase_aware_contact=True,
         )
         guarded = _run_scale(
             retiming.chunk, measured_grippers, scale=1.0,
             use_filter=True, use_joint_filter=True,
             phase_schedule=phase_schedule,
+            abort_on_phase_aware_contact=True,
         )
         candidate_passed = bool(
             baseline["hard_command_limits_pass"]
             and guarded["hard_command_limits_pass"]
             and guarded["finite"]
+            and not baseline["aborted_on_phase_aware_contact"]
+            and not guarded["aborted_on_phase_aware_contact"]
             and guarded["endpoint_error_m"] <= baseline["endpoint_error_m"] + 0.005
             and guarded["phase_aware_contact_step_rate"] == 0.0
             and guarded["maxima"]["actual_joint_jerk_rad_s3"]

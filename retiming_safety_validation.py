@@ -64,6 +64,7 @@ def _run_scale(
     use_filter: bool,
     use_joint_filter: bool = False,
     phase_schedule: tuple[str, ...] | list[str] | None = None,
+    abort_on_phase_aware_contact: bool = False,
 ) -> dict:
     model = build_model()
     data = mujoco.MjData(model)
@@ -134,12 +135,15 @@ def _run_scale(
     phase_aware_contact_reasons: Counter = Counter()
     phase_step_counts: Counter = Counter()
     first_phase_aware_contact_event: dict = {}
+    aborted_on_phase_aware_contact = False
     minimum_pelvis = float(data.xpos[pelvis, 2])
     step_count = int(np.ceil(total_duration / dt))
     command = initial.copy()
     desired = initial.copy()
     worst_actual_jerk_event: dict = {}
+    executed_step_count = 0
     for step in range(step_count):
+        executed_step_count = step + 1
         elapsed = step * dt
         path_time = min(float(chunk.timestamps[-1]), elapsed * scale)
         desired_pelvis = chunk.sample(path_time)
@@ -323,6 +327,9 @@ def _run_scale(
         previous_joint_command_acceleration = joint_command_acceleration
         previous_arm_velocity = arm_velocity
         previous_arm_acceleration = arm_acceleration
+        if abort_on_phase_aware_contact and phase_aware_violations:
+            aborted_on_phase_aware_contact = True
+            break
 
     left_final = solver.pose("left")
     right_final = solver.pose("right")
@@ -347,7 +354,7 @@ def _run_scale(
         "filter_enabled": use_filter,
         "joint_filter_enabled": use_joint_filter,
         "nominal_path_duration_s": path_duration,
-        "simulated_duration_s": step_count * dt,
+        "simulated_duration_s": executed_step_count * dt,
         "hard_command_limits_pass": bool(
             hard_limits_pass and (joint_hard_limits_pass if use_joint_filter else True)
         ),
@@ -355,19 +362,22 @@ def _run_scale(
         "joint_hard_limits_pass": joint_hard_limits_pass,
         "endpoint_error_m": endpoint_error,
         "minimum_pelvis_height_m": minimum_pelvis,
-        "forbidden_contact_step_rate": contact_steps_manipulation / step_count,
-        "free_space_contact_step_rate": contact_steps_free_space / step_count,
-        "manipulation_contact_step_rate": contact_steps_manipulation / step_count,
+        "forbidden_contact_step_rate": contact_steps_manipulation / executed_step_count,
+        "free_space_contact_step_rate": contact_steps_free_space / executed_step_count,
+        "manipulation_contact_step_rate": contact_steps_manipulation / executed_step_count,
         "free_space_contact_reason_counts": dict(free_space_contact_reasons),
         "manipulation_contact_reason_counts": dict(manipulation_contact_reasons),
         "phase_schedule_enabled": phase_schedule is not None,
         "phase_aware_contact_step_rate": (
-            phase_aware_contact_steps / step_count
+            phase_aware_contact_steps / executed_step_count
             if phase_schedule is not None else None
         ),
         "phase_aware_contact_reason_counts": dict(phase_aware_contact_reasons),
         "phase_step_counts": dict(phase_step_counts),
         "first_phase_aware_contact_event": first_phase_aware_contact_event,
+        "abort_on_phase_aware_contact_enabled": abort_on_phase_aware_contact,
+        "aborted_on_phase_aware_contact": aborted_on_phase_aware_contact,
+        "executed_step_count": executed_step_count,
         "finite": bool(np.all(np.isfinite(data.qpos)) and np.all(np.isfinite(data.qvel))),
         "worst_actual_joint_jerk_event": worst_actual_jerk_event,
         "maxima": maxima,
