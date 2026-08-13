@@ -76,6 +76,13 @@ def validate_scenario(
         reasons.append("preflight_scene_translation_mismatch")
     if preflight.get("source_chunks_sha256") != output_hash:
         reasons.append("preflight_source_hash_mismatch")
+    observation_binding = preflight.get("observation_binding") or {}
+    if observation_binding.get("accepted") is not True:
+        reasons.append("preflight_observation_binding_missing_or_failed")
+    if observation_binding.get("maximum_state_error", np.inf) > 1e-6:
+        reasons.append("preflight_observation_state_mismatch")
+    if observation_binding.get("cube_translation_matches") is not True:
+        reasons.append("preflight_observation_scene_mismatch")
     if not _false_safety_flags(preflight):
         reasons.append("preflight_safety_flags_not_false")
     preflight_summary = preflight.get("summary", {})
@@ -225,6 +232,7 @@ def main() -> None:
         "monotonic_clearance": monotonic_clearance,
         "controlled_phase_speed_behavior_passed": passed,
         "semantic_interpretation_supported": True,
+        "observation_execution_initial_state_bound": passed,
         "physical_scene_calibration_verified": False,
         "policy_task_quality_passed": False,
         "task_success_claimed": False,

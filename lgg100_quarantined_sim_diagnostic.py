@@ -39,6 +39,9 @@ def main() -> None:
         raise SystemExit("Explicit diagnostic acknowledgement is required")
     semantics = json.loads(args.semantic_report.read_text())
     preflight = json.loads(args.preflight_report.read_text())
+    binding = preflight.get("observation_binding")
+    if binding is None or binding.get("accepted") is not True:
+        raise ValueError("Preflight does not contain a passing observation binding")
     cube_translation = np.array([args.cube_x_offset_m, 0.0, 0.0])
     if not np.allclose(
         preflight.get("cube_translation_m", [0.0, 0.0, 0.0]),

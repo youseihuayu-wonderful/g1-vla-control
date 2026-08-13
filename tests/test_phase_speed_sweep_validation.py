@@ -45,6 +45,11 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
         preflight_path.write_text(json.dumps({
             "cube_translation_m": [offset, 0.0, 0.0],
             "source_chunks_sha256": sha256(artifact),
+            "observation_binding": {
+                "accepted": True,
+                "maximum_state_error": 0.0,
+                "cube_translation_matches": True,
+            },
             "summary": {
                 "bounded_analysis_chunks": 1,
                 "inferred_schedule_swept_paths_accepted": 1,
@@ -105,6 +110,28 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
         self.assertTrue(near["accepted"])
         self.assertTrue(mixed["accepted"])
         self.assertTrue(far["accepted"])
+
+    def test_missing_observation_binding_fails_closed(self):
+        record = self.scenario(
+            "near", 0.08, 0.05, {"approach": 50}, [0.5, 0.5], 2.0
+        )
+        self.assertTrue(record["accepted"])
+        preflight_path = self.root / "near-preflight.json"
+        payload = json.loads(preflight_path.read_text())
+        del payload["observation_binding"]
+        preflight_path.write_text(json.dumps(payload))
+        dynamics_path = self.root / "near-dynamics.json"
+        dynamics = json.loads(dynamics_path.read_text())
+        dynamics["preflight_report_sha256"] = sha256(preflight_path)
+        dynamics_path.write_text(json.dumps(dynamics))
+        record = validate_scenario(
+            "near", 0.08, self.root / "near-ensemble.json",
+            preflight_path, dynamics_path,
+        )
+        self.assertFalse(record["accepted"])
+        self.assertIn(
+            "preflight_observation_binding_missing_or_failed", record["reasons"]
+        )
 
     def test_far_scenario_must_reduce_chunk_duration(self):
         far = self.scenario(

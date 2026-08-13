@@ -40,10 +40,9 @@ def main() -> None:
     _lighten_skybox(model)
     data = mujoco.MjData(model)
     reset_to_reference_pose(model, data)
-    hold = data.ctrl.copy()
-    for _ in range(250):
-        data.ctrl[:] = hold
-        mujoco.mj_step(model, data)
+    # Preserve the exact synchronized public episode-0 t=0 robot state. The
+    # preflight and dynamics gates start from this same state; settling here
+    # would make policy observation and execution initial conditions diverge.
     cube_translation = np.array([args.cube_x_offset_m, 0.0, 0.0])
     translate_cubes(model, data, cube_translation)
 
@@ -119,6 +118,8 @@ def main() -> None:
         ).hexdigest(),
         "camera_parameters": best,
         "experimental": True,
+        "simulation_time_s": float(data.time),
+        "initial_state_contract": "public_episode_0_exact_t0_without_settling",
         "cube_translation_m": cube_translation.tolist(),
         "g1_contract_verified": False,
         "g1_sim_eligible": False,

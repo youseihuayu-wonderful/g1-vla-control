@@ -200,10 +200,8 @@ def main() -> None:
     camera_parameters = apply_experimental_camera_calibration(model, calibration)
     data = mujoco.MjData(model)
     reset_to_reference_pose(model, data)
-    hold = data.ctrl.copy()
-    for _ in range(250):
-        data.ctrl[:] = hold
-        mujoco.mj_step(model, data)
+    # Match the exact public episode-0 t=0 state used by observation generation,
+    # target preflight, swept preflight, and the persistent dynamics executor.
     cube_translation = np.array([args.cube_x_offset_m, 0.0, 0.0])
     translate_cubes(model, data, cube_translation)
     executor = QuarantinedChunkExecutor(model, data)

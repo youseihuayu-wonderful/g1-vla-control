@@ -13,6 +13,7 @@ import numpy as np
 
 from action_schema import EEFActionChunk, pelvis_vla_action_to_world_mujoco
 from dex1_gripper import Dex1Controller
+from g1_mujoco_bridge import policy_state_from_mujoco
 from g1_policy_contract import POLICY_RATE_HZ
 from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
@@ -65,6 +66,7 @@ def main() -> None:
     parser.add_argument("--chunks", type=Path, required=True)
     parser.add_argument("--semantic-report", type=Path, required=True)
     parser.add_argument("--cube-x-offset-m", type=float, default=0.0)
+    parser.add_argument("--observation", type=Path)
     parser.add_argument(
         "--output", type=Path,
         default=ROOT / "results" / "lgg100_quarantined_preflight.json",
@@ -86,6 +88,29 @@ def main() -> None:
     gate = G1TargetPreflight(model)
     swept_gate = G1SweptPathPreflight(model)
     measured_grippers = Dex1Controller(model).motor_states(source)
+    source_state = policy_state_from_mujoco(
+        model, source, measured_grippers
+    ).astype(np.float64)
+    observation_binding = None
+    if args.observation is not None:
+        with np.load(args.observation, allow_pickle=False) as payload:
+            observation_state = np.asarray(payload["state"], dtype=np.float64)
+            observation_translation = np.asarray(
+                payload["cube_translation_m"], dtype=np.float64
+            )
+        state_error = float(np.max(np.abs(observation_state - source_state)))
+        translation_matches = bool(np.allclose(
+            observation_translation, cube_translation, rtol=0.0, atol=1e-12
+        ))
+        observation_binding = {
+            "path": str(args.observation),
+            "sha256": hashlib.sha256(args.observation.read_bytes()).hexdigest(),
+            "maximum_state_error": state_error,
+            "cube_translation_matches": translation_matches,
+            "accepted": bool(state_error <= 1e-6 and translation_matches),
+        }
+        if not observation_binding["accepted"]:
+            raise ValueError("Observation state/scene does not match preflight source")
     chunk_records: list[dict] = []
     for chunk_index, raw in enumerate(raw_chunks):
         audit = audit_neural_action_chunk(raw)
@@ -207,6 +232,8 @@ def main() -> None:
         "scope": "Diagnostic IK/collision preflight of quarantined real LGG100 chunks; no dynamics or hardware execution.",
         "source_chunks": str(args.chunks),
         "cube_translation_m": cube_translation.tolist(),
+        "source_policy_state": source_state.tolist(),
+        "observation_binding": observation_binding,
         "source_chunks_sha256": hashlib.sha256(args.chunks.read_bytes()).hexdigest(),
         "semantic_report_sha256": hashlib.sha256(
             args.semantic_report.read_bytes()
