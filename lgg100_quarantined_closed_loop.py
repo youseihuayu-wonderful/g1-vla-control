@@ -25,6 +25,7 @@ from experimental_sim_observation import (
 from g1_policy_contract import ACTION_HORIZON, POLICY_RATE_HZ
 from g1_sim_speed_context import build_simulation_speed_context
 from lgg100_candidate_server import HF_REPO, HF_REVISION
+from local_websocket_policy_client import LocalWebsocketPolicyClient
 from neural_action_audit import audit_neural_action_chunk
 from quarantined_chunk_executor import QuarantinedChunkExecutor
 from safety_governor import G1TargetPreflight
@@ -180,15 +181,9 @@ def main() -> None:
     ):
         raise ValueError("phase-aware speed evidence is not passing and quarantined")
 
-    try:
-        from openpi_client import websocket_client_policy
-    except ImportError as exc:
-        raise SystemExit("Install the pinned OpenPI client in the simulation environment") from exc
     with socket.create_connection((args.host, args.port), timeout=5.0):
         pass
-    client = websocket_client_policy.WebsocketClientPolicy(
-        host=args.host, port=args.port
-    )
+    client = LocalWebsocketPolicyClient(host=args.host, port=args.port)
     metadata = _json_safe(client.get_server_metadata())
     strict_restore = bool(
         metadata.get("neural_checkpoint_loaded") is True
@@ -447,6 +442,7 @@ def main() -> None:
                 break
     finally:
         renderer.close()
+        client.close()
 
     final_cubes = _cube_state(model, data)
     task_success = bool(stable_success_cycles >= 3)

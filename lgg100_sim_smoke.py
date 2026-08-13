@@ -26,6 +26,7 @@ from g1_policy_contract import (
     POLICY_RATE_HZ,
     contract_metadata,
 )
+from local_websocket_policy_client import LocalWebsocketPolicyClient
 from neural_action_audit import audit_neural_action_chunk
 
 ROOT = Path(__file__).resolve().parent
@@ -80,14 +81,9 @@ def main() -> None:
     if not np.isclose(args.action_rate_hz, POLICY_RATE_HZ):
         raise SystemExit(f"G1 contract requires action rate {POLICY_RATE_HZ:g} Hz")
 
-    try:
-        from openpi_client import websocket_client_policy
-    except ImportError as exc:
-        raise SystemExit("Install pinned openpi-client; see LGG100_REAL_VLA.md") from exc
-
     with socket.create_connection((args.host, args.port), timeout=args.connect_timeout_s):
         pass
-    client = websocket_client_policy.WebsocketClientPolicy(host=args.host, port=args.port)
+    client = LocalWebsocketPolicyClient(host=args.host, port=args.port)
     metadata = _json_safe(client.get_server_metadata())
     strict_neural_restore = bool(
         metadata.get("neural_checkpoint_loaded") is True
@@ -281,6 +277,7 @@ def main() -> None:
         args.chunk_output.parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(args.chunk_output, **payload)
         print(args.chunk_output)
+    client.close()
     if not structural_output_passed:
         raise SystemExit(1)
 
