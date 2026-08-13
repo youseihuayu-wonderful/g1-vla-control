@@ -148,7 +148,10 @@ class StackSceneTests(unittest.TestCase):
                 self.model, mujoco.mjtObj.mjOBJ_BODY, f"{color}_cube"
             )
             after.append(data.xpos[body].copy())
-        np.testing.assert_allclose(np.asarray(after) - np.asarray(before), translation)
+        np.testing.assert_allclose(
+            np.asarray(after) - np.asarray(before),
+            np.broadcast_to(translation, (3, 3)),
+        )
 
     def test_robot_and_cubes_remain_stable(self):
         reset_to_stand(self.model, self.data)
