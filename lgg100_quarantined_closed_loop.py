@@ -157,6 +157,11 @@ def main() -> None:
     parser.add_argument("--call-timeout-ms", type=float, default=500.0)
     parser.add_argument("--warmup-timeout-ms", type=float, default=60_000.0)
     parser.add_argument("--adaptive", action="store_true")
+    parser.add_argument(
+        "--paused-step-synchronous-diagnostic", action="store_true",
+        help="allow wall-clock age to exceed the realtime budget only because MuJoCo is paused",
+    )
+    parser.add_argument("--online-ik-iterations", type=int, default=30)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--chunks-output", type=Path, required=True)
     parser.add_argument("--allow-quarantined-closed-loop", action="store_true")
@@ -167,6 +172,8 @@ def main() -> None:
         )
     if args.cycles < 1 or not 0.01 <= args.prefix_duration_s <= 0.25:
         raise SystemExit("cycles must be positive and prefix duration must be 0.01..0.25 s")
+    if not 10 <= args.online_ik_iterations <= 250:
+        raise SystemExit("online IK iterations must be 10..250")
 
     semantic = json.loads(args.semantic_report.read_text())
     phase_speed = json.loads(args.phase_speed_report.read_text())
@@ -206,7 +213,9 @@ def main() -> None:
     translate_cubes(model, data, cube_translation)
     executor = QuarantinedChunkExecutor(model, data)
     renderer = mujoco.Renderer(model, height=480, width=640)
-    swept_gate = G1SweptPathPreflight(model)
+    swept_gate = G1SweptPathPreflight(
+        model, ik_iterations=args.online_ik_iterations
+    )
     retimer = ContextAwareRetimer()
     initial_cubes = _cube_state(model, data)
     raw_chunks: list[np.ndarray] = []
@@ -221,15 +230,20 @@ def main() -> None:
         )
         _infer_with_timeout(client, warmup_observation, args.warmup_timeout_ms)
         for cycle in range(args.cycles):
+            observation_start = time.monotonic()
             observation, source_images = render_experimental_policy_observation(
                 model, data, renderer, camera_parameters
             )
-            observation_start = time.monotonic()
+            render_done = time.monotonic()
             try:
                 response = _infer_with_timeout(
                     client, observation, args.call_timeout_ms
                 )
-                latency_ms = (time.monotonic() - observation_start) * 1000.0
+                inference_done = time.monotonic()
+                latency_ms = (inference_done - render_done) * 1000.0
+                observation_age_after_inference_ms = (
+                    inference_done - observation_start
+                ) * 1000.0
             except Exception as exc:
                 executor.hold()
                 abort_reason = f"policy_inference_failed:{type(exc).__name__}"
@@ -251,13 +265,20 @@ def main() -> None:
                     "execution_performed": False,
                     "accepted": False,
                     "reasons": [abort_reason, *audit.reasons],
-                    "latency_ms": latency_ms,
+                    "inference_latency_ms": latency_ms,
+                    "observation_age_after_inference_ms": (
+                        observation_age_after_inference_ms
+                    ),
                 })
                 break
             analysis = audit.canonicalized_actions_for_analysis
             raw_chunks.append(actions.copy())
             analysis_chunks.append(analysis.copy())
-            if latency_ms > args.maximum_observation_age_ms:
+            if (
+                observation_age_after_inference_ms
+                > args.maximum_observation_age_ms
+                and not args.paused_step_synchronous_diagnostic
+            ):
                 executor.hold()
                 abort_reason = "observation_stale_after_inference"
                 records.append({
@@ -265,7 +286,10 @@ def main() -> None:
                     "execution_performed": False,
                     "accepted": False,
                     "reasons": [abort_reason],
-                    "latency_ms": latency_ms,
+                    "inference_latency_ms": latency_ms,
+                    "observation_age_after_inference_ms": (
+                        observation_age_after_inference_ms
+                    ),
                     "maximum_observation_age_ms": args.maximum_observation_age_ms,
                 })
                 break
@@ -286,7 +310,7 @@ def main() -> None:
                     commanded_grippers_rad=action[14:16],
                     measured_grippers_rad=measured_grippers,
                     eef_tracking_error_m=eef_tracking_error,
-                    observation_age_ms=latency_ms,
+                    observation_age_ms=observation_age_after_inference_ms,
                     policy_response_age_ms=0.0,
                     preflight_passed=True,
                     collision_free=True,
@@ -313,25 +337,49 @@ def main() -> None:
                 timestamps[:committed_count], analysis[:committed_count]
             )
             committed_phases = phases[:committed_count]
-            target_preflight = _target_preflight(
-                model, data, analysis[:committed_count], committed_phases
-            )
+            # Swept preflight includes target reachability/error checks, joint
+            # interpolation, and phase-aware collision checks. Running the
+            # standalone target gate here would duplicate the expensive IK.
+            target_preflight = {
+                "covered_by_swept_path_preflight": True,
+                "checked": committed_count,
+                "all_accepted": None,
+            }
+            preflight_start = time.monotonic()
             swept = swept_gate.check(
                 data, committed_chunk, phase=committed_phases
             )
-            if hold_reasons or not target_preflight["all_accepted"] or not swept.accepted:
+            preflight_done = time.monotonic()
+            preflight_latency_ms = (preflight_done - preflight_start) * 1000.0
+            observation_age_at_commit_ms = (
+                preflight_done - observation_start
+            ) * 1000.0
+            stale_at_commit = bool(
+                observation_age_at_commit_ms > args.maximum_observation_age_ms
+                and not args.paused_step_synchronous_diagnostic
+            )
+            if hold_reasons or not swept.accepted or stale_at_commit:
                 executor.hold()
                 abort_reason = (
                     "context_hold" if hold_reasons else
-                    "target_preflight_failed" if not target_preflight["all_accepted"]
-                    else "swept_path_preflight_failed"
+                    "swept_path_preflight_failed" if not swept.accepted
+                    else "observation_stale_at_action_commit"
                 )
                 records.append({
                     "cycle": cycle,
                     "execution_performed": False,
                     "accepted": False,
                     "reasons": [abort_reason, *hold_reasons],
-                    "latency_ms": latency_ms,
+                    "inference_latency_ms": latency_ms,
+                    "observation_age_after_inference_ms": (
+                        observation_age_after_inference_ms
+                    ),
+                    "preflight_latency_ms": preflight_latency_ms,
+                    "observation_age_at_commit_ms": observation_age_at_commit_ms,
+                    "maximum_observation_age_ms": args.maximum_observation_age_ms,
+                    "paused_step_synchronous_diagnostic": (
+                        args.paused_step_synchronous_diagnostic
+                    ),
                     "raw_sha256": audit.raw_sha256,
                     "preflight_scope": "committed_prefix_only",
                     "committed_action_count": committed_count,
@@ -358,7 +406,10 @@ def main() -> None:
                         "execution_performed": False,
                         "accepted": False,
                         "reasons": [abort_reason, *retiming.reasons],
-                        "latency_ms": latency_ms,
+                        "inference_latency_ms": latency_ms,
+                        "observation_age_after_inference_ms": (
+                            observation_age_after_inference_ms
+                        ),
                     })
                     break
                 executed_chunk = retiming.chunk
@@ -388,7 +439,16 @@ def main() -> None:
                 "execution_performed": True,
                 "accepted": execution["accepted"],
                 "reasons": execution["reasons"],
-                "latency_ms": latency_ms,
+                "inference_latency_ms": latency_ms,
+                "observation_age_after_inference_ms": (
+                    observation_age_after_inference_ms
+                ),
+                "preflight_latency_ms": preflight_latency_ms,
+                "observation_age_at_commit_ms": observation_age_at_commit_ms,
+                "maximum_observation_age_ms": args.maximum_observation_age_ms,
+                "paused_step_synchronous_diagnostic": (
+                    args.paused_step_synchronous_diagnostic
+                ),
                 "server_timing": _json_safe(response.get("server_timing", {})),
                 "raw_sha256": audit.raw_sha256,
                 "raw_contract_passed": audit.raw_contract_passed,
@@ -427,7 +487,8 @@ def main() -> None:
             records.append(record)
             print(json.dumps({
                 "cycle": cycle,
-                "latency_ms": latency_ms,
+                "inference_latency_ms": latency_ms,
+                "observation_age_at_commit_ms": observation_age_at_commit_ms,
                 "clearance_m": record["minimum_clearance_m"],
                 "phase_counts": phase_counts,
                 "execution_accepted": execution["accepted"],
@@ -472,6 +533,10 @@ def main() -> None:
         "camera_calibration_sha256": _sha256(args.camera_calibration),
         "cube_translation_m": cube_translation.tolist(),
         "adaptive_retiming_enabled": args.adaptive,
+        "paused_step_synchronous_diagnostic": (
+            args.paused_step_synchronous_diagnostic
+        ),
+        "online_ik_iterations": args.online_ik_iterations,
         "prefix_duration_s": args.prefix_duration_s,
         "requested_cycles": args.cycles,
         "completed_cycles": sum(
@@ -492,7 +557,16 @@ def main() -> None:
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,
         "hardware_execution_performed": False,
-        "real_time_watchdog_validated": False,
+        "real_time_watchdog_validated": bool(
+            not args.paused_step_synchronous_diagnostic
+            and records
+            and all(
+                record.get("execution_performed") is not True
+                or record.get("observation_age_at_commit_ms", np.inf)
+                <= args.maximum_observation_age_ms
+                for record in records
+            )
+        ),
         "verdict": (
             "Experimental geometric stack persisted for three replans, but uncalibrated scene and contract gates remain blocked."
             if task_success else
