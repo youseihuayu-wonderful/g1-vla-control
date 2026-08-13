@@ -78,6 +78,16 @@ class G1SimulationSpeedContextTests(unittest.TestCase):
         self.assertTrue(decision.hold)
         self.assertIn("gripper_error_above_hard_maximum", decision.reasons)
 
+    def test_future_closing_intent_is_not_current_tracking_error(self):
+        commanded = self.measured - 0.8
+        context, evidence = self.context(
+            commanded=commanded, gripper_tracking_error_rad=0.0
+        )
+        self.assertEqual(evidence.task_phase, "grasp")
+        decision = decide_speed(context)
+        self.assertFalse(decision.hold)
+        self.assertLessEqual(decision.target_scale, 0.5)
+
     def test_failed_preflight_or_stale_context_holds(self):
         context, _ = self.context(preflight_passed=False)
         self.assertTrue(decide_speed(context).hold)

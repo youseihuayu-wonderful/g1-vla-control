@@ -163,6 +163,9 @@ def main() -> None:
                 preflight_passed=True,
                 collision_free=True,
                 command_limits_passed=True,
+                # Future gripper targets express phase intent. Tracking error
+                # is evaluated only when a sample becomes current at runtime.
+                gripper_tracking_error_rad=0.0,
             )[0]
             for action in analysis
         ]

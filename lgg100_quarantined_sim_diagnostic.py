@@ -129,7 +129,7 @@ def main() -> None:
         ))
         contexts = []
         context_evidence = []
-        for action in actions:
+        for action_index, action in enumerate(actions):
             context, evidence = build_simulation_speed_context(
                 model,
                 source,
@@ -141,6 +141,10 @@ def main() -> None:
                 preflight_passed=True,
                 collision_free=True,
                 command_limits_passed=True,
+                gripper_tracking_error_rad=(
+                    float(np.max(np.abs(action[14:16] - measured_grippers)))
+                    if action_index == 0 else 0.0
+                ),
             )
             contexts.append(context)
             context_evidence.append(evidence)

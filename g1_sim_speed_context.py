@@ -122,6 +122,7 @@ def build_simulation_speed_context(
     preflight_passed: bool,
     collision_free: bool,
     command_limits_passed: bool,
+    gripper_tracking_error_rad: float | None = None,
     network_timeout: bool = False,
     config: SimulationContextConfig | None = None,
 ) -> tuple[AdaptiveSafetyContext, SimulationContextEvidence]:
@@ -136,6 +137,13 @@ def build_simulation_speed_context(
     )
     contact = dex_cube_contact(model, data)
     gripper_error = commanded - measured
+    measured_tracking_error = (
+        float(np.max(np.abs(gripper_error)))
+        if gripper_tracking_error_rad is None
+        else float(gripper_tracking_error_rad)
+    )
+    if not np.isfinite(measured_tracking_error) or measured_tracking_error < 0.0:
+        raise ValueError("gripper_tracking_error_rad must be finite and non-negative")
     closing = bool(np.any(gripper_error < -cfg.gripper_transition_rad))
     opening = bool(np.any(gripper_error > cfg.gripper_transition_rad))
     if contact and opening:
@@ -158,7 +166,7 @@ def build_simulation_speed_context(
         ik_margin_rad=min(margin, cfg.nominal_ik_margin_cap_rad),
         joint_limit_margin_rad=margin,
         pelvis_stability=stability,
-        gripper_tracking_error_rad=float(np.max(np.abs(gripper_error))),
+        gripper_tracking_error_rad=measured_tracking_error,
         contact=contact,
         network_timeout=bool(network_timeout),
         hard_safety_gate_passed=bool(preflight_passed),
