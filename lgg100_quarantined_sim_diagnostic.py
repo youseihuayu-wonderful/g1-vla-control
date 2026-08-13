@@ -159,14 +159,6 @@ def main() -> None:
             continue
         context = contexts[0]
         evidence = context_evidence[0]
-        if context.task_phase not in {"free_space", "approach"}:
-            records.append({
-                "chunk": index,
-                "execution_performed": False,
-                "candidate_passed": False,
-                "reasons": [f"unexpected_initial_phase:{context.task_phase}"],
-            })
-            continue
         retiming = ContextAwareRetimer().plan(chunk, contexts)
         if not retiming.accepted or retiming.chunk is None:
             records.append({
