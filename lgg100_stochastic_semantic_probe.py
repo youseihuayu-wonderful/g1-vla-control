@@ -11,6 +11,7 @@ import time
 
 import numpy as np
 
+from g1_policy_contract import ACTION_HORIZON
 from lgg100_candidate_server import DEFAULT_PROMPT, HF_REVISION, build_policy
 from lgg100_semantic_validation import _metrics, _normalize
 from neural_action_audit import audit_neural_action_chunk
@@ -57,8 +58,12 @@ def main() -> None:
         frames = np.asarray(payload["frame"])
         prompt = str(payload["prompt"].item())
     count = len(states)
-    policy = build_policy(args.checkpoint_dir.resolve(), 50, DEFAULT_PROMPT)
-    chunks = np.full((args.draws, count, 50, 16), np.nan, dtype=np.float64)
+    policy = build_policy(
+        args.checkpoint_dir.resolve(), ACTION_HORIZON, DEFAULT_PROMPT
+    )
+    chunks = np.full(
+        (args.draws, count, ACTION_HORIZON, 16), np.nan, dtype=np.float64
+    )
     available = np.zeros((args.draws, count), dtype=bool)
     latency = np.zeros((args.draws, count), dtype=np.float64)
     raw_max_norm_error = np.full((args.draws, count), np.nan, dtype=np.float64)
@@ -97,7 +102,9 @@ def main() -> None:
             )["score"]
 
     all_draws_available = np.all(available, axis=0)
-    ensemble = np.full((count, 50, 16), np.nan, dtype=np.float64)
+    ensemble = np.full(
+        (count, ACTION_HORIZON, 16), np.nan, dtype=np.float64
+    )
     if np.any(all_draws_available):
         selected = chunks[:, all_draws_available]
         ensemble_values = np.mean(selected, axis=0)
@@ -132,6 +139,7 @@ def main() -> None:
         "scope": "Stochastic offline LGG100 probe; output-only, quarantined, and never executable.",
         "checkpoint_revision": HF_REVISION,
         "draws_per_observation": args.draws,
+        "action_horizon": ACTION_HORIZON,
         "observations": count,
         "total_inferences": args.draws * count,
         "bounded_analysis_availability_rate": float(np.mean(available)),

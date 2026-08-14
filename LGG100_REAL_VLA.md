@@ -2,9 +2,10 @@
 
 `LGG100/stack-cube-eef-24k` is the selected production VLA. This runbook loads
 the actual public weights and queries them with the frozen G1 EDU observation
-contract. The current first stage is output-only: MuJoCo dynamics and G1
-hardware remain blocked until the checkpoint's unpublished action semantics
-are verified against `g1_edu_dual_dex1_eef_v1`. The full real-VLA → semantic
+contract. Yuhao directly confirmed the core config name `pi05_g1_eef`,
+`action_horizon=32`, and `discrete_state_input=False`. The current first stage
+remains output-only: MuJoCo dynamics and G1 hardware remain blocked until the
+remaining calibration, task-quality, realtime, and safety gates pass. The full real-VLA → semantic
 attestation → Adaptive Module → task-level A/B plan is in
 [`REAL_LGG100_ADAPTIVE_WORKFLOW.md`](REAL_LGG100_ADAPTIVE_WORKFLOW.md).
 
@@ -19,10 +20,11 @@ revision: cced7a7ff7b454fdcac555457a1a2a3dc262ac77
 
 It contains no README, OpenPI commit, TrainConfig, DataConfig, or custom
 joint↔EEF transform. Repository history contains only the initial commit and a
-single checkpoint upload. The server therefore uses a **candidate config** and
-must never report author-config recovery.
+single checkpoint upload. The public `openpi-fintune` repository plus direct
+author confirmation now establish the core config, but not the complete
+historical TrainConfig or exact OpenPI commit.
 
-Strongly supported candidate model fields:
+Confirmed/supported model fields:
 
 ```text
 Pi0Config
@@ -34,7 +36,9 @@ internal action_dim=32
 max_token_len=200
 published state/action dim=16
 quantile q01/q99 normalization
-action_horizon=50  # candidate default; not encoded in the weights
+action_horizon=32
+discrete_state_input=False
+model_config_name=pi05_g1_eef
 ```
 
 The server restores with `remove_extra_params=False`; missing or extra
@@ -141,7 +145,7 @@ cd ~/robot-vla/openpi
 CHECKPOINT="$HOME/robot-vla/checkpoints/stack-cube-eef-24k"
 uv run python ~/g1_vla_control/lgg100_candidate_server.py \
   --checkpoint-dir "$CHECKPOINT" \
-  --action-horizon 50 \
+  --action-horizon 32 \
   --port 8000 \
   --allow-candidate-restore \
   2>&1 | tee "$HOME/robot-vla/lgg100_server.log"
@@ -207,8 +211,8 @@ python lgg100_sim_smoke.py \
 ```
 
 Inputs use the shared G1 preprocessing: each MuJoCo camera renders 640×480 RGB,
-then `g1_policy_contract.py` center-crops 480×480 and bilinear-resizes to
-224×224. The resulting policy observation is:
+then `g1_policy_contract.py` performs the OpenPI-compatible aspect-preserving
+bilinear resize with zero padding to 224×224. The resulting policy observation is:
 
 ```text
 cam_left_high       uint8 [224,224,3]
@@ -229,7 +233,8 @@ The neural-output gate passes only if server metadata proves strict real-weight
 restore and all calls return one stable finite `[T,16]` shape. It still records:
 
 ```text
-author_config_claimed: false
+author_core_config_directly_confirmed: true
+complete_author_train_config_available: false
 g1_contract_verified: false
 g1_sim_eligible: false
 g1_execution_enabled: false

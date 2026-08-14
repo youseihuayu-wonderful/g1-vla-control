@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""Strict, explicitly candidate-only OpenPI restore server for LGG100.
+"""Strict, quarantined OpenPI restore server for LGG100.
 
-The Hugging Face repository publishes parameters and normalization statistics,
-but no OpenPI revision, TrainConfig, DataConfig, or policy transforms.  This
-server therefore reconstructs the strongest metadata-supported model config and
-uses a strict parameter-tree restore.  A successful restore proves that the
-actual neural weights were loaded; it does not prove that the reconstructed
-input/output semantics match the unpublished author implementation.
+The author directly confirmed the core ``pi05_g1_eef`` settings used by this
+checkpoint: action horizon 32 and ``discrete_state_input=False``. The complete
+historical TrainConfig and exact OpenPI commit remain unpublished, so strict
+parameter restoration and all fail-closed execution gates remain mandatory.
 """
 
 from __future__ import annotations
@@ -26,6 +24,11 @@ HF_REPO = "LGG100/stack-cube-eef-24k"
 HF_REVISION = "cced7a7ff7b454fdcac555457a1a2a3dc262ac77"
 ASSET_ID = "stack-cube-eef"
 OPENPI_AUDITED_COMMIT = "15a9616a00943ada6c20a0f158e3adb39df2ccac"
+OPENPI_FINTUNE_AUDITED_COMMIT = "29030046fd6a2810201db67b9804f243e0af3218"
+AUTHOR_MODEL_CONFIG_NAME = "pi05_g1_eef"
+AUTHOR_ACTION_HORIZON = 32
+EXPERIMENTAL_ACTION_HORIZON = 48
+AUTHOR_DISCRETE_STATE_INPUT = False
 DEFAULT_PROMPT = (
     "Stack the blocks by color: put the red block in the center, then stack "
     "the blue block on the red block, then stack the yellow block on the blue block."
@@ -120,14 +123,14 @@ def build_policy(checkpoint_dir: Path, action_horizon: int, default_prompt: str)
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Incomplete checkpoint snapshot; missing {missing}")
-    if action_horizon < 2:
-        raise ValueError("action_horizon must be >=2")
+    if action_horizon not in (AUTHOR_ACTION_HORIZON, EXPERIMENTAL_ACTION_HORIZON):
+        raise ValueError(
+            "action_horizon must be the author-confirmed 32 or explicitly experimental 48"
+        )
 
-    # Strongest metadata-supported reconstruction:
-    # - pi05/adaRMS and 32-wide action head are encoded in the parameter tree;
-    # - rank-16 LoRA leaves occur on the 2B PaliGemma expert;
-    # - no rank-32 action-expert LoRA leaves are published;
-    # - horizon is not encoded in parameter shapes and remains a candidate.
+    # Core config name, horizon=32, and continuous state input were confirmed
+    # directly by the author. Architecture details are additionally supported
+    # by the checkpoint parameter tree and the public pi05_g1_eef config.
     model_config = pi0_config.Pi0Config(
         dtype="bfloat16",
         paligemma_variant="gemma_2b_lora",
@@ -136,10 +139,10 @@ def build_policy(checkpoint_dir: Path, action_horizon: int, default_prompt: str)
         action_horizon=action_horizon,
         max_token_len=200,
         pi05=True,
-        discrete_state_input=True,
+        discrete_state_input=AUTHOR_DISCRETE_STATE_INPUT,
     )
     train_config = config_lib.TrainConfig(
-        name="lgg100_stack_cube_eef_candidate_restore",
+        name="lgg100_stack_cube_eef_author_core_restore",
         model=model_config,
         data=config_lib.SimpleDataConfig(
             assets=config_lib.AssetsConfig(asset_id=ASSET_ID),
@@ -174,19 +177,25 @@ def build_policy(checkpoint_dir: Path, action_horizon: int, default_prompt: str)
         ],
         metadata={
             **contract_metadata(verified=False),
-            "evidence_mode": "lgg100_candidate_config_strict_restore",
+            "evidence_mode": "lgg100_author_core_config_strict_restore",
             "neural_checkpoint_loaded": True,
             "strict_parameter_tree_restore": True,
-            "author_config_available": False,
+            "author_core_config_directly_confirmed": True,
+            "complete_author_train_config_available": False,
+            "author_confirmation_provenance": "direct_communication_reported_by_project_owner",
+            "author_model_config_name": AUTHOR_MODEL_CONFIG_NAME,
             "g1_action_compatible": False,
             "safe_for_g1_hardware": False,
             "hf_repo": HF_REPO,
             "hf_revision": HF_REVISION,
             "openpi_audited_commit": OPENPI_AUDITED_COMMIT,
-            "candidate_model_config": dataclasses.asdict(model_config),
+            "openpi_fintune_audited_commit": OPENPI_FINTUNE_AUDITED_COMMIT,
+            "restored_model_config": dataclasses.asdict(model_config),
             "published_action_dim": 16,
             "internal_action_dim": 32,
-            "action_horizon_author_confirmed": False,
+            "action_horizon_author_confirmed": action_horizon == AUTHOR_ACTION_HORIZON,
+            "experimental_action_horizon": action_horizon == EXPERIMENTAL_ACTION_HORIZON,
+            "discrete_state_input_author_confirmed": True,
             "checkpoint_metadata_sha256": _sha256(checkpoint_dir / "_CHECKPOINT_METADATA"),
             "norm_stats_sha256": _sha256(checkpoint_dir / "assets" / ASSET_ID / "norm_stats.json"),
         },
@@ -199,17 +208,17 @@ def main() -> None:
     parser.add_argument("--checkpoint-dir", type=Path, required=True)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--action-horizon", type=int, default=50)
+    parser.add_argument("--action-horizon", type=int, default=AUTHOR_ACTION_HORIZON)
     parser.add_argument("--default-prompt", default=DEFAULT_PROMPT)
     parser.add_argument(
         "--allow-candidate-restore",
         action="store_true",
-        help="required acknowledgement that the author config is unavailable",
+        help="required acknowledgement that the complete historical TrainConfig remains unavailable",
     )
     args = parser.parse_args()
     if not args.allow_candidate_restore:
         raise SystemExit(
-            "Refusing to guess silently. Re-run with --allow-candidate-restore after reading "
+            "Refusing to restore silently. Re-run with --allow-candidate-restore after reading "
             "LGG100_REAL_VLA.md. This still never enables G1 hardware execution."
         )
     checkpoint_dir = args.checkpoint_dir.expanduser().resolve()

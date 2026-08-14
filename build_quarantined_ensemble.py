@@ -10,6 +10,8 @@ from pathlib import Path
 
 import numpy as np
 
+from g1_policy_contract import ACTION_DIM, ACTION_HORIZON
+
 
 def _normalize_quaternions(values: np.ndarray) -> np.ndarray:
     values = np.asarray(values, dtype=np.float64)
@@ -33,8 +35,10 @@ def quaternion_ensemble(values: np.ndarray) -> np.ndarray:
 
 def build_ensemble(draws: np.ndarray) -> np.ndarray:
     draws = np.asarray(draws, dtype=np.float64)
-    if draws.ndim != 3 or draws.shape[1:] != (50, 16):
-        raise ValueError(f"expected [draw,50,16], got {draws.shape}")
+    if draws.ndim != 3 or draws.shape[1:] != (ACTION_HORIZON, ACTION_DIM):
+        raise ValueError(
+            f"expected [draw,{ACTION_HORIZON},{ACTION_DIM}], got {draws.shape}"
+        )
     if len(draws) < 3 or np.any(~np.isfinite(draws)):
         raise ValueError("at least three finite bounded draws are required")
     ensemble = np.mean(draws, axis=0)

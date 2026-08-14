@@ -29,7 +29,7 @@ class G1PolicyContractTests(unittest.TestCase):
         self.assertEqual(
             parsed["joint_output"]["ordered_joints"], LEFT_JOINTS + RIGHT_JOINTS
         )
-        self.assertEqual(ACTION_HORIZON, 50)
+        self.assertEqual(ACTION_HORIZON, 32)
         self.assertEqual(POLICY_RATE_HZ, 30.0)
         self.assertEqual(
             parsed["production_policy"]["model"],
@@ -73,12 +73,13 @@ class G1PolicyContractTests(unittest.TestCase):
             validate_action_chunk(np.zeros((10, 8)))
 
     def test_observation_rejects_camera_or_state_contract_drift(self):
-        source = np.zeros((480, 640, 3), dtype=np.uint8)
-        source[:, 80:560] = 123
+        source = np.full((480, 640, 3), 123, dtype=np.uint8)
         processed = preprocess_rgb_image(source)
         self.assertEqual(processed.shape, (224, 224, 3))
         self.assertEqual(processed.dtype, np.uint8)
-        self.assertTrue(np.all(processed == 123))
+        self.assertTrue(np.all(processed[:28] == 0))
+        self.assertTrue(np.all(processed[28:196] == 123))
+        self.assertTrue(np.all(processed[196:] == 0))
 
         state = np.zeros(16, dtype=np.float32)
         state[6] = 1.0

@@ -49,19 +49,26 @@ def contract_metadata(*, verified: bool) -> dict[str, Any]:
 
 
 def preprocess_rgb_image(image: Any) -> np.ndarray:
-    """Apply the frozen 640×480 → center crop → 224×224 RGB transform."""
+    """Replicate OpenPI ``resize_with_pad`` for a frozen 640×480 RGB image."""
     image = np.asarray(image)
     if image.shape != SOURCE_IMAGE_SHAPE or image.dtype != np.uint8:
         raise ValueError(
             f"G1 source image must be uint8 {SOURCE_IMAGE_SHAPE}, got {image.dtype} {image.shape}"
         )
-    x0, y0, x1, y1 = CONTRACT["observation"]["preprocessing"]["crop_xyxy_on_640x480"]
-    crop = image[y0:y1, x0:x1]
-    resized = Image.fromarray(crop, mode="RGB").resize(
-        (IMAGE_SHAPE[1], IMAGE_SHAPE[0]),
+    source_height, source_width = image.shape[:2]
+    target_height, target_width = IMAGE_SHAPE[:2]
+    ratio = max(source_width / target_width, source_height / target_height)
+    resized_height = int(source_height / ratio)
+    resized_width = int(source_width / ratio)
+    resized = Image.fromarray(image, mode="RGB").resize(
+        (resized_width, resized_height),
         resample=Image.Resampling.BILINEAR,
     )
-    result = np.asarray(resized, dtype=np.uint8)
+    padded = Image.new("RGB", (target_width, target_height), color=0)
+    pad_height = max(0, int((target_height - resized_height) / 2))
+    pad_width = max(0, int((target_width - resized_width) / 2))
+    padded.paste(resized, (pad_width, pad_height))
+    result = np.asarray(padded, dtype=np.uint8)
     if result.shape != IMAGE_SHAPE:
         raise RuntimeError(f"G1 image preprocessing produced {result.shape}")
     return result

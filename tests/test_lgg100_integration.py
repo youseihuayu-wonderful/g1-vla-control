@@ -9,7 +9,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from g1_policy_contract import CONTRACT_ID, CONTRACT_SHA256
+from g1_policy_contract import ACTION_HORIZON, CONTRACT_ID, CONTRACT_SHA256
 from lgg100_adaptive_ab import HF_REVISION, _load_verified_chunk
 from lgg100_candidate_server import G1CandidateInputs, G1CandidateOutputs
 from lgg100_sim_smoke import build_sim_observation
@@ -32,10 +32,13 @@ class LGG100CandidateContractTests(unittest.TestCase):
             "base_0_rgb", "left_wrist_0_rgb", "right_wrist_0_rgb",
         })
         self.assertEqual(mapped["state"].shape, (16,))
-        actions = np.zeros((50, 32), dtype=np.float32)
-        self.assertEqual(G1CandidateOutputs()({"actions": actions})["actions"].shape, (50, 16))
+        actions = np.zeros((ACTION_HORIZON, 32), dtype=np.float32)
+        self.assertEqual(
+            G1CandidateOutputs()({"actions": actions})["actions"].shape,
+            (ACTION_HORIZON, 16),
+        )
         with self.assertRaises(ValueError):
-            G1CandidateOutputs()({"actions": np.zeros((50, 8))})
+            G1CandidateOutputs()({"actions": np.zeros((ACTION_HORIZON, 8))})
 
     def test_sim_observation_contains_real_three_camera_contract(self):
         observation, evidence = build_sim_observation()
@@ -50,10 +53,10 @@ class LGG100CandidateContractTests(unittest.TestCase):
             self.assertEqual(observation[key].dtype, np.uint8)
 
     def test_adaptive_ab_requires_passing_fingerprinted_neural_artifact(self):
-        actions = np.zeros((50, 16), dtype=np.float64)
+        actions = np.zeros((ACTION_HORIZON, 16), dtype=np.float64)
         actions[:, 6] = 1.0
         actions[:, 13] = 1.0
-        timestamps = np.arange(50) / 30.0
+        timestamps = np.arange(ACTION_HORIZON) / 30.0
         digest = hashlib.sha256(actions.tobytes()).hexdigest()
         report = {
             "summary": {"passed": True},
@@ -83,7 +86,7 @@ class LGG100CandidateContractTests(unittest.TestCase):
             chunk, actual_digest, norm_error = _load_verified_chunk(
                 chunk_path, report_path, 0.001
             )
-            self.assertEqual(chunk.actions.shape, (50, 16))
+            self.assertEqual(chunk.actions.shape, (ACTION_HORIZON, 16))
             self.assertEqual(actual_digest, digest)
             self.assertAlmostEqual(norm_error, 0.0)
 

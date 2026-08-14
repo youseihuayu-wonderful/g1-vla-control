@@ -14,7 +14,7 @@ import numpy as np
 from action_schema import EEFActionChunk, pelvis_vla_action_to_world_mujoco
 from dex1_gripper import Dex1Controller
 from g1_mujoco_bridge import policy_state_from_mujoco
-from g1_policy_contract import POLICY_RATE_HZ
+from g1_policy_contract import ACTION_DIM, ACTION_HORIZON, POLICY_RATE_HZ
 from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
 from safety_governor import G1TargetPreflight
@@ -34,8 +34,10 @@ def _load_chunks(path: Path) -> np.ndarray:
             raise ValueError("NPZ must contain actions or raw_actions")
     if chunks.ndim == 2:
         chunks = chunks[None, ...]
-    if chunks.ndim != 3 or chunks.shape[1:] != (50, 16):
-        raise ValueError(f"Expected [N,50,16], got {chunks.shape}")
+    if chunks.ndim != 3 or chunks.shape[1:] != (ACTION_HORIZON, ACTION_DIM):
+        raise ValueError(
+            f"Expected [N,{ACTION_HORIZON},{ACTION_DIM}], got {chunks.shape}"
+        )
     return chunks
 
 

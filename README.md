@@ -52,9 +52,9 @@ git submodule update --init --recursive
 
 ```text
 contract_id: g1_edu_dual_dex1_eef_v1
-camera preprocessing: 640×480 RGB → center crop 480×480 → bilinear 224×224
+camera preprocessing: 640×480 RGB → aspect-preserving resize with zero padding → 224×224
 policy rate: 30 Hz
-action horizon: 50
+action horizon: 32 (author-confirmed canonical; 48 is experimental only)
 action semantics: absolute target
 action frame: pelvis
 action dimension: 16

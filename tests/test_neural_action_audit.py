@@ -6,13 +6,14 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from g1_policy_contract import ACTION_HORIZON
 from neural_action_audit import audit_neural_action_chunk
 
 
 class NeuralActionAuditTests(unittest.TestCase):
     @staticmethod
     def valid_actions():
-        actions = np.zeros((50, 16), dtype=np.float64)
+        actions = np.zeros((ACTION_HORIZON, 16), dtype=np.float64)
         actions[:, 6] = 1.0
         actions[:, 13] = 1.0
         actions[:, 14:16] = 5.0
@@ -60,7 +61,9 @@ class NeuralActionAuditTests(unittest.TestCase):
 
     def test_shape_or_nonfinite_rejects(self):
         self.assertFalse(
-            audit_neural_action_chunk(np.zeros((50, 8))).finite_shape_passed
+            audit_neural_action_chunk(
+                np.zeros((ACTION_HORIZON, 8))
+            ).finite_shape_passed
         )
         actions = self.valid_actions()
         actions[0, 0] = np.nan

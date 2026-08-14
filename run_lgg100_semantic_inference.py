@@ -11,7 +11,10 @@ import time
 
 import numpy as np
 
+from g1_policy_contract import ACTION_HORIZON
 from lgg100_candidate_server import (
+    AUTHOR_DISCRETE_STATE_INPUT,
+    AUTHOR_MODEL_CONFIG_NAME,
     DEFAULT_PROMPT,
     HF_REVISION,
     OPENPI_AUDITED_COMMIT,
@@ -51,7 +54,9 @@ def main() -> None:
     if any(len(value) != count for value in cameras.values()):
         raise ValueError("Camera/state sample counts do not match")
 
-    policy = build_policy(args.checkpoint_dir.resolve(), 50, DEFAULT_PROMPT)
+    policy = build_policy(
+        args.checkpoint_dir.resolve(), ACTION_HORIZON, DEFAULT_PROMPT
+    )
     raw_chunks: list[np.ndarray] = []
     analysis_chunks: list[np.ndarray] = []
     analysis_available: list[bool] = []
@@ -121,7 +126,11 @@ def main() -> None:
         "openpi_commit": OPENPI_AUDITED_COMMIT,
         "dataset_revision": dataset_revision,
         "strict_parameter_tree_restore": True,
-        "author_config_available": False,
+        "author_core_config_directly_confirmed": True,
+        "author_model_config_name": AUTHOR_MODEL_CONFIG_NAME,
+        "action_horizon": ACTION_HORIZON,
+        "discrete_state_input": AUTHOR_DISCRETE_STATE_INPUT,
+        "complete_author_train_config_available": False,
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,

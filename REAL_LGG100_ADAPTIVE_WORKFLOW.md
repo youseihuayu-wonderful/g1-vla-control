@@ -150,7 +150,7 @@ cd ~/robot-vla/openpi
 CHECKPOINT="$HOME/robot-vla/checkpoints/stack-cube-eef-24k"
 uv run python ~/g1_vla_control/lgg100_candidate_server.py \
   --checkpoint-dir "$CHECKPOINT" \
-  --action-horizon 50 \
+  --action-horizon 32 \
   --port 8000 \
   --allow-candidate-restore
 ```
@@ -206,8 +206,8 @@ ssh -o ExitOnForwardFailure=yes \
 
 ```text
 3× MuJoCo 640×480 RGB
-→ center crop 480×480
-→ bilinear 224×224
+→ aspect-preserving bilinear resize
+→ zero padding to 224×224
 pelvis-frame state[16]
 canonical stack-cube prompt
 ```
@@ -234,7 +234,7 @@ python lgg100_sim_smoke.py \
 
 - `neural_vla_claimed=true`；
 - 30/30 finite；
-- 所有输出稳定为 `[50,16]`；
+- 所有输出稳定为 `[32,16]`；
 - 无 NaN/Inf；
 - 记录 P50/P95/P99 latency；
 - 每个 chunk 有 SHA-256；
@@ -242,7 +242,7 @@ python lgg100_sim_smoke.py \
 
 ### 停止条件
 
-shape 漂移、非 16-D、horizon 非 50、四元数错误、超时、OOM、server metadata 不匹配。
+shape 漂移、非 16-D、canonical horizon 非 32、四元数错误、超时、OOM、server metadata 不匹配。
 
 ### 产物
 
@@ -270,7 +270,7 @@ results/lgg100_action_chunk_real.npz
 raw 14-joint + 2-Dex1 state/action
 时间戳
 candidate FK 后的 16-D pelvis EEF
-后续 50 帧 reference action
+后续 32 帧 reference action
 ```
 
 ### 必须比较的假设
@@ -280,7 +280,7 @@ candidate FK 后的 16-D pelvis EEF
 - quaternion `xyzw` vs `wxyz`；
 - absolute target vs delta；
 - delta 左乘/右乘和所在 frame；
-- 30 Hz 与 horizon 50；
+- 30 Hz 与 author-confirmed canonical horizon 32；
 - q01/q99 normalization；
 - 左右手顺序和 Dex1 方向；
 - action 与 future state 的时序 lag。
@@ -396,12 +396,12 @@ results/adaptive_context_validation.json
 
 ```text
 fingerprint
-→ [50,16]
+→ [32,16]
 → finite
 → quaternion norm
 → Dex1 range
 → pelvis-frame workspace
-→ 50/50 IK
+→ 32/32 IK
 → joint limits
 → phase-aware collision
 → EEF/Joint command envelope

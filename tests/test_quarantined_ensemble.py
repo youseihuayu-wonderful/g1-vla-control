@@ -7,6 +7,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from build_quarantined_ensemble import build_ensemble, quaternion_ensemble
+from g1_policy_contract import ACTION_HORIZON
 
 
 class QuarantinedEnsembleTests(unittest.TestCase):
@@ -19,20 +20,20 @@ class QuarantinedEnsembleTests(unittest.TestCase):
         np.testing.assert_allclose(np.linalg.norm(result, axis=-1), 1.0)
 
     def test_chunk_ensemble_preserves_shape_and_unit_quaternions(self):
-        base = np.zeros((3, 50, 16), dtype=np.float64)
+        base = np.zeros((3, ACTION_HORIZON, 16), dtype=np.float64)
         base[:, :, 3] = 1.0
         base[:, :, 10] = 1.0
         base[0, :, 0] = 0.1
         base[1, :, 0] = 0.2
         base[2, :, 0] = 0.3
         result = build_ensemble(base)
-        self.assertEqual(result.shape, (50, 16))
+        self.assertEqual(result.shape, (ACTION_HORIZON, 16))
         np.testing.assert_allclose(result[:, 0], 0.2)
         np.testing.assert_allclose(np.linalg.norm(result[:, 3:7], axis=1), 1.0)
         np.testing.assert_allclose(np.linalg.norm(result[:, 10:14], axis=1), 1.0)
 
     def test_fewer_than_three_draws_is_rejected(self):
-        draws = np.zeros((2, 50, 16))
+        draws = np.zeros((2, ACTION_HORIZON, 16))
         draws[:, :, 3] = 1.0
         draws[:, :, 10] = 1.0
         with self.assertRaises(ValueError):

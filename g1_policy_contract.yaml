@@ -1,13 +1,16 @@
 {
   "contract_id": "g1_edu_dual_dex1_eef_v1",
-  "contract_version": "1.1.0",
+  "contract_version": "1.2.0",
   "status": "project_frozen",
   "production_policy": {
     "model": "LGG100/stack-cube-eef-24k",
     "revision": "cced7a7ff7b454fdcac555457a1a2a3dc262ac77",
-    "framework": "OpenPI_pi0.5_candidate_restore",
+    "framework": "OpenPI_pi0.5_strict_restore",
+    "model_config_name": "pi05_g1_eef",
     "selection_status": "selected_by_user",
-    "g1_semantic_verification": "pending_author_config_or_golden_sample",
+    "author_confirmation_provenance": "direct_communication_reported_by_project_owner",
+    "complete_author_train_config_available": false,
+    "g1_semantic_verification": "core_model_config_author_confirmed_but_remaining_gates_blocked",
     "simulation_execution_allowed": false,
     "hardware_execution_allowed": false
   },
@@ -22,8 +25,11 @@
   },
   "timing": {
     "policy_rate_hz": 30.0,
-    "action_horizon": 50,
-    "initial_replan_stride": 10,
+    "action_horizon": 32,
+    "action_horizon_author_confirmed": true,
+    "experimental_comparison_action_horizon": 48,
+    "public_offline_evaluator_action_index": 0,
+    "robot_replan_steps": "not_published",
     "maximum_observation_age_ms": 100.0,
     "maximum_policy_response_age_ms": 500.0,
     "simulation_timestep_s": 0.002,
@@ -35,8 +41,9 @@
     "source_image_shape": [480, 640, 3],
     "image_shape": [224, 224, 3],
     "preprocessing": {
-      "operation": "center_crop_square_then_resize",
-      "crop_xyxy_on_640x480": [80, 0, 560, 480],
+      "operation": "resize_with_pad",
+      "preserve_aspect_ratio": true,
+      "padding_value": 0,
       "resize_hw": [224, 224],
       "interpolation": "bilinear",
       "channel_order": "RGB",
@@ -52,6 +59,8 @@
     "prompt_key": "prompt",
     "state_frame": "pelvis",
     "state_units": {"position": "m", "quaternion": "unit_xyzw", "gripper": "rad"},
+    "discrete_state_input": false,
+    "discrete_state_input_author_confirmed": true,
     "state_channels": [
       "left_eef_x", "left_eef_y", "left_eef_z",
       "left_eef_qx", "left_eef_qy", "left_eef_qz", "left_eef_qw",
@@ -75,7 +84,8 @@
     ],
     "gripper_range_rad": [0.0, 5.5],
     "gripper_direction": "0_closed_5.5_open",
-    "quaternion_norm_tolerance": 0.001
+    "quaternion_norm_tolerance": 0.001,
+    "quaternion_postprocessing": "normalize_each_nonzero_xyzw_before_IK_per_public_pi05_g1_eef_policy"
   },
   "eef_definition": {
     "left_parent_link": "left_wrist_yaw_link",
