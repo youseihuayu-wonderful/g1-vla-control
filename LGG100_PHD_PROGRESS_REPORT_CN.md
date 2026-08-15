@@ -147,15 +147,15 @@ Adaptive 模块只修改动作时间戳，不修改 LGG100 输出的位置和姿
 
 ### 4.1 真实模型恢复与推理
 
-已完成真实 LGG100 checkpoint 的下载、版本固定和严格参数树恢复。此前候选配置能够在 GPU 上稳定完成推理，热身后的典型推理时间约为 83 ms，并输出有限的 `[50,16]` 动作序列；但该候选配置现已确认与训练设置不一致，因此相关性能数字仅作为历史诊断。当前需以 `[32,16]`、continuous-state 和 `resize_with_pad` 重新验证。
+已完成真实 LGG100 checkpoint 的下载、版本固定和严格参数树恢复。Yuhao 后续确认核心配置为 `pi05_g1_eef`、`action_horizon=32` 和 `discrete_state_input=False`。按该配置与公开代码中的 `resize_with_pad(224,224)` 重新运行五个公开 episode、共 50 个 observation 后，50/50 输出均为有限 `[32,16]`；稳态调用延迟 P50/P95 分别约为 80.52/81.38 ms，冷启动首调用约为 14.6 s，后者包含 JAX 编译，不能计入稳态控制。
 
-公开 `pi05_g1_eef` policy 明确要求消费者在送入 IK 前归一化非零四元数。本项目仍保留原始输出及 hash，并继续对非有限值、近零四元数和异常幅值 fail-closed；该后处理本身不解锁真机执行。
+35/50 原始输出直接满足项目当前 `1e-3` quaternion norm tolerance，50/50 满足固定的有界后处理条件。公开 `pi05_g1_eef` policy 明确要求消费者在送入 IK 前归一化非零四元数。本项目仍分别保留原始输出与后处理 hash，并继续对非有限值、近零四元数和异常幅值 fail-closed；该后处理本身不解锁真机执行。
 
 ### 4.2 动作语义验证
 
-已使用公开数据集比较绝对/增量位置、`xyzw/wxyz` 四元数顺序和左右手排列等候选解释。当前结果对 `absolute_xyzw_left-right` 提供了较强支持。
+已使用公开数据集比较绝对/增量位置、`xyzw/wxyz` 四元数顺序和左右手排列等候选解释。正确配置下 `absolute_xyzw_left-right` 在 50/50 样本中胜出，相对第二名 margin 为 97.42%；EEF position RMSE 为 3.20 mm，姿态 geodesic mean 为 0.765°，夹爪 RMSE 为 0.0754 rad。模型离线综合 score 为 0.1740，优于 hold baseline 的 0.9621，因此预注册的单次采样离线质量标准首次通过。
 
-需要强调的是，该结果支持动作语义解释，但不等同于证明模型具有稳定的抓取或堆叠能力。
+需要强调的是，该结果只证明公开 episode 上的离线动作一致性，不等同于稳定抓取、闭环堆叠或真机安全。旧 horizon-50 MuJoCo artifacts 已失效，必须重新建立 Adaptive OFF 基线。
 
 ### 4.3 G1 MuJoCo 接入
 
