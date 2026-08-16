@@ -11,6 +11,12 @@ import time
 
 import numpy as np
 
+from g1_policy_contract import (
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+)
 from lgg100_candidate_server import DEFAULT_PROMPT, HF_REVISION, build_policy
 from local_websocket_policy_client import LocalWebsocketPolicyClient
 from neural_action_audit import audit_neural_action_chunk
@@ -38,11 +44,31 @@ def main() -> None:
             "observation/state": np.asarray(payload["state"]),
             "prompt": str(payload["prompt"].item()),
         }
+        observation_contract = {
+            "g1_policy_contract_id": str(payload["g1_policy_contract_id"].item()),
+            "g1_policy_contract_version": str(
+                payload["g1_policy_contract_version"].item()
+            ),
+            "g1_policy_contract_sha256": str(
+                payload["g1_policy_contract_sha256"].item()
+            ),
+            "action_horizon": int(payload["action_horizon"].item()),
+        }
+    expected_contract = {
+        "g1_policy_contract_id": CONTRACT_ID,
+        "g1_policy_contract_version": CONTRACT_VERSION,
+        "g1_policy_contract_sha256": CONTRACT_SHA256,
+        "action_horizon": ACTION_HORIZON,
+    }
+    if observation_contract != expected_contract:
+        raise ValueError(
+            f"observation contract binding mismatch: {observation_contract}"
+        )
     if (args.checkpoint_dir is None) == (args.host is None):
         raise SystemExit("specify exactly one of --checkpoint-dir or --host")
     if args.host is None:
         policy = build_policy(
-            args.checkpoint_dir.resolve(), 50, DEFAULT_PROMPT
+            args.checkpoint_dir.resolve(), ACTION_HORIZON, DEFAULT_PROMPT
         )
         policy_source = "in_process_strict_restore"
     else:
@@ -51,6 +77,9 @@ def main() -> None:
         if not (
             metadata.get("strict_parameter_tree_restore") is True
             and metadata.get("hf_revision") == HF_REVISION
+            and metadata.get("g1_policy_contract_id") == CONTRACT_ID
+            and metadata.get("g1_policy_contract_sha256") == CONTRACT_SHA256
+            and metadata.get("action_horizon_author_confirmed") is True
             and metadata.get("safe_for_g1_hardware") is False
         ):
             raise ValueError("policy server metadata is not a strict quarantined restore")
@@ -102,6 +131,10 @@ def main() -> None:
         canonicalized_actions_for_analysis=np.stack(analysis_chunks),
         observation_state=observation["observation/state"],
         checkpoint_revision=np.asarray(HF_REVISION),
+        g1_policy_contract_id=np.asarray(CONTRACT_ID),
+        g1_policy_contract_version=np.asarray(CONTRACT_VERSION),
+        g1_policy_contract_sha256=np.asarray(CONTRACT_SHA256),
+        action_horizon=np.asarray(ACTION_HORIZON),
         executable=np.asarray(False),
         quarantined=np.asarray(True),
     )
@@ -114,6 +147,7 @@ def main() -> None:
         ).hexdigest(),
         "checkpoint_revision": HF_REVISION,
         "policy_source": policy_source,
+        **expected_contract,
         "draws": args.draws,
         "records": records,
         "summary": {

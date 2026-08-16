@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import tempfile
 import unittest
 
 import numpy as np
@@ -7,7 +8,13 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from build_quarantined_ensemble import build_ensemble, quaternion_ensemble
-from g1_policy_contract import ACTION_HORIZON
+from g1_policy_contract import (
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+)
+from lgg100_quarantined_preflight import _load_chunks
 
 
 class QuarantinedEnsembleTests(unittest.TestCase):
@@ -38,6 +45,32 @@ class QuarantinedEnsembleTests(unittest.TestCase):
         draws[:, :, 10] = 1.0
         with self.assertRaises(ValueError):
             build_ensemble(draws)
+
+    def test_preflight_chunk_loader_requires_current_contract_binding(self):
+        actions = np.zeros((1, ACTION_HORIZON, 16), dtype=np.float64)
+        actions[:, :, 6] = 1.0
+        actions[:, :, 13] = 1.0
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "chunks.npz"
+            np.savez_compressed(
+                path,
+                actions=actions,
+                g1_policy_contract_id=np.asarray(CONTRACT_ID),
+                g1_policy_contract_version=np.asarray(CONTRACT_VERSION),
+                g1_policy_contract_sha256=np.asarray(CONTRACT_SHA256),
+                action_horizon=np.asarray(ACTION_HORIZON),
+            )
+            np.testing.assert_array_equal(_load_chunks(path), actions)
+            np.savez_compressed(
+                path,
+                actions=actions,
+                g1_policy_contract_id=np.asarray(CONTRACT_ID),
+                g1_policy_contract_version=np.asarray(CONTRACT_VERSION),
+                g1_policy_contract_sha256=np.asarray("wrong"),
+                action_horizon=np.asarray(ACTION_HORIZON),
+            )
+            with self.assertRaises(ValueError):
+                _load_chunks(path)
 
 
 if __name__ == "__main__":

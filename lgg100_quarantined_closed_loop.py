@@ -22,7 +22,12 @@ from experimental_sim_observation import (
     apply_experimental_camera_calibration,
     render_experimental_policy_observation,
 )
-from g1_policy_contract import ACTION_HORIZON, POLICY_RATE_HZ
+from g1_policy_contract import (
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    POLICY_RATE_HZ,
+)
 from g1_sim_speed_context import build_simulation_speed_context
 from lgg100_candidate_server import HF_REPO, HF_REVISION
 from local_websocket_policy_client import LocalWebsocketPolicyClient
@@ -197,6 +202,9 @@ def main() -> None:
         and metadata.get("strict_parameter_tree_restore") is True
         and metadata.get("hf_repo") == HF_REPO
         and metadata.get("hf_revision") == HF_REVISION
+        and metadata.get("g1_policy_contract_id") == CONTRACT_ID
+        and metadata.get("g1_policy_contract_sha256") == CONTRACT_SHA256
+        and metadata.get("action_horizon_author_confirmed") is True
         and metadata.get("safe_for_g1_hardware") is False
     )
     if not strict_restore:

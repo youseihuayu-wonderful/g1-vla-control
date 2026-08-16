@@ -15,7 +15,15 @@ from camera_calibration_search import _look_at_quaternion
 from camera_calibration_search_v2 import _lighten_skybox, _wrist_quaternion
 from dex1_gripper import Dex1Controller
 from g1_mujoco_bridge import policy_state_from_mujoco
-from g1_policy_contract import IMAGE_KEYS, preprocess_rgb_image, validate_observation
+from g1_policy_contract import (
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+    IMAGE_KEYS,
+    preprocess_rgb_image,
+    validate_observation,
+)
 from stack_scene import (
     CAMERA_NAMES, TASK_PROMPT, build_model, reset_to_reference_pose,
     translate_cubes,
@@ -103,6 +111,10 @@ def main() -> None:
             hashlib.sha256(args.calibration_report.read_bytes()).hexdigest()
         ),
         cube_translation_m=cube_translation,
+        g1_policy_contract_id=np.asarray(CONTRACT_ID),
+        g1_policy_contract_version=np.asarray(CONTRACT_VERSION),
+        g1_policy_contract_sha256=np.asarray(CONTRACT_SHA256),
+        action_horizon=np.asarray(ACTION_HORIZON),
         experimental=np.asarray(True),
         contract_eligible=np.asarray(False),
     )
@@ -121,6 +133,10 @@ def main() -> None:
         "simulation_time_s": float(data.time),
         "initial_state_contract": "public_episode_0_exact_t0_without_settling",
         "cube_translation_m": cube_translation.tolist(),
+        "g1_policy_contract_id": CONTRACT_ID,
+        "g1_policy_contract_version": CONTRACT_VERSION,
+        "g1_policy_contract_sha256": CONTRACT_SHA256,
+        "action_horizon": ACTION_HORIZON,
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,

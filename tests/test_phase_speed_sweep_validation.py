@@ -7,7 +7,12 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from g1_policy_contract import ACTION_HORIZON
+from g1_policy_contract import (
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+)
 from phase_speed_sweep_validation import (
     NOMINAL_CHUNK_DURATION_S, validate_scenario,
 )
@@ -17,6 +22,12 @@ FALSE_FLAGS = {
     "g1_contract_verified": False,
     "g1_sim_eligible": False,
     "g1_execution_enabled": False,
+}
+CONTRACT_BINDING = {
+    "g1_policy_contract_id": CONTRACT_ID,
+    "g1_policy_contract_version": CONTRACT_VERSION,
+    "g1_policy_contract_sha256": CONTRACT_SHA256,
+    "action_horizon": ACTION_HORIZON,
 }
 
 
@@ -40,6 +51,7 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
             "output": str(artifact),
             "output_sha256": sha256(artifact),
             "quarantined": True,
+            **CONTRACT_BINDING,
             **FALSE_FLAGS,
         }))
         preflight_path = self.root / f"{role}-preflight.json"
@@ -50,11 +62,13 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
                 "accepted": True,
                 "maximum_state_error": 0.0,
                 "cube_translation_matches": True,
+                "contract_matches": True,
             },
             "summary": {
                 "bounded_analysis_chunks": 1,
                 "inferred_schedule_swept_paths_accepted": 1,
             },
+            **CONTRACT_BINDING,
             **FALSE_FLAGS,
         }))
         branch = {
@@ -89,6 +103,7 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
                 "baseline": branch,
                 "guarded": branch,
             }],
+            **CONTRACT_BINDING,
             **FALSE_FLAGS,
         }))
         return validate_scenario(
@@ -158,6 +173,24 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
         self.assertFalse(record["accepted"])
         self.assertIn("preflight_scene_translation_mismatch", record["reasons"])
         self.assertIn("dynamics_scene_translation_mismatch", record["reasons"])
+
+    def test_contract_hash_mismatch_fails_closed(self):
+        record = self.scenario(
+            "near", 0.08, 0.05, {"approach": ACTION_HORIZON},
+            [0.5, 0.5], 2.0,
+        )
+        self.assertTrue(record["accepted"])
+        ensemble_path = self.root / "near-ensemble.json"
+        payload = json.loads(ensemble_path.read_text())
+        payload["g1_policy_contract_sha256"] = "wrong"
+        ensemble_path.write_text(json.dumps(payload))
+        record = validate_scenario(
+            "near", 0.08, ensemble_path,
+            self.root / "near-preflight.json",
+            self.root / "near-dynamics.json",
+        )
+        self.assertFalse(record["accepted"])
+        self.assertIn("ensemble_contract_binding_mismatch", record["reasons"])
 
 
 if __name__ == "__main__":

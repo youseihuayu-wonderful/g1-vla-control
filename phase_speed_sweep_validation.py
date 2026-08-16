@@ -15,7 +15,13 @@ from pathlib import Path
 
 import numpy as np
 
-from g1_policy_contract import ACTION_HORIZON, POLICY_RATE_HZ
+from g1_policy_contract import (
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+    POLICY_RATE_HZ,
+)
 
 ROLES = ("near", "mixed", "far")
 NOMINAL_CHUNK_DURATION_S = (ACTION_HORIZON - 1) / POLICY_RATE_HZ
@@ -52,6 +58,19 @@ def validate_scenario(
     preflight = _load(preflight_path)
     dynamics = _load(dynamics_path)
     reasons: list[str] = []
+    expected_binding = {
+        "g1_policy_contract_id": CONTRACT_ID,
+        "g1_policy_contract_version": CONTRACT_VERSION,
+        "g1_policy_contract_sha256": CONTRACT_SHA256,
+        "action_horizon": ACTION_HORIZON,
+    }
+    for label, payload in (
+        ("ensemble", ensemble),
+        ("preflight", preflight),
+        ("dynamics", dynamics),
+    ):
+        if any(payload.get(key) != value for key, value in expected_binding.items()):
+            reasons.append(f"{label}_contract_binding_mismatch")
 
     output_path = Path(str(ensemble.get("output", "")))
     if not output_path.is_file():
@@ -83,6 +102,8 @@ def validate_scenario(
         reasons.append("preflight_observation_state_mismatch")
     if observation_binding.get("cube_translation_matches") is not True:
         reasons.append("preflight_observation_scene_mismatch")
+    if observation_binding.get("contract_matches") is not True:
+        reasons.append("preflight_observation_contract_mismatch")
     if not _false_safety_flags(preflight):
         reasons.append("preflight_safety_flags_not_false")
     preflight_summary = preflight.get("summary", {})

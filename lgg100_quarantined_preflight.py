@@ -14,7 +14,14 @@ import numpy as np
 from action_schema import EEFActionChunk, pelvis_vla_action_to_world_mujoco
 from dex1_gripper import Dex1Controller
 from g1_mujoco_bridge import policy_state_from_mujoco
-from g1_policy_contract import ACTION_DIM, ACTION_HORIZON, POLICY_RATE_HZ
+from g1_policy_contract import (
+    ACTION_DIM,
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+    POLICY_RATE_HZ,
+)
 from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
 from safety_governor import G1TargetPreflight
@@ -26,6 +33,24 @@ ROOT = Path(__file__).resolve().parent
 
 def _load_chunks(path: Path) -> np.ndarray:
     with np.load(path, allow_pickle=False) as payload:
+        binding = {
+            "g1_policy_contract_id": str(payload["g1_policy_contract_id"].item()),
+            "g1_policy_contract_version": str(
+                payload["g1_policy_contract_version"].item()
+            ),
+            "g1_policy_contract_sha256": str(
+                payload["g1_policy_contract_sha256"].item()
+            ),
+            "action_horizon": int(payload["action_horizon"].item()),
+        }
+        expected = {
+            "g1_policy_contract_id": CONTRACT_ID,
+            "g1_policy_contract_version": CONTRACT_VERSION,
+            "g1_policy_contract_sha256": CONTRACT_SHA256,
+            "action_horizon": ACTION_HORIZON,
+        }
+        if binding != expected:
+            raise ValueError(f"chunk contract binding mismatch: {binding}")
         for key in ("actions", "raw_actions"):
             if key in payload:
                 chunks = np.asarray(payload[key], dtype=np.float64)
@@ -79,6 +104,11 @@ def main() -> None:
         raise ValueError("Semantic identification report is not passing")
     if semantics.get("g1_contract_verified") is not False:
         raise ValueError("This diagnostic expects the contract to remain unverified")
+    if (
+        semantics.get("g1_policy_contract_id") != CONTRACT_ID
+        or semantics.get("g1_policy_contract_sha256") != CONTRACT_SHA256
+    ):
+        raise ValueError("semantic report contract binding does not match current code")
 
     raw_chunks = _load_chunks(args.chunks)
     model = build_model()
@@ -100,6 +130,25 @@ def main() -> None:
             observation_translation = np.asarray(
                 payload["cube_translation_m"], dtype=np.float64
             )
+            observation_contract = {
+                "g1_policy_contract_id": str(
+                    payload["g1_policy_contract_id"].item()
+                ),
+                "g1_policy_contract_version": str(
+                    payload["g1_policy_contract_version"].item()
+                ),
+                "g1_policy_contract_sha256": str(
+                    payload["g1_policy_contract_sha256"].item()
+                ),
+                "action_horizon": int(payload["action_horizon"].item()),
+            }
+        expected_contract = {
+            "g1_policy_contract_id": CONTRACT_ID,
+            "g1_policy_contract_version": CONTRACT_VERSION,
+            "g1_policy_contract_sha256": CONTRACT_SHA256,
+            "action_horizon": ACTION_HORIZON,
+        }
+        contract_matches = observation_contract == expected_contract
         state_error = float(np.max(np.abs(observation_state - source_state)))
         translation_matches = bool(np.allclose(
             observation_translation, cube_translation, rtol=0.0, atol=1e-12
@@ -109,7 +158,11 @@ def main() -> None:
             "sha256": hashlib.sha256(args.observation.read_bytes()).hexdigest(),
             "maximum_state_error": state_error,
             "cube_translation_matches": translation_matches,
-            "accepted": bool(state_error <= 1e-6 and translation_matches),
+            "contract_matches": contract_matches,
+            **observation_contract,
+            "accepted": bool(
+                state_error <= 1e-6 and translation_matches and contract_matches
+            ),
         }
         if not observation_binding["accepted"]:
             raise ValueError("Observation state/scene does not match preflight source")
@@ -241,6 +294,10 @@ def main() -> None:
             args.semantic_report.read_bytes()
         ).hexdigest(),
         "semantic_identification_supported": True,
+        "g1_policy_contract_id": CONTRACT_ID,
+        "g1_policy_contract_version": CONTRACT_VERSION,
+        "g1_policy_contract_sha256": CONTRACT_SHA256,
+        "action_horizon": ACTION_HORIZON,
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,

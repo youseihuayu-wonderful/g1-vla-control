@@ -14,7 +14,13 @@ import numpy as np
 from action_schema import EEFActionChunk
 from adaptive_speed_context import ContextAwareRetimer
 from dex1_gripper import Dex1Controller
-from g1_policy_contract import POLICY_RATE_HZ
+from g1_policy_contract import (
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+    POLICY_RATE_HZ,
+)
 from g1_sim_speed_context import build_simulation_speed_context
 from neural_action_audit import audit_neural_action_chunk
 from retiming_safety_validation import _run_scale
@@ -54,13 +60,48 @@ def main() -> None:
         raise ValueError("Semantic identification is not passing")
     if semantics.get("g1_contract_verified") is not False:
         raise ValueError("This script must not consume a hardware-authorized report")
+    expected_binding = {
+        "g1_policy_contract_id": CONTRACT_ID,
+        "g1_policy_contract_version": CONTRACT_VERSION,
+        "g1_policy_contract_sha256": CONTRACT_SHA256,
+        "action_horizon": ACTION_HORIZON,
+    }
+    if (
+        semantics.get("g1_policy_contract_id") != CONTRACT_ID
+        or semantics.get("g1_policy_contract_sha256") != CONTRACT_SHA256
+    ):
+        raise ValueError("semantic report contract binding does not match current code")
+    if any(preflight.get(key) != value for key, value in expected_binding.items()):
+        raise ValueError("preflight contract binding does not match current code")
     if preflight.get("execution_performed") is not False:
         raise ValueError("Expected diagnostic-only preflight evidence")
+    chunks_hash = hashlib.sha256(args.chunks.read_bytes()).hexdigest()
+    semantic_hash = hashlib.sha256(args.semantic_report.read_bytes()).hexdigest()
+    if preflight.get("source_chunks_sha256") != chunks_hash:
+        raise ValueError("preflight does not bind the source chunks")
+    if preflight.get("semantic_report_sha256") != semantic_hash:
+        raise ValueError("preflight does not bind the semantic report")
 
     with np.load(args.chunks, allow_pickle=False) as payload:
+        chunk_binding = {
+            "g1_policy_contract_id": str(payload["g1_policy_contract_id"].item()),
+            "g1_policy_contract_version": str(
+                payload["g1_policy_contract_version"].item()
+            ),
+            "g1_policy_contract_sha256": str(
+                payload["g1_policy_contract_sha256"].item()
+            ),
+            "action_horizon": int(payload["action_horizon"].item()),
+        }
+        if chunk_binding != expected_binding:
+            raise ValueError("chunk contract binding does not match current code")
         raw_chunks = np.asarray(payload["actions"], dtype=np.float64)
     if raw_chunks.ndim == 2:
         raw_chunks = raw_chunks[None]
+    if raw_chunks.shape[1:] != (ACTION_HORIZON, 16):
+        raise ValueError(f"unexpected chunk shape {raw_chunks.shape}")
+    if len(preflight.get("chunks", [])) != len(raw_chunks):
+        raise ValueError("preflight/chunk count mismatch")
 
     model = build_model()
     source = mujoco.MjData(model)
@@ -266,14 +307,13 @@ def main() -> None:
     report = {
         "scope": "Quarantined single-chunk MuJoCo dynamics diagnostic; never G1 hardware and not task success.",
         "cube_translation_m": cube_translation.tolist(),
-        "source_chunks_sha256": hashlib.sha256(args.chunks.read_bytes()).hexdigest(),
-        "semantic_report_sha256": hashlib.sha256(
-            args.semantic_report.read_bytes()
-        ).hexdigest(),
+        "source_chunks_sha256": chunks_hash,
+        "semantic_report_sha256": semantic_hash,
         "preflight_report_sha256": hashlib.sha256(
             args.preflight_report.read_bytes()
         ).hexdigest(),
         "semantic_identification_supported": True,
+        **expected_binding,
         "g1_contract_verified": False,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,

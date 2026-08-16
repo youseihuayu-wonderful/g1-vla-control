@@ -10,7 +10,13 @@ from pathlib import Path
 
 import numpy as np
 
-from g1_policy_contract import ACTION_DIM, ACTION_HORIZON
+from g1_policy_contract import (
+    ACTION_DIM,
+    ACTION_HORIZON,
+    CONTRACT_ID,
+    CONTRACT_SHA256,
+    CONTRACT_VERSION,
+)
 
 
 def _normalize_quaternions(values: np.ndarray) -> np.ndarray:
@@ -65,6 +71,14 @@ def main() -> None:
         raise ValueError("probe report does not bind the source draws")
     if probe.get("g1_execution_enabled") is not False:
         raise ValueError("source probe must remain non-executable")
+    expected_binding = {
+        "g1_policy_contract_id": CONTRACT_ID,
+        "g1_policy_contract_version": CONTRACT_VERSION,
+        "g1_policy_contract_sha256": CONTRACT_SHA256,
+        "action_horizon": ACTION_HORIZON,
+    }
+    if any(probe.get(key) != value for key, value in expected_binding.items()):
+        raise ValueError("source probe contract binding does not match current code")
     with np.load(args.draws, allow_pickle=False) as payload:
         if not bool(payload["quarantined"].item()):
             raise ValueError("source draws must be quarantined")
@@ -84,6 +98,10 @@ def main() -> None:
         checkpoint_revision=np.asarray(checkpoint_revision),
         source_draw_count=np.asarray(len(draws)),
         source_draws_sha256=np.asarray(source_hash),
+        g1_policy_contract_id=np.asarray(CONTRACT_ID),
+        g1_policy_contract_version=np.asarray(CONTRACT_VERSION),
+        g1_policy_contract_sha256=np.asarray(CONTRACT_SHA256),
+        action_horizon=np.asarray(ACTION_HORIZON),
         executable=np.asarray(False),
         quarantined=np.asarray(True),
         derived_bounded_analysis=np.asarray(True),
@@ -99,6 +117,7 @@ def main() -> None:
         "source_observation": probe.get("observation"),
         "source_observation_sha256": probe.get("observation_sha256"),
         "checkpoint_revision": checkpoint_revision,
+        **expected_binding,
         "output": str(args.output),
         "output_sha256": _sha256(args.output),
         "g1_contract_verified": False,
