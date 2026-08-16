@@ -184,14 +184,28 @@ def main() -> None:
     phase_speed = json.loads(args.phase_speed_report.read_text())
     if (
         semantic.get("semantic_identification_supported") is not True
+        or semantic.get("g1_policy_contract_id") != CONTRACT_ID
+        or semantic.get("g1_policy_contract_sha256") != CONTRACT_SHA256
         or semantic.get("g1_contract_verified") is not False
     ):
         raise ValueError("semantic identification evidence is not suitable")
-    if (
-        phase_speed.get("controlled_phase_speed_behavior_passed") is not True
-        or phase_speed.get("g1_execution_enabled") is not False
-    ):
-        raise ValueError("phase-aware speed evidence is not passing and quarantined")
+    phase_binding_matches = bool(
+        phase_speed.get("g1_policy_contract_id") == CONTRACT_ID
+        and phase_speed.get("g1_policy_contract_sha256") == CONTRACT_SHA256
+        and phase_speed.get("action_horizon") == ACTION_HORIZON
+        and phase_speed.get("g1_execution_enabled") is False
+    )
+    required_phase_gate = (
+        phase_speed.get("controlled_phase_speed_behavior_passed") is True
+        if args.adaptive
+        else phase_speed.get("controlled_near_far_speed_behavior_passed") is True
+    )
+    if not phase_binding_matches or not required_phase_gate:
+        requirement = (
+            "full near/far plus mixed-transition coverage"
+            if args.adaptive else "near/far behavior for the Adaptive-OFF baseline"
+        )
+        raise ValueError(f"phase-speed evidence does not satisfy {requirement}")
 
     with socket.create_connection((args.host, args.port), timeout=5.0):
         pass
@@ -552,6 +566,11 @@ def main() -> None:
         "camera_calibration_sha256": _sha256(args.camera_calibration),
         "cube_translation_m": cube_translation.tolist(),
         "adaptive_retiming_enabled": args.adaptive,
+        "phase_speed_gate_requirement": (
+            "full_near_far_and_mixed_transition"
+            if args.adaptive else "near_far_only_for_adaptive_off"
+        ),
+        "phase_speed_gate_passed": required_phase_gate,
         "paused_step_synchronous_diagnostic": (
             args.paused_step_synchronous_diagnostic
         ),

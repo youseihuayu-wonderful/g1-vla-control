@@ -246,11 +246,32 @@ def main() -> None:
     monotonic_clearance = bool(
         np.all(np.isfinite(clearances)) and np.all(np.diff(clearances) > 0.0)
     )
-    passed = bool(monotonic_clearance and all(record["accepted"] for record in ordered))
+    by_role = {record["role"]: record for record in ordered}
+    controlled_near_far_speed_behavior_passed = bool(
+        monotonic_clearance
+        and by_role["near"]["accepted"]
+        and by_role["far"]["accepted"]
+    )
+    mixed_transition_coverage_passed = bool(by_role["mixed"]["accepted"])
+    passed = bool(
+        controlled_near_far_speed_behavior_passed
+        and mixed_transition_coverage_passed
+    )
+    expected_binding = {
+        "g1_policy_contract_id": CONTRACT_ID,
+        "g1_policy_contract_version": CONTRACT_VERSION,
+        "g1_policy_contract_sha256": CONTRACT_SHA256,
+        "action_horizon": ACTION_HORIZON,
+    }
     report = {
         "scope": "Controlled hash-bound phase-aware speed sweep over quarantined single-chunk LGG100 ensembles.",
+        **expected_binding,
         "scenarios": ordered,
         "monotonic_clearance": monotonic_clearance,
+        "controlled_near_far_speed_behavior_passed": (
+            controlled_near_far_speed_behavior_passed
+        ),
+        "mixed_transition_coverage_passed": mixed_transition_coverage_passed,
         "controlled_phase_speed_behavior_passed": passed,
         "semantic_interpretation_supported": True,
         "observation_execution_initial_state_bound": passed,
@@ -262,15 +283,19 @@ def main() -> None:
         "g1_execution_enabled": False,
         "hardware_execution_performed": False,
         "verdict": (
-            "Controlled phase-aware speed behavior passed. This does not validate scene calibration, closed-loop stacking, or hardware execution."
+            "Controlled near/far and mixed-transition speed behavior passed. This does not validate scene calibration, closed-loop stacking, or hardware execution."
             if passed else
-            "Controlled phase-aware speed behavior failed; keep all neural actions quarantined."
+            "Near/far behavior and mixed-transition coverage are reported separately. Adaptive ON remains blocked unless both pass."
         ),
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     print(args.output)
     print(json.dumps({
+        "controlled_near_far_speed_behavior_passed": (
+            controlled_near_far_speed_behavior_passed
+        ),
+        "mixed_transition_coverage_passed": mixed_transition_coverage_passed,
         "controlled_phase_speed_behavior_passed": passed,
         "monotonic_clearance": monotonic_clearance,
         "scenarios": [
