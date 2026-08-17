@@ -25,6 +25,16 @@ class SimulationContextConfig:
 
 
 @dataclass(frozen=True)
+class SimulationStateSnapshot:
+    """Action-independent evidence measured once from a MuJoCo state."""
+
+    minimum_dex_cube_clearance_m: float
+    dex_cube_contact: bool
+    joint_limit_margin_rad: float
+    pelvis_stability: float
+
+
+@dataclass(frozen=True)
 class SimulationContextEvidence:
     task_phase: str
     minimum_dex_cube_clearance_m: float
@@ -110,6 +120,25 @@ def pelvis_stability(model: mujoco.MjModel, data: mujoco.MjData) -> float:
     return float(np.clip(1.0 - tilt / np.deg2rad(20.0) - root_angular_speed / 2.0, 0.0, 1.0))
 
 
+def measure_simulation_state(
+    model: mujoco.MjModel,
+    data: mujoco.MjData,
+    *,
+    config: SimulationContextConfig | None = None,
+) -> SimulationStateSnapshot:
+    """Measure geometry and robot-state evidence shared by an action chunk."""
+    cfg = config or SimulationContextConfig()
+    mujoco.mj_forward(model, data)
+    return SimulationStateSnapshot(
+        minimum_dex_cube_clearance_m=minimum_dex_cube_clearance(
+            model, data, maximum_distance_m=cfg.maximum_distance_query_m
+        ),
+        dex_cube_contact=dex_cube_contact(model, data),
+        joint_limit_margin_rad=joint_limit_margin(model, data),
+        pelvis_stability=pelvis_stability(model, data),
+    )
+
+
 def build_simulation_speed_context(
     model: mujoco.MjModel,
     data: mujoco.MjData,
@@ -125,17 +154,18 @@ def build_simulation_speed_context(
     gripper_tracking_error_rad: float | None = None,
     network_timeout: bool = False,
     config: SimulationContextConfig | None = None,
+    state_snapshot: SimulationStateSnapshot | None = None,
 ) -> tuple[AdaptiveSafetyContext, SimulationContextEvidence]:
     cfg = config or SimulationContextConfig()
     commanded = np.asarray(commanded_grippers_rad, dtype=np.float64)
     measured = np.asarray(measured_grippers_rad, dtype=np.float64)
     if commanded.shape != (2,) or measured.shape != (2,):
         raise ValueError("commanded and measured grippers must have shape (2,)")
-    mujoco.mj_forward(model, data)
-    clearance = minimum_dex_cube_clearance(
-        model, data, maximum_distance_m=cfg.maximum_distance_query_m
+    snapshot = state_snapshot or measure_simulation_state(
+        model, data, config=cfg
     )
-    contact = dex_cube_contact(model, data)
+    clearance = snapshot.minimum_dex_cube_clearance_m
+    contact = snapshot.dex_cube_contact
     gripper_error = commanded - measured
     measured_tracking_error = (
         float(np.max(np.abs(gripper_error)))
@@ -154,8 +184,8 @@ def build_simulation_speed_context(
         phase = "approach"
     else:
         phase = "free_space"
-    margin = joint_limit_margin(model, data)
-    stability = pelvis_stability(model, data)
+    margin = snapshot.joint_limit_margin_rad
+    stability = snapshot.pelvis_stability
     context = AdaptiveSafetyContext(
         task_phase=phase,
         distance_to_goal_m=clearance,

@@ -78,9 +78,21 @@ def _attach_one(spec: mujoco.MjSpec, side: str) -> None:
         euler=[0.0, 0.0, yaw],
     )
     child = mujoco.MjSpec.from_file(str(DEX1_URDF))
-    child.compiler.meshdir = ""
+    # MjSpec versions differ on whether mesh.file retains compiler.meshdir.
+    # Resolve every mesh before clearing meshdir so attached specs are portable.
+    mesh_directory = Path(child.compiler.meshdir)
     for mesh in child.meshes:
-        mesh.file = str(DEX1_URDF.parent / mesh.file)
+        source = Path(mesh.file)
+        if not source.is_absolute():
+            with_meshdir = DEX1_URDF.parent / mesh_directory / source
+            without_meshdir = DEX1_URDF.parent / source
+            source = (
+                with_meshdir if with_meshdir.exists() else without_meshdir
+            )
+        if not source.is_file():
+            raise FileNotFoundError(f"Dex1 mesh not found: {source}")
+        mesh.file = str(source.resolve())
+    child.compiler.meshdir = ""
     spec.attach(child, prefix=f"{side}_dex1_", frame=mount)
 
     for finger in ("Joint1_1", "Joint2_1"):

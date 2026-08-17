@@ -158,7 +158,9 @@ def build_model() -> mujoco.MjModel:
         spec.body(f"{side}_wrist_yaw_link").add_site(
             name=f"{side}_eef",
             pos=[0.05, 0.0, 0.0],
-            size=[0.006],
+            # MuJoCo 3.3 validates MjSpec site size as a three-vector; for a
+            # sphere only the first value affects geometry.
+            size=[0.006, 0.006, 0.006],
             rgba=[0.1, 0.9, 0.9, 0.35],
         )
 

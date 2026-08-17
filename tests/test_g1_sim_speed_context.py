@@ -9,7 +9,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from adaptive_speed_context import decide_speed
 from dex1_gripper import Dex1Controller
-from g1_sim_speed_context import build_simulation_speed_context
+from g1_sim_speed_context import (
+    build_simulation_speed_context,
+    measure_simulation_state,
+)
 from stack_scene import build_model, reset_to_reference_pose
 
 
@@ -93,6 +96,17 @@ class G1SimulationSpeedContextTests(unittest.TestCase):
         self.assertTrue(decide_speed(context).hold)
         context, _ = self.context(observation_age_ms=101.0)
         self.assertTrue(decide_speed(context).hold)
+
+    def test_precomputed_state_snapshot_is_action_equivalent(self):
+        commanded = self.measured - 0.2
+        direct_context, direct_evidence = self.context(commanded=commanded)
+        snapshot = measure_simulation_state(self.model, self.data)
+        cached_context, cached_evidence = self.context(
+            commanded=commanded,
+            state_snapshot=snapshot,
+        )
+        self.assertEqual(cached_context, direct_context)
+        self.assertEqual(cached_evidence, direct_evidence)
 
 
 if __name__ == "__main__":
