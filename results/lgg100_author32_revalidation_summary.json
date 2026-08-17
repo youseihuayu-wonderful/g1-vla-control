@@ -1,0 +1,76 @@
+{
+  "scope": "Author-confirmed core-config LGG100 output-only revalidation; no simulation dynamics or hardware execution.",
+  "code_commit": "6d29f2ae431550e239bfd60d3e877a843a1c7bb4",
+  "checkpoint": {
+    "repo": "LGG100/stack-cube-eef-24k",
+    "revision": "cced7a7ff7b454fdcac555457a1a2a3dc262ac77"
+  },
+  "dataset_revision": "c468ef259ff8bfad1b3b0e7b2c1f45efbb0b30ba",
+  "author_core_config": {
+    "name": "pi05_g1_eef",
+    "action_horizon": 32,
+    "discrete_state_input": false,
+    "provenance": "direct communication reported by project owner",
+    "complete_historical_train_config_available": false
+  },
+  "image_preprocessing": "OpenPI-compatible resize_with_pad 480x640 RGB to 224x224",
+  "tests": {
+    "passed": 59,
+    "failed": 0,
+    "remote_log": "/home/user1/workspace/shihua/logs/lgg100_author32_tests.log",
+    "github_actions_run": 31848520564
+  },
+  "inference": {
+    "samples": 50,
+    "shape": [
+      32,
+      16
+    ],
+    "finite_shape_passes": 50,
+    "raw_contract_passes": 35,
+    "bounded_quaternion_postprocess_passes": 50,
+    "unique_raw_hashes": 50,
+    "cold_first_call_ms": 14611.068244092166,
+    "warm_calls": 49,
+    "warm_latency_ms": {
+      "p50": 80.51897678524256,
+      "p95": 81.38222601264715,
+      "p99": 83.19152265787125,
+      "max": 83.7516076862812
+    }
+  },
+  "semantic_validation": {
+    "usable_samples": 50,
+    "availability_rate": 1.0,
+    "best_hypothesis": "absolute_xyzw_lr",
+    "second_hypothesis": "absolute_xyzw_swapped",
+    "best_margin_fraction": 0.9742022782648035,
+    "best_sample_win_rate": 1.0,
+    "position_rmse_m": 0.00319527912709969,
+    "position_error_norm_p95_m": 0.0096799041118815,
+    "quaternion_geodesic_mean_deg": 0.7648390101118144,
+    "quaternion_geodesic_p95_deg": 1.7733410042288114,
+    "gripper_rmse_rad": 0.07536352683049315,
+    "first_target_jump_p95_m": 0.017245161305800012,
+    "model_score": 0.1740337119773122,
+    "hold_score": 0.9620788585474517,
+    "semantic_identification_supported": true,
+    "offline_single_draw_policy_quality_passed": true
+  },
+  "artifacts": {
+    "/home/user1/workspace/shihua/results/lgg100_author32_semantic_samples.npz": "e0d7e57c859aa6bbf53792fbf9e14df2cd0a7833319a914325d03174b3487d83",
+    "/home/user1/workspace/shihua/results/lgg100_author32_semantic_samples_manifest.json": "3e7f283b4b9cc79636a65d1857added17035b4b27562fa480248fcefd6009ee4",
+    "/home/user1/workspace/shihua/results/lgg100_author32_semantic_outputs_quarantined.npz": "92f360ef059617c915d4dabcb90adafa88531528f7cde2d426ff2e5958882173",
+    "/home/user1/workspace/shihua/results/lgg100_author32_semantic_inference.json": "1c065b3602e7060d6479561b3e05c0f6cf90fd44cce5cb8cc423636ba19538e0",
+    "/home/user1/workspace/shihua/results/lgg100_author32_semantic_validation.json": "9774003434643ad64d96d69bfc8af0bb18aec3614d87343526792fc06b6d71f0"
+  },
+  "policy_task_quality_passed": false,
+  "physical_scene_calibration_verified": false,
+  "real_time_watchdog_validated": false,
+  "g1_contract_verified": false,
+  "g1_sim_eligible": false,
+  "g1_execution_enabled": false,
+  "execution_performed": false,
+  "hardware_execution_performed": false,
+  "verdict": "Correct core config materially improves offline agreement and passes the registered semantic/single-draw offline gates. This is not closed-loop stacking evidence and does not enable G1 execution."
+}

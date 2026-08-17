@@ -1,0 +1,130 @@
+{
+  "scope": "Experimental quarantined real-LGG100 receding-horizon MuJoCo closed loop; never hardware.",
+  "checkpoint_revision": "cced7a7ff7b454fdcac555457a1a2a3dc262ac77",
+  "strict_neural_restore": true,
+  "semantic_report_sha256": "9774003434643ad64d96d69bfc8af0bb18aec3614d87343526792fc06b6d71f0",
+  "phase_speed_report_sha256": "7b52eacb1a46f3b49ec144b124ff756f094367aad396ab21d623eaac760549f4",
+  "camera_calibration_sha256": "dbd03e5bec7e2124ba5d3a35b8c99527bad389ce207a788e5359935238a7243f",
+  "cube_translation_m": [
+    0.08,
+    0.0,
+    0.0
+  ],
+  "adaptive_retiming_enabled": false,
+  "phase_speed_gate_requirement": "near_far_only_for_adaptive_off",
+  "phase_speed_gate_passed": true,
+  "paused_step_synchronous_diagnostic": true,
+  "online_ik_iterations": 30,
+  "prefix_duration_s": 0.03333333333333333,
+  "requested_cycles": 30,
+  "completed_cycles": 0,
+  "abort_reason": "swept_path_preflight_failed",
+  "closed_loop_completed_without_abort": false,
+  "initial_cubes": {
+    "red": {
+      "position_m": [
+        0.54,
+        0.0,
+        0.8310000000000001
+      ],
+      "linear_speed_m_s": 0.0
+    },
+    "blue": {
+      "position_m": [
+        0.51,
+        0.18,
+        0.8310000000000001
+      ],
+      "linear_speed_m_s": 0.0
+    },
+    "yellow": {
+      "position_m": [
+        0.51,
+        -0.18,
+        0.8310000000000001
+      ],
+      "linear_speed_m_s": 0.0
+    },
+    "task_metrics": {
+      "blue_on_red": false,
+      "yellow_on_blue": false,
+      "all_cubes_stationary": true,
+      "full_stack_geometric_success": false
+    }
+  },
+  "final_cubes": {
+    "red": {
+      "position_m": [
+        0.54,
+        0.0,
+        0.8310000000000001
+      ],
+      "linear_speed_m_s": 0.0
+    },
+    "blue": {
+      "position_m": [
+        0.51,
+        0.18,
+        0.8310000000000001
+      ],
+      "linear_speed_m_s": 0.0
+    },
+    "yellow": {
+      "position_m": [
+        0.51,
+        -0.18,
+        0.8310000000000001
+      ],
+      "linear_speed_m_s": 0.0
+    },
+    "task_metrics": {
+      "blue_on_red": false,
+      "yellow_on_blue": false,
+      "all_cubes_stationary": true,
+      "full_stack_geometric_success": false
+    }
+  },
+  "stable_success_cycles": 0,
+  "task_success": false,
+  "records": [
+    {
+      "cycle": 0,
+      "execution_performed": false,
+      "accepted": false,
+      "reasons": [
+        "swept_path_preflight_failed"
+      ],
+      "inference_latency_ms": 80.44925425201654,
+      "observation_age_after_inference_ms": 89.08572979271412,
+      "preflight_latency_ms": 11.997750960290432,
+      "observation_age_at_commit_ms": 121.4851588010788,
+      "maximum_observation_age_ms": 100.0,
+      "paused_step_synchronous_diagnostic": true,
+      "raw_sha256": "260a6d46e2116f5aacee17db65b16f4f744a975b39e0f13e28d005d1ec5e286b",
+      "preflight_scope": "committed_prefix_only",
+      "committed_action_count": 2,
+      "target_preflight": {
+        "covered_by_swept_path_preflight": true,
+        "checked": 2,
+        "all_accepted": null
+      },
+      "swept_path_preflight": {
+        "accepted": false,
+        "reason": "unreachable",
+        "rejection_target_index": 0,
+        "rejection_substep": null,
+        "collision_reasons": []
+      }
+    }
+  ],
+  "chunks_output": "/home/user1/workspace/shihua/results/lgg100_author32_closed_loop_t0_offset008_baseline_paused_quarantined.npz",
+  "chunks_output_sha256": "a5adde9e18c506abed0fa3c3ef2f8430f4e753601c2346e7c6eaac392f7264cd",
+  "physical_scene_calibration_verified": false,
+  "policy_task_quality_passed": false,
+  "g1_contract_verified": false,
+  "g1_sim_eligible": false,
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false,
+  "real_time_watchdog_validated": false,
+  "verdict": "Closed-loop task success was not demonstrated; keep all neural actions quarantined."
+}

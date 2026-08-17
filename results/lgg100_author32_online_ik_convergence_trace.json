@@ -1,0 +1,247 @@
+{
+  "scope": "Read-only convergence trace for author-32 cycle-0 first target; MuJoCo only, never hardware.",
+  "modes": {
+    "realtime": {
+      "artifact": "/home/user1/workspace/shihua/results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime_quarantined.npz",
+      "raw_first_action": [
+        0.2558163954185685,
+        0.153376965701711,
+        0.11930761594659009,
+        0.00970761146575662,
+        -0.04939268941049235,
+        -0.015709703859793863,
+        0.9986086969965092,
+        0.24034645968235335,
+        -0.0646418363687252,
+        0.11474681757050564,
+        0.014566275027167678,
+        -0.03411658195238147,
+        0.27376673010737024,
+        0.961080464869637,
+        5.3348552803045175,
+        5.402504662638246
+      ],
+      "target_world": {
+        "left_position": [
+          0.2558163954185685,
+          0.153376965701711,
+          0.9093076159465902
+        ],
+        "right_position": [
+          0.24034645968235335,
+          -0.0646418363687252,
+          0.9047468175705057
+        ]
+      },
+      "trace": [
+        {
+          "iteration": 0,
+          "left_position_error_m": 0.04437080297267834,
+          "right_position_error_m": 0.029125081832645283,
+          "left_orientation_error_deg": 7.04985856306717,
+          "right_orientation_error_deg": 27.308068531215334
+        },
+        {
+          "iteration": 1,
+          "left_position_error_m": 0.04082801411169947,
+          "right_position_error_m": 0.02624587164200535,
+          "left_orientation_error_deg": 6.739931307471488,
+          "right_orientation_error_deg": 26.082390681871967
+        },
+        {
+          "iteration": 5,
+          "left_position_error_m": 0.029312785025824538,
+          "right_position_error_m": 0.017277163535513018,
+          "left_orientation_error_deg": 5.625607607906705,
+          "right_orientation_error_deg": 21.705495640276705
+        },
+        {
+          "iteration": 10,
+          "left_position_error_m": 0.019485481417345737,
+          "right_position_error_m": 0.010273004412232658,
+          "left_orientation_error_deg": 4.482179760863867,
+          "right_orientation_error_deg": 17.252854753818898
+        },
+        {
+          "iteration": 20,
+          "left_position_error_m": 0.008870897270498298,
+          "right_position_error_m": 0.0040342286367744664,
+          "left_orientation_error_deg": 2.8399523136109215,
+          "right_orientation_error_deg": 10.902748615663896
+        },
+        {
+          "iteration": 30,
+          "left_position_error_m": 0.004238835976688354,
+          "right_position_error_m": 0.0021990116514397683,
+          "left_orientation_error_deg": 1.798206600586674,
+          "right_orientation_error_deg": 6.891821814412252
+        },
+        {
+          "iteration": 40,
+          "left_position_error_m": 0.002125768370145869,
+          "right_position_error_m": 0.001480918874489886,
+          "left_orientation_error_deg": 1.1385600561398652,
+          "right_orientation_error_deg": 4.357360947366321
+        },
+        {
+          "iteration": 60,
+          "left_position_error_m": 0.0005999846833666139,
+          "right_position_error_m": 0.0006794154623856386,
+          "left_orientation_error_deg": 0.45650111213285727,
+          "right_orientation_error_deg": 1.742456448018807
+        },
+        {
+          "iteration": 100,
+          "left_position_error_m": 6.343859655617936e-05,
+          "right_position_error_m": 0.00011718815448008917,
+          "left_orientation_error_deg": 0.07336492356156854,
+          "right_orientation_error_deg": 0.2787948552474336
+        },
+        {
+          "iteration": 150,
+          "left_position_error_m": 5.171787582989555e-06,
+          "right_position_error_m": 1.2075364092962497e-05,
+          "left_orientation_error_deg": 0.007459525274709547,
+          "right_orientation_error_deg": 0.02822045786718189
+        },
+        {
+          "iteration": 250,
+          "left_position_error_m": 5.017793684329833e-08,
+          "right_position_error_m": 1.2842940124790695e-07,
+          "left_orientation_error_deg": 7.708541713972047e-05,
+          "right_orientation_error_deg": 0.0002892749927118203
+        }
+      ],
+      "joints_at_limits_after_250": {
+        "left": [],
+        "right": []
+      },
+      "elapsed_ms": 82.83126167953014,
+      "passes": {
+        "30": false,
+        "250": true
+      }
+    },
+    "paused": {
+      "artifact": "/home/user1/workspace/shihua/results/lgg100_author32_closed_loop_t0_offset008_baseline_paused_quarantined.npz",
+      "raw_first_action": [
+        0.2471500677206092,
+        0.14456459579026326,
+        0.12373030623981554,
+        0.012868412822122737,
+        -0.04202403705686792,
+        -0.034932278693467406,
+        0.998422816328916,
+        0.24158694933612357,
+        -0.06871870217591197,
+        0.114726737962006,
+        0.016127199511663328,
+        -0.04332975037034557,
+        0.2553120088355883,
+        0.9657526724338333,
+        5.283512209496089,
+        5.406384424160913
+      ],
+      "target_world": {
+        "left_position": [
+          0.2471500677206092,
+          0.14456459579026326,
+          0.9137303062398155
+        ],
+        "right_position": [
+          0.24158694933612357,
+          -0.06871870217591197,
+          0.9047267379620061
+        ]
+      },
+      "trace": [
+        {
+          "iteration": 0,
+          "left_position_error_m": 0.04391511651664092,
+          "right_position_error_m": 0.02489819827504071,
+          "left_orientation_error_deg": 5.536047912692435,
+          "right_orientation_error_deg": 24.90801315842097
+        },
+        {
+          "iteration": 1,
+          "left_position_error_m": 0.04085400347262971,
+          "right_position_error_m": 0.02242667087797561,
+          "left_orientation_error_deg": 5.296269766702458,
+          "right_orientation_error_deg": 23.789985672551406
+        },
+        {
+          "iteration": 5,
+          "left_position_error_m": 0.030569286816687077,
+          "right_position_error_m": 0.014742052338229268,
+          "left_orientation_error_deg": 4.432172520259471,
+          "right_orientation_error_deg": 19.797779176741226
+        },
+        {
+          "iteration": 10,
+          "left_position_error_m": 0.021279831996880137,
+          "right_position_error_m": 0.00876735672592561,
+          "left_orientation_error_deg": 3.541845136806109,
+          "right_orientation_error_deg": 15.736699895810874
+        },
+        {
+          "iteration": 20,
+          "left_position_error_m": 0.01041810875356882,
+          "right_position_error_m": 0.0035049158790149714,
+          "left_orientation_error_deg": 2.255587111723486,
+          "right_orientation_error_deg": 9.944984556281728
+        },
+        {
+          "iteration": 30,
+          "left_position_error_m": 0.0052069846474332585,
+          "right_position_error_m": 0.0019713101609366477,
+          "left_orientation_error_deg": 1.4341651422135526,
+          "right_orientation_error_deg": 6.286581341637439
+        },
+        {
+          "iteration": 40,
+          "left_position_error_m": 0.002662672922025575,
+          "right_position_error_m": 0.0013428354424871365,
+          "left_orientation_error_deg": 0.9112323389384954,
+          "right_orientation_error_deg": 3.974777114518644
+        },
+        {
+          "iteration": 60,
+          "left_position_error_m": 0.0007444237588698201,
+          "right_position_error_m": 0.0006170103734739526,
+          "left_orientation_error_deg": 0.36737807588326765,
+          "right_orientation_error_deg": 1.5895079493986035
+        },
+        {
+          "iteration": 100,
+          "left_position_error_m": 7.426078057941747e-05,
+          "right_position_error_m": 0.00010654213063164727,
+          "left_orientation_error_deg": 0.05950597129897184,
+          "right_orientation_error_deg": 0.25433293612882657
+        },
+        {
+          "iteration": 150,
+          "left_position_error_m": 5.882384089004368e-06,
+          "right_position_error_m": 1.0997643777605193e-05,
+          "left_orientation_error_deg": 0.006095875841854926,
+          "right_orientation_error_deg": 0.02574560564708979
+        },
+        {
+          "iteration": 250,
+          "left_position_error_m": 5.705276180946848e-08,
+          "right_position_error_m": 1.1711411925830989e-07,
+          "left_orientation_error_deg": 6.38594303256857e-05,
+          "right_orientation_error_deg": 0.00026393272035843965
+        }
+      ],
+      "joints_at_limits_after_250": {
+        "left": [],
+        "right": []
+      },
+      "elapsed_ms": 82.74419326335192,
+      "passes": {
+        "30": false,
+        "250": true
+      }
+    }
+  }
+}

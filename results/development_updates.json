@@ -1,0 +1,151 @@
+[
+  {
+    "time": "2026-08-16 00:00 PDT",
+    "title": "作者确认的 horizon-32 核心配置完成重验证",
+    "status": "partial",
+    "summary": "按 pi05_g1_eef、action_horizon=32、discrete_state_input=false 和 resize_with_pad(224,224) 重新验证真实 LGG100；旧 50-step/discrete-state/center-crop 结果降级为历史安全诊断。",
+    "done": [
+      "固定 checkpoint revision cced7a7ff7b454fdcac555457a1a2a3dc262ac77，并严格恢复完整参数树。",
+      "在五个公开 episode 的 50 个 observation 上重新执行真实 GPU output-only 推理。",
+      "重新验证 16-D pelvis-frame absolute EEF、xyzw、左手在前/右手在后的语义。"
+    ],
+    "conclusions": [
+      "50/50 输出均为有限的 [32,16]；热调用 P50/P95 为 80.52/81.38 ms。",
+      "absolute_xyzw_lr 在 50/50 可用样本中胜出，语义 margin 为 97.42%。",
+      "离线单次采样 score 优于 hold，但这不等于闭环抓取或堆叠成功。"
+    ],
+    "fixes": [
+      "修正 action horizon 50→32。",
+      "修正 discrete state true→false。",
+      "修正中心裁剪→OpenPI resize_with_pad。"
+    ],
+    "remaining": [
+      "完整历史 TrainConfig 和精确训练 OpenPI commit 仍未公开。",
+      "物理相机/场景标定、闭环任务质量、实时 watchdog 和硬件 Gate 均未通过。"
+    ],
+    "next": [
+      "只使用 horizon-32、当前 contract hash 绑定的 artifact 重建 Adaptive-OFF 基线。"
+    ],
+    "evidence": [
+      "LGG100_AUTHOR32_REVALIDATION_CN.md",
+      "results/lgg100_author32_revalidation_summary.json"
+    ]
+  },
+  {
+    "time": "2026-08-17 17:40 PDT",
+    "title": "IK unreachable 根因、watchdog 报告和控制链延迟诊断",
+    "status": "partial",
+    "summary": "Adaptive-OFF 在 cycle 0 fail-closed 停止。只读诊断证明目标本身可达，失败来自 30 次迭代的数值收敛预算不足；同时完成 watchdog 误报修复和一项控制链延迟优化。",
+    "done": [
+      "对 realtime/paused 两个随机 chunk 的 committed target 做 0–250 次迭代收敛跟踪。",
+      "对 damping 0.03–0.08、numerical step 0.02–0.05 做两目标只读参数扫描。",
+      "新增 hash-bound、quarantined-only IK 诊断工具 lgg100_ik_convergence_diagnostic.py。",
+      "将每个 32-step chunk 重复计算的 MuJoCo 几何/接触/关节 margin 改为每周期测量一次。",
+      "新增 render、post-inference setup、preflight 和最大 IK error 分阶段报告。"
+    ],
+    "conclusions": [
+      "原 30 次迭代下，右臂姿态误差为 6.89°/6.29°，超过注册的 3°，因此被正确拒绝。",
+      "60 次迭代后误差降至 1.74°/1.59°，位置误差小于 1 mm，且无关节触限；目标不是物理不可达。",
+      "参数扫描存在多个 30-iteration 数值候选能让两个 committed target 通过，但尚未完成完整 swept-collision/多 chunk 回归，不能直接采用。",
+      "旧完整 commit age 为 119.94 ms，仍超过 100 ms。"
+    ],
+    "fixes": [
+      "修复‘没有执行任何动作却把 real_time_watchdog_validated 标成 true’的真空通过问题。",
+      "修复 rejection record 缺少具体位置/姿态误差和 stage latency 的诊断缺口。",
+      "context 构建本地 median 从 11.96 ms 降至 0.61 ms，节省约 11.35 ms；尚需远端端到端复测。",
+      "修复 MuJoCo MjSpec/Dex1 mesh 路径的版本兼容问题。"
+    ],
+    "remaining": [
+      "选择 IK 数值参数前必须完成完整 committed-prefix 碰撞、随机目标和 sequential continuity 回归。",
+      "预计优化后仍约 108–109 ms，距离 100 ms 还差约 9 ms；估算不能替代实测。",
+      "正确配置下 Adaptive-OFF 尚未完成一个执行周期，任务成功仍为 false。"
+    ],
+    "next": [
+      "把候选 IK step 纳入完整 swept-path 回归，不放宽 5 mm/3° 安全阈值。",
+      "在 GPU 空闲时重跑 instrumented realtime Adaptive-OFF，按 stage profile 再优化约 9 ms。",
+      "基础策略稳定抓取后才运行 Adaptive ON。"
+    ],
+    "evidence": [
+      "commit c445b39",
+      "GitHub Actions 32071402346: success",
+      "68/68 local tests",
+      "results/lgg100_author32_online_ik_convergence_trace.json",
+      "results/lgg100_author32_online_ik_parameter_sweep.json"
+    ]
+  },
+  {
+    "time": "2026-08-17 17:57 PDT",
+    "title": "SSH/Mosh 稳定性实测与 Herdr 持久连接方案",
+    "status": "pass",
+    "summary": "确认 Herdr 负责本地 pane 持久化，但不负责远端 TCP。Mosh 已在本机和跳板机安装并实测，因 VPN 阻断 UDP 而不启用；改用双层 SSH ControlMaster 和 Herdr keepalive pane。",
+    "done": [
+      "本机和跳板机安装 Mosh 1.4.0，并实际启动 UDP session。",
+      "验证本机无法直接访问 10.145.87.65，ProxyJump 不转发 Mosh UDP；实际出现 Last contact，已清理测试 server。",
+      "为 shihua-vla-jump 与 shihua-vla 配置独立 ControlMaster、ControlPath 和 12 小时 ControlPersist。",
+      "Herdr pane ssh-keeper 每 30 秒检查并在失败时重建 jump/target master。",
+      "右侧 Herdr pane 已通过复用 master 连接到 user1@nnmc65。"
+    ],
+    "conclusions": [
+      "当前网络下不能声称 Mosh 会更稳定，也不能用 Mosh 替代 scp、端口转发和非交互自动化。",
+      "ControlMaster 已建立，连续 10 次远端命令复用成功，避免反复触发不稳定的 target SSH 握手。",
+      "该方案降低连接失败概率，但不修复 VPN 或 GPU 服务器 sshd 的底层故障。"
+    ],
+    "fixes": [
+      "SSH keepalive 调整为 15 秒、连续 6 次失败后断开。",
+      "新增本地 shihua-vla-keepalive supervisor，并将 control socket 放在 0700 目录。",
+      "后续长实验统一使用 setsid、PID、独立日志和状态 JSON，使任务不依赖 SSH channel 生命周期。"
+    ],
+    "remaining": [
+      "GPU 服务器 TCP/22 偶发超时的底层原因仍需网络/服务器管理员确认。",
+      "若未来坚持使用 Mosh，必须开放可达的 UDP 路由/端口；当前不具备。"
+    ],
+    "next": [
+      "所有 ssh/scp 自动复用现有 master；连接失效时由 ssh-keeper 重建。",
+      "恢复 IK 全路径回归与 Adaptive-OFF 仿真，不执行任何真机动作。"
+    ],
+    "evidence": [
+      "~/.ssh/config",
+      "~/.local/bin/shihua-vla-keepalive",
+      "Herdr pane ssh-keeper",
+      "10/10 multiplexed remote commands succeeded"
+    ]
+  },
+  {
+    "time": "2026-08-17 18:05 PDT",
+    "title": "HTML 升级为每次更新的强制结构化审计入口",
+    "status": "pass",
+    "summary": "将 validation_report.html 从过期静态摘要升级为当前 author-32 状态仪表板，并新增固定的开发更新 Tab；以后每次代码、实验、配置或基础设施变化都必须记录完整六部分。",
+    "done": [
+      "新增 results/development_updates.json 作为结构化更新的单一数据源。",
+      "HTML 新增开发更新首页，逐条展示本次完成、结论、修复、还差什么、下一步和证据。",
+      "同步 author-32 output、闭环、IK、phase-speed、延迟和 Gate JSON 到本地可审计 evidence。",
+      "将 dashboard 更新为 50/50 author-32 output、0 个 Adaptive-OFF 执行周期和 119.94/100 ms commit age。",
+      "新增测试，禁止缺字段、空列表、遗漏最新更新或遗漏硬件关闭声明。",
+      "CI 新增结构化开发日志、六部分标题和 g1_execution_enabled=false 的 HTML 完整性检查。"
+    ],
+    "conclusions": [
+      "旧 HTML 的 24/24、真实调用 0、等待 GPU、center crop 和 50-step 等陈述已不再代表当前状态。",
+      "当前 HTML 首屏明确显示真实进展与阻塞项，不把离线语义、历史 fixture 或安全 hold 误写成任务成功。"
+    ],
+    "fixes": [
+      "修正 GitHub 链接、contract 版本、resize_with_pad、author-32 指标和当前 Gate。",
+      "加入 --update-json 入口和完整字段验证，便于后续原子追加更新。",
+      "将默认 Tab 改为开发更新，并保留历史机制回归但明确标记其证据边界。"
+    ],
+    "remaining": [
+      "每次后续工作结束前仍需人工提供准确结论和证据路径；HTML 不能自动替代科学判断。",
+      "远端新实验结果必须先同步 JSON/hash，再更新状态，禁止仅凭终端输出改 Gate。"
+    ],
+    "next": [
+      "从下一项 IK swept-path 回归开始，每个改动都先追加结构化 update，再生成 HTML、运行测试并提交。",
+      "在 CI 中继续生成并上传 validation_report.html 作为验证 artifact。"
+    ],
+    "evidence": [
+      "generate_report.py",
+      "results/development_updates.json",
+      "validation_report.html",
+      "tests/test_development_report.py",
+      "71/71 local tests"
+    ]
+  }
+]

@@ -1,6 +1,7 @@
 {
-  "passed": 24,
+  "passed": 71,
   "failed": 0,
-  "total": 24,
-  "success": true
+  "total": 71,
+  "success": true,
+  "scope": "Local tests directory including structured HTML update auditing; GitHub Actions rerun pending."
 }

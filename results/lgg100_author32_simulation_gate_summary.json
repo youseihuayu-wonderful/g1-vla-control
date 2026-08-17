@@ -1,0 +1,36 @@
+{
+  "scope": "Author-confirmed horizon-32 MuJoCo gates and Adaptive-OFF baseline; never hardware.",
+  "phase_speed_gate": {
+    "process_exit": 1,
+    "near_far_passed": true,
+    "mixed_transition_coverage_passed": false,
+    "full_phase_speed_passed": false,
+    "path": "/home/user1/workspace/shihua/results/lgg100_author32_t0_phase_speed_sweep_validation.json",
+    "sha256": "7b52eacb1a46f3b49ec144b124ff756f094367aad396ab21d623eaac760549f4"
+  },
+  "realtime_baseline": {
+    "process_exit": 1,
+    "abort_reason": "swept_path_preflight_failed",
+    "completed_cycles": 0,
+    "task_success": false,
+    "real_time_watchdog_validated": true,
+    "path": "/home/user1/workspace/shihua/results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json",
+    "sha256": "f0452531398a05b05120b7e39b5a4d6fe52de6f23e3ac28bcb3ad2109315c99f"
+  },
+  "paused_baseline": {
+    "process_exit": 1,
+    "abort_reason": "swept_path_preflight_failed",
+    "completed_cycles": 0,
+    "task_success": false,
+    "path": "/home/user1/workspace/shihua/results/lgg100_author32_closed_loop_t0_offset008_baseline_paused.json",
+    "sha256": "8a79dc26be3f21a189244bc519929829de5afa70c5747acc20db334e0df2fe1d"
+  },
+  "adaptive_on_executed": false,
+  "policy_task_quality_passed": false,
+  "physical_scene_calibration_verified": false,
+  "g1_contract_verified": false,
+  "g1_sim_eligible": false,
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false,
+  "verdict": "Adaptive ON remains blocked until the author-32 Adaptive-OFF baseline succeeds under the registered gates."
+}
