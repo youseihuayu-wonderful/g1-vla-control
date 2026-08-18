@@ -1,0 +1,39 @@
+{
+  "schema_version": "g1_hardware_network_preflight_v1",
+  "timestamp": "2026-08-18T11:09:00-04:00",
+  "mode": "read_only_network_preflight",
+  "source": {
+    "type": "operator_provided_google_document",
+    "document_id": "1QoZlcU7rkTfpKey8VM_59dIZGsulCQKsC3P8WNycYpw",
+    "tab_id": "t.i74e3rpuj2kc",
+    "export_sha256": "d7f294901c6b16efcebd60bc1f9f134dd62c47cb66ab1303b646279a8cf96287",
+    "credentials_persisted": false
+  },
+  "document_facts": {
+    "robot_pc2_ssh_endpoint": "unitree@192.168.1.11",
+    "development_pc_ssh_endpoint": "yixiao@192.168.1.13",
+    "robot_pc2_role": "bridge_or_orin_to_internal_pc1",
+    "network": "operator_document_dedicated_subnetwork",
+    "left_wrist_camera_damaged_and_glued": true,
+    "camera_stream_single_consumer": true,
+    "required_safe_mode_for_read_only_setup": "Damping",
+    "safety_rope_required": true
+  },
+  "local_probe": {
+    "interface": "en0",
+    "local_ipv4": "192.168.1.14",
+    "wifi_association_report": "not_associated",
+    "route_to_192_168_1_0_24": "en0",
+    "robot_arp": "incomplete",
+    "development_pc_arp": "incomplete",
+    "robot_icmp_reachable": false,
+    "robot_ssh_port_reachable": false,
+    "development_pc_icmp_reachable": false,
+    "development_pc_ssh_port_reachable": false
+  },
+  "commands_sent_to_robot": false,
+  "ssh_login_attempted": false,
+  "hardware_execution_allowed": false,
+  "g1_execution_enabled": false,
+  "conclusion": "No layer-2 reachability to the documented robot or development PC endpoints. Do not attempt SDK or policy startup until the dedicated network peers are powered, associated, and read-only SSH checks pass."
+}

@@ -183,5 +183,43 @@
       "README.md D6/D7",
       "repository-wide Unitree SDK/LowState/LowCmd/Shadow interface audit"
     ]
+  },
+  {
+    "time": "2026-08-18 11:09 EDT",
+    "title": "读取 G1 操作指南并完成当前本机网络只读探测",
+    "status": "blocked",
+    "summary": "完整读取用户指定的 Google Docs Tab，并按文档中的 PC2/开发机地址对当前 Mac 做无登录、无命令的网络探测。Mac 有 192.168.1.14 路由，但 Wi-Fi 报告未关联，机器人和开发机 ARP 均不完整，当前不能 SSH。",
+    "done": [
+      "读取并 hash 绑定 Unitree G1 Operating Guide 指定 Tab；未把文档中的网络密码写入仓库或日志。",
+      "确认文档拓扑：机器人 PC2/Orin bridge 为 unitree@192.168.1.11，开发机为 yixiao@192.168.1.13。",
+      "检查本机接口、IPv4、路由、Wi-Fi association、ARP、ICMP 和 TCP/22。",
+      "确认本机没有 SSH 登录尝试，也没有向机器人发送服务或运动命令。"
+    ],
+    "conclusions": [
+      "当前 Mac 的 en0 为 192.168.1.14，但系统报告未关联 Wi-Fi；192.168.1.11 和 .13 均 No route to host/ARP incomplete，因此现在不能连接机器人。",
+      "文档要求读写相机流时先释放手机 App 的单一视频流；左腕相机已损坏并粘回，任何视觉标定前必须先检查画面和外参稳定性。",
+      "GPU server 只能作为推理端，经 PC2/开发机 tunnel 传输图像/action token；本地安全 supervisor 与停止能力不能依赖远端连接。"
+    ],
+    "fixes": [
+      "用文档确认的地址替代猜测 IP，并将首次连接限定为 Damping 模式下的只读 SSH 和 telemetry。",
+      "新增脱敏的 hardware network preflight JSON；不保存 Wi-Fi 密码。",
+      "继续保持 hardware_execution_allowed=false 和 g1_execution_enabled=false。"
+    ],
+    "remaining": [
+      "需要机器人和开发机上电并实际加入文档指定的专用网络，当前二层邻居不可达。",
+      "需要确认安全绳已收紧、机器人处于 Damping、操作员持 E-stop，且不进入 Walk/Control。",
+      "网络通过后仍需检查 SDK revision、关节映射、只读 LowState、Dex1 和三路相机，不允许 LowCmd。"
+    ],
+    "next": [
+      "操作员按文档安全流程让机器人保持 Damping，并把 Mac、手机、开发机接入文档指定网络。",
+      "先复测 ping/TCP 22，再只读 SSH 执行 hostname、uname、ip addr 和 teleimager 状态查询。",
+      "确认 SDK/topic 后实现只含 subscriber 的状态采集器，再进行零动作 Shadow。"
+    ],
+    "evidence": [
+      "Google document 1QoZlcU7rkTfpKey8VM_59dIZGsulCQKsC3P8WNycYpw tab t.i74e3rpuj2kc",
+      "document export SHA-256 d7f294901c6b16efcebd60bc1f9f134dd62c47cb66ab1303b646279a8cf96287",
+      "results/g1_hardware_network_preflight_20260818.json",
+      "local route/ARP/ping/TCP-22 read-only probe"
+    ]
   }
 ]
