@@ -1,0 +1,29 @@
+{
+  "schema_version": "g1_robot_connection_recheck_v1",
+  "timestamp": "2026-08-18T15:38:41-04:00",
+  "herdr_pane": "w1:p5",
+  "pane_label": "robot-readonly",
+  "outer_ssh": {
+    "endpoint": "yixiao@192.168.1.13",
+    "foreground_process_active": true,
+    "tcp_22_reachable": true,
+    "packets_transmitted": 3,
+    "packets_received": 3,
+    "packet_loss_percent": 0,
+    "rtt_min_ms": 164.662,
+    "rtt_avg_ms": 315.764,
+    "rtt_max_ms": 573.415,
+    "rtt_stddev_ms": 183.092
+  },
+  "nested_robot_ssh": {
+    "endpoint": "unitree@192.168.123.164",
+    "authenticated_prompt_visible": true,
+    "prompt": "(base) unitree@unitree-g1-nx:~$"
+  },
+  "remote_command_executed_by_agent": false,
+  "robot_command_sent": false,
+  "realtime_network_validated": false,
+  "hardware_execution_allowed": false,
+  "g1_execution_enabled": false,
+  "conclusion": "The authenticated nested robot shell is still active. The current development-PC RTT is highly variable and is not acceptable evidence for a realtime control path."
+}

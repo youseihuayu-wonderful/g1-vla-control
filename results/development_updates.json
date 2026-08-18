@@ -530,5 +530,43 @@
       "g1_policy_contract.yaml hardware blockers",
       "results/g1_robot_ssh_connection_status_20260818.json"
     ]
+  },
+  {
+    "time": "2026-08-18 15:39 EDT",
+    "title": "复查机器人嵌套 SSH 会话与当前网络延迟",
+    "status": "partial",
+    "summary": "Herdr w1:p5 外层开发机 SSH 进程仍存活，终端仍显示 unitree@unitree-g1-nx 的认证 prompt，确认机器人 shell 未断开；但开发机 3 包 RTT 波动到 165–573 ms，不能作为实时控制证据。",
+    "done": [
+      "检查 robot-readonly pane 的 foreground process 和最近终端内容。",
+      "确认 Mac→yixiao@192.168.1.13 外层 SSH 持续运行。",
+      "确认嵌套 unitree@192.168.123.164 prompt 仍可见。",
+      "复测开发机 ICMP 和 TCP/22；没有执行远端命令。"
+    ],
+    "conclusions": [
+      "当前确实仍连接到机器人内部 unitree-g1-nx shell。",
+      "连接可用于交互式只读 inventory，但本次 315.8 ms 平均 RTT 和 573.4 ms 最大值不适合实时控制。",
+      "shell 在线不改变 Damping 或任何硬件 Gate。"
+    ],
+    "fixes": [
+      "通过 pane process+authenticated prompt 双证据确认连接，避免只依据 stale terminal title。",
+      "将连接可用性与实时链路资格分开报告。",
+      "继续保持 remote_command_executed_by_agent=false 和 robot_command_sent=false。"
+    ],
+    "remaining": [
+      "需要调查开发机链路高 jitter，优先考虑有线/机器人内部本地 supervisor。",
+      "阶段 A inventory 尚未获用户确认，因此尚未执行。",
+      "LowState、相机、SDK、Shadow/HIL 和动作 Gate 仍未验证。"
+    ],
+    "next": [
+      "等待用户决定是否确认只执行阶段 A 的无动作 inventory。",
+      "确认后在现有 prompt 运行最小只读命令并立即停止。",
+      "任何动作、模式切换或服务重启仍需独立后续授权和通过全部 Gate。"
+    ],
+    "evidence": [
+      "results/g1_robot_connection_recheck_20260818_1539.json",
+      "Herdr w1:p5 robot-readonly",
+      "visible prompt (base) unitree@unitree-g1-nx:~$",
+      "3-packet development-PC RTT probe"
+    ]
   }
 ]
