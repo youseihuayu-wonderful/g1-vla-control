@@ -413,5 +413,43 @@
       "ed25519 fingerprint SHA256:Qyye+0Sr2TzYHVfwD0aSRffGhD0Hpizwj/w0GjGaiy8",
       "Herdr pane w1:p5 returned to local zsh"
     ]
+  },
+  {
+    "time": "2026-08-18 14:38 EDT",
+    "title": "通过开发机成功进入 G1 内部 Jetson/PC 的认证 shell",
+    "status": "partial",
+    "summary": "Herdr robot-readonly pane 已通过 yixiao@192.168.1.13 二次跳转到 unitree@192.168.123.164，并出现 unitree@unitree-g1-nx shell。已确认真实登录路径，但尚未运行任何 inventory、SDK、相机或动作命令。",
+    "done": [
+      "检查 Herdr w1:p5 的前台 SSH 进程和可见终端内容。",
+      "确认外层开发机 yixiao@192.168.1.13 已认证。",
+      "确认内层机器人 endpoint unitree@192.168.123.164 已认证，hostname prompt 为 unitree-g1-nx。",
+      "从登录 banner 确认机器人内部平台为 Ubuntu 22.04.5、5.15.148-tegra、aarch64。"
+    ],
+    "conclusions": [
+      "当前已经真正连接到机器人内部 NVIDIA/Jetson 平台，不再阻塞于 SSH credential。",
+      "实际路径是 Mac→开发机 192.168.1.13→机器人内部 192.168.123.164；文档中的 192.168.1.11 角色需要后续只读核对。",
+      "认证 shell 只解锁 read-only inventory，不代表 LowState、相机、Shadow 或动作 Gate 通过。"
+    ],
+    "fixes": [
+      "将真机拓扑从假定的直接 PC2 登录修正为经开发机进入内部机器人子网。",
+      "保存脱敏连接状态和平台 banner，不保存任何密码。",
+      "保持 remote_inventory_command_sent_by_agent=false 和 robot_command_sent=false。"
+    ],
+    "remaining": [
+      "需要读取 hostname、网卡、时间、teleimager、Unitree SDK 和 DDS/LowState 只读状态。",
+      "需要确认 192.168.1.11、192.168.123.164、PC1/PC2/Orin/NX 的准确角色与数据路径。",
+      "相机标定、左腕相机完整性、watchdog、E-stop、Shadow/HIL 和全部动作 Gate 仍未完成。"
+    ],
+    "next": [
+      "保持 Damping，在当前 shell 运行最小只读 inventory，不使用 sudo、不重启服务。",
+      "确认 SDK/topic 后实现 subscriber-only capture，明确禁止 LowCmd/Publisher。",
+      "测量机器人→开发机→L40S 的只读数据链延迟，仍不发送动作。"
+    ],
+    "evidence": [
+      "results/g1_robot_ssh_connection_status_20260818.json",
+      "Herdr pane w1:p5 robot-readonly",
+      "prompt (base) unitree@unitree-g1-nx:~$",
+      "authenticated nested SSH route through 192.168.1.13"
+    ]
   }
 ]

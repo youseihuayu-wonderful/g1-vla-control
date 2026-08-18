@@ -1,0 +1,36 @@
+{
+  "schema_version": "g1_robot_ssh_connection_status_v1",
+  "timestamp": "2026-08-18T14:38:07-04:00",
+  "mode": "authenticated_read_only_shell_no_commands",
+  "herdr": {
+    "pane": "w1:p5",
+    "label": "robot-readonly",
+    "shell_prompt_observed": "(base) unitree@unitree-g1-nx:~$"
+  },
+  "verified_route": [
+    {
+      "role": "local_operator_mac",
+      "address": "192.168.1.14"
+    },
+    {
+      "role": "development_pc_jump",
+      "ssh_endpoint": "yixiao@192.168.1.13",
+      "authenticated": true
+    },
+    {
+      "role": "robot_internal_jetson_or_pc",
+      "ssh_endpoint": "unitree@192.168.123.164",
+      "hostname": "unitree-g1-nx",
+      "authenticated": true,
+      "os_banner": "Ubuntu 22.04.5 LTS",
+      "kernel_banner": "5.15.148-tegra",
+      "architecture": "aarch64"
+    }
+  ],
+  "documented_192_168_1_11_role_needs_reconciliation": true,
+  "remote_inventory_command_sent_by_agent": false,
+  "robot_command_sent": false,
+  "hardware_execution_allowed": false,
+  "g1_execution_enabled": false,
+  "conclusion": "An authenticated shell on the robot internal NVIDIA platform is established through the development PC. This permits read-only inventory only and does not grant motion authority."
+}
