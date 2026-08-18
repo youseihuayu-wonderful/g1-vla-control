@@ -1,0 +1,40 @@
+{
+  "schema_version": "l40s_gpu_occupancy_v1",
+  "timestamp": "2026-08-18T11:21:57-04:00",
+  "host": "nnmc65",
+  "probe_mode": "read_only",
+  "nvtop_installed": false,
+  "tools": [
+    "nvidia-smi query-gpu",
+    "nvidia-smi query-compute-apps",
+    "nvidia-smi pmon -c 1 -s um",
+    "nvidia-smi dmon -s pucm -d 1 -c 5"
+  ],
+  "snapshot": [
+    {"index": 0, "gpu": "NVIDIA L40S", "temperature_c": 60, "power_w": 126.76, "gpu_util_percent": 35, "memory_util_percent": 0, "memory_used_mib": 39807, "memory_total_mib": 46068, "memory_free_mib": 5652},
+    {"index": 1, "gpu": "NVIDIA L40S", "temperature_c": 68, "power_w": 318.74, "gpu_util_percent": 87, "memory_util_percent": 78, "memory_used_mib": 41657, "memory_total_mib": 46068, "memory_free_mib": 3801},
+    {"index": 2, "gpu": "NVIDIA L40S", "temperature_c": 65, "power_w": 281.46, "gpu_util_percent": 83, "memory_util_percent": 80, "memory_used_mib": 42311, "memory_total_mib": 46068, "memory_free_mib": 3148},
+    {"index": 3, "gpu": "NVIDIA L40S", "temperature_c": 61, "power_w": 259.35, "gpu_util_percent": 78, "memory_util_percent": 75, "memory_used_mib": 41232, "memory_total_mib": 46068, "memory_free_mib": 4227},
+    {"index": 4, "gpu": "NVIDIA L40S", "temperature_c": 60, "power_w": 249.74, "gpu_util_percent": 82, "memory_util_percent": 79, "memory_used_mib": 41309, "memory_total_mib": 46068, "memory_free_mib": 4150},
+    {"index": 5, "gpu": "NVIDIA L40S", "temperature_c": 59, "power_w": 262.18, "gpu_util_percent": 80, "memory_util_percent": 77, "memory_used_mib": 41547, "memory_total_mib": 46068, "memory_free_mib": 3912},
+    {"index": 6, "gpu": "NVIDIA L40S", "temperature_c": 57, "power_w": 109.36, "gpu_util_percent": 60, "memory_util_percent": 0, "memory_used_mib": 40729, "memory_total_mib": 46068, "memory_free_mib": 4729},
+    {"index": 7, "gpu": "NVIDIA L40S", "temperature_c": 63, "power_w": 292.49, "gpu_util_percent": 88, "memory_util_percent": 83, "memory_used_mib": 41313, "memory_total_mib": 46068, "memory_free_mib": 4145}
+  ],
+  "dynamic_sample": {
+    "seconds": 5,
+    "gpu_util_observed_percent": {
+      "0": [80, 89], "1": [79, 82], "2": [39, 83], "3": [86, 88],
+      "4": [51, 89], "5": [50, 86], "6": [80, 83], "7": [82, 83]
+    },
+    "interpretation": "Transient utilization dips did not release the large resident allocations."
+  },
+  "process_summary": {
+    "wan_va_server_count": 8,
+    "robotwin_evaluation_client_count": 8,
+    "all_eight_gpus_have_resident_compute_processes": true,
+    "lgg100_candidate_server_running": false
+  },
+  "actions_on_existing_processes": "none",
+  "remote_policy_port_8000_listening": false,
+  "decision": "Do not start LGG100 or terminate any process. Recheck after existing workloads finish or obtain an explicitly assigned GPU with adequate free memory."
+}

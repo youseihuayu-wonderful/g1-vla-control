@@ -261,5 +261,43 @@
       "remote nnmc65 port 8000 not-listening",
       "robot/dev PC ping and TCP/22 checks"
     ]
+  },
+  {
+    "time": "2026-08-18 11:22 EDT",
+    "title": "使用 nvtop 等价工具检查 L40S 实时 GPU 占用",
+    "status": "blocked",
+    "summary": "远端未安装 nvtop，因此使用 nvidia-smi query、pmon 和 5 秒 dmon 动态采样。8 张 L40S 均有常驻计算进程和约 39.8–42.3 GiB 显存占用；瞬时利用率下降并未释放显存，不适合现在启动 LGG100。",
+    "done": [
+      "检查 nvtop 可用性，确认远端没有安装，未进行 sudo 或软件安装。",
+      "采集每张 GPU 的温度、功率、SM/memory utilization、used/free memory。",
+      "使用 pmon 映射 GPU 进程，并读取 PID、运行用户、持续时间和命令行。",
+      "使用 dmon 连续采样 5 秒，避免依据单个瞬时 utilization 做决定。"
+    ],
+    "conclusions": [
+      "GPU 0 初始空闲显存最多约 5.65 GiB，但动态样本中已有约 40–41 GiB resident allocation，不能当作空卡。",
+      "其余 GPU 初始空闲显存约 3.15–4.73 GiB；8 张卡全部有 wan_va server 和 RobotWin evaluation workload。",
+      "GPU 2/4/5 等出现短暂低 utilization，但显存未释放，这不构成启动 strict LGG100 restore 的安全容量证据。"
+    ],
+    "fixes": [
+      "将 GPU 可用性判断从单次 memory.free 扩展为 query+pmon+5 秒 dmon 组合证据。",
+      "没有 kill、pause、renice 或更改任何现有进程，也没有启动 LGG100 server。",
+      "远端 port 8000 继续无监听，本地 tunnel 保持网络就绪但 policy unavailable。"
+    ],
+    "remaining": [
+      "需要等待现有 workload 正常结束，或由服务器管理员明确分配具有足够显存的 GPU。",
+      "启动前仍需再次确认目标 GPU 无其他任务，并确定 strict restore 的实际峰值显存预算。",
+      "机器人仍保持 Damping；GPU 空闲本身不会解锁 Shadow 或硬件动作。"
+    ],
+    "next": [
+      "用 nvidia-smi dmon/pmon 定期只读复查，不干扰现有作业。",
+      "获得明确空卡后，以 CUDA_VISIBLE_DEVICES 单卡固定、setsid、PID、日志和状态 JSON 启动 output-only server。",
+      "server strict metadata 通过后，仅做 metadata/output-only probe，不发送机器人动作。"
+    ],
+    "evidence": [
+      "results/l40s_gpu_occupancy_20260818_1122.json",
+      "nvidia-smi pmon -c 1 -s um",
+      "nvidia-smi dmon -s pucm -d 1 -c 5",
+      "remote port 8000 not-listening"
+    ]
   }
 ]
