@@ -1,0 +1,46 @@
+{
+  "schema_version": "g1_robot_readonly_login_preflight_v1",
+  "timestamp": "2026-08-18T11:40:12-04:00",
+  "operator_attestation": {
+    "robot_mode": "Damping",
+    "safety_rope_tightened_and_physical_support_present": true,
+    "operator_near_estop": true
+  },
+  "latency_probe": {
+    "robot_pc2_192_168_1_11": {
+      "packets_transmitted": 30,
+      "packets_received": 30,
+      "packet_loss_percent": 0,
+      "min_ms": 4.781,
+      "avg_ms": 12.193,
+      "max_ms": 37.493,
+      "stddev_ms": 6.824
+    },
+    "development_pc_192_168_1_13": {
+      "packets_transmitted": 30,
+      "packets_received": 30,
+      "packet_loss_percent": 0,
+      "min_ms": 7.396,
+      "avg_ms": 95.026,
+      "max_ms": 140.317,
+      "stddev_ms": 29.543
+    }
+  },
+  "ssh": {
+    "herdr_pane": "w1:p5",
+    "pane_label": "robot-readonly",
+    "endpoint": "unitree@192.168.1.11",
+    "state": "waiting_for_operator_password_entry",
+    "password_requested_in_chat": false,
+    "password_stored": false,
+    "remote_command_executed": false
+  },
+  "decision": {
+    "preferred_initial_readonly_endpoint": "robot_pc2_192_168_1_11",
+    "development_pc_suitable_for_realtime_control": false,
+    "reason": "Observed 95.026 ms mean and 140.317 ms maximum RTT require investigation before realtime use.",
+    "hardware_motion_allowed": false
+  },
+  "robot_command_sent": false,
+  "g1_execution_enabled": false
+}

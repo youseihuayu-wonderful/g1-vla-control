@@ -337,5 +337,43 @@
       "robot/dev PC ICMP and TCP/22 checks",
       "BatchMode publickey/password authentication failure without command execution"
     ]
+  },
+  {
+    "time": "2026-08-18 11:40 EDT",
+    "title": "建立 Herdr 真机只读登录窗口并量化局域网延迟",
+    "status": "partial",
+    "summary": "机器人由操作员确认保持 Damping、安全绳/支撑和 E-stop 就绪。30 包探测显示 PC2 0% 丢包、平均 12.2 ms；开发机虽 0% 丢包但平均 95.0 ms。Herdr w1:p5 已进入 unitree@192.168.1.11 密码提示，等待操作员交互认证。",
+    "done": [
+      "对机器人 PC2 与开发机各执行 30 包只读 ICMP 延迟/丢包测量。",
+      "将空闲 Herdr pane w1:p5 命名为 robot-readonly。",
+      "在该 pane 启动 SSH 到 unitree@192.168.1.11，并停在密码提示处。",
+      "未通过聊天请求、记录、自动填写或猜测密码。"
+    ],
+    "conclusions": [
+      "机器人 PC2 链路当前 0% 丢包、4.8/12.2/37.5 ms min/avg/max，可用于下一步只读 inventory，但尚未验证实时控制。",
+      "开发机链路 0% 丢包但 7.4/95.0/140.3 ms min/avg/max，不应作为当前实时动作链路。",
+      "首次硬件工作应直接在 PC2 做只读状态/相机检查，机器人继续 Damping。"
+    ],
+    "fixes": [
+      "把先前两包高波动探测扩展为 30 包测量，分别评估 PC2 与开发机。",
+      "使用 Herdr 交互 pane 处理密码，避免凭据进入 agent 日志或命令历史。",
+      "继续保持 hardware motion、LowCmd、Publisher 和 Dex1 command 禁止。"
+    ],
+    "remaining": [
+      "操作员需要在 robot-readonly pane 本地输入密码并确认登录成功。",
+      "登录后仍需读取 OS、网卡、teleimager、SDK 和 topic；不能重启服务。",
+      "需要调查开发机高延迟，并用 timestamped telemetry 验证 PC2 链路而非仅依赖 ping。"
+    ],
+    "next": [
+      "操作员在 Herdr workspace w1 的 robot-readonly pane 输入密码，完成后通知 agent。",
+      "agent 仅运行 hostname、uname、ip、systemctl is-active 和 SDK presence 等只读命令。",
+      "依据 inventory 实现 subscriber-only LowState capture；不连接任何 command channel。"
+    ],
+    "evidence": [
+      "results/g1_robot_readonly_login_preflight_20260818.json",
+      "Herdr pane w1:p5 robot-readonly",
+      "30-packet robot/dev PC ICMP probes",
+      "operator Damping/safety attestation"
+    ]
   }
 ]
