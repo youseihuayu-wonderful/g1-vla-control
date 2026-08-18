@@ -299,5 +299,43 @@
       "nvidia-smi dmon -s pucm -d 1 -c 5",
       "remote port 8000 not-listening"
     ]
+  },
+  {
+    "time": "2026-08-18 11:36 EDT",
+    "title": "复查 L40S、policy tunnel 与机器人只读 SSH 就绪状态",
+    "status": "partial",
+    "summary": "重新检查后，L40S 仍没有可安全启动 LGG100 的空卡；机器人/开发机网络和本地 tunnel 正常，但现有 SSH key 无法认证，需要操作员在 Herdr 中交互输入密码。CPU-only IK 与安全回归可以继续。",
+    "done": [
+      "重新读取 8 张 L40S 的 utilization、显存和 compute process。",
+      "确认远端 8000 仍无监听，本地 127.0.0.1:8000 tunnel 与两个 ControlMaster 正常。",
+      "确认机器人 192.168.1.11 和开发机 192.168.1.13 的 ICMP/TCP 22 均可达。",
+      "用 BatchMode 尝试现有 key 的只读 SSH；两端均安全返回认证失败，没有请求、保存或猜测密码。"
+    ],
+    "conclusions": [
+      "当前每张 GPU 仍占约 39.8–41.6 GiB，利用率约 64–89%；不能启动 strict LGG100 restore。",
+      "机器人网络层已经就绪，但没有交互认证就无法读取 hostname、SDK、LowState 或相机服务状态。",
+      "可以继续不依赖 GPU/真机命令的完整 IK swept-path 与 safety regression。"
+    ],
+    "fixes": [
+      "把‘可以继续’拆分为 GPU policy、read-only hardware 和 CPU-only safety 三个独立状态，避免把网络可达误写成全部就绪。",
+      "新增机器人与开发机 SSH host key 到本机 known_hosts；没有建立未授权 session。",
+      "继续保持 robot_command_sent=false 和 g1_execution_enabled=false。"
+    ],
+    "remaining": [
+      "需要操作员在 Herdr 交互终端输入机器人/开发机密码；密码不得发送到聊天或日志。",
+      "需要等待明确空闲 GPU 或管理员分配足够显存后才能启动 policy server。",
+      "真机只读 adapter、相机检查、物理标定、watchdog 和 Shadow/HIL 仍未完成。"
+    ],
+    "next": [
+      "在 Herdr 新 pane 中交互登录 unitree@192.168.1.11，先运行只读系统/teleimager 检查。",
+      "并行继续 IK candidate 完整 sequential swept-path 回归，不等待 GPU。",
+      "GPU 空闲后再启动 output-only server 并通过现有 loopback tunnel 做 metadata probe。"
+    ],
+    "evidence": [
+      "results/l40s_gpu_robot_recheck_20260818_1136.json",
+      "local SSH listener 127.0.0.1:8000",
+      "robot/dev PC ICMP and TCP/22 checks",
+      "BatchMode publickey/password authentication failure without command execution"
+    ]
   }
 ]

@@ -1,0 +1,39 @@
+{
+  "schema_version": "l40s_gpu_robot_recheck_v1",
+  "timestamp": "2026-08-18T11:36:17-04:00",
+  "mode": "read_only_recheck",
+  "gpu": {
+    "host": "nnmc65",
+    "devices": [
+      {"index": 0, "util_percent": 82, "memory_used_mib": 41000, "memory_free_mib": 4458},
+      {"index": 1, "util_percent": 81, "memory_used_mib": 40751, "memory_free_mib": 4707},
+      {"index": 2, "util_percent": 82, "memory_used_mib": 41158, "memory_free_mib": 4300},
+      {"index": 3, "util_percent": 80, "memory_used_mib": 41222, "memory_free_mib": 4237},
+      {"index": 4, "util_percent": 88, "memory_used_mib": 41301, "memory_free_mib": 4158},
+      {"index": 5, "util_percent": 85, "memory_used_mib": 41586, "memory_free_mib": 3872},
+      {"index": 6, "util_percent": 89, "memory_used_mib": 41499, "memory_free_mib": 3959},
+      {"index": 7, "util_percent": 64, "memory_used_mib": 39795, "memory_free_mib": 5664}
+    ],
+    "all_devices_have_resident_compute_processes": true,
+    "lgg100_candidate_server_running": false,
+    "remote_port_8000_listening": false,
+    "safe_to_start_lgg100_now": false
+  },
+  "network": {
+    "local_tunnel_127_0_0_1_8000_listening": true,
+    "robot_192_168_1_11_icmp_and_ssh_port_reachable": true,
+    "development_pc_192_168_1_13_icmp_and_ssh_port_reachable": true,
+    "robot_batch_key_authentication": false,
+    "development_pc_batch_key_authentication": false,
+    "interactive_password_requested_or_stored": false
+  },
+  "actions_on_existing_gpu_processes": "none",
+  "robot_command_sent": false,
+  "hardware_execution_allowed": false,
+  "g1_execution_enabled": false,
+  "decision": {
+    "gpu_policy_work": "blocked",
+    "read_only_hardware_work": "network_ready_but_interactive_authentication_required",
+    "cpu_only_ik_and_safety_regression": "can_continue"
+  }
+}
