@@ -1,0 +1,61 @@
+{
+  "schema_version": "unitree_g1_sdk2_readonly_audit_v1",
+  "timestamp": "2026-08-18T15:47:48-04:00",
+  "official_sources": {
+    "python": {
+      "repository": "https://github.com/unitreerobotics/unitree_sdk2_python.git",
+      "commit": "65691c8a8bc53b98d3976dba4dbf9d5d20b2e7f5",
+      "setup_version": "1.0.1",
+      "license": "BSD-3-Clause",
+      "license_sha256": "a5d73fc4aca9074e3e6fe0b1a0ba763cf9514b2249b7390ed20fe8d53630bf25",
+      "local_submodule": "third_party/unitree_sdk2_python"
+    },
+    "cpp_review_only": {
+      "repository": "https://github.com/unitreerobotics/unitree_sdk2.git",
+      "commit": "69c04316d81ac244c314e730106e24787b3e61b8"
+    }
+  },
+  "g1_findings": {
+    "idl_family": "unitree_hg",
+    "lowstate_topic": "rt/lowstate",
+    "lowstate_type": "unitree_hg.msg.dds_.LowState_",
+    "official_lowstate_motor_slots": 35,
+    "g1_example_motor_count": 29,
+    "left_arm_indices": [15, 16, 17, 18, 19, 20, 21],
+    "right_arm_indices": [22, 23, 24, 25, 26, 27, 28],
+    "contract_arm_order_matches_official_indices": true,
+    "actual_robot_variant_verified": false,
+    "units_verified_for_actual_robot": false,
+    "imu_quaternion_order_verified_for_actual_robot": false
+  },
+  "official_example_risks": [
+    {
+      "path": "example/g1/low_level/g1_low_level_example.py",
+      "sha256": "044dc6f9f132ec4ddcdef7f6eda0fc74118dc21abc50e64de441179a748d1984",
+      "unsafe_for_readonly": true,
+      "reason": "releases motion mode, creates rt/lowcmd publisher and commands ankle/wrist motion"
+    },
+    {
+      "path": "example/g1/high_level/g1_arm7_sdk_dds_example.py",
+      "sha256": "7901aa5ef687b914e3d657d8b2ccb4eabc2a32b6abf97cf91dd41ffbdfb7e65a",
+      "unsafe_for_readonly": true,
+      "reason": "creates rt/arm_sdk publisher, enables arm service and commands arm trajectories"
+    }
+  ],
+  "project_adapter": {
+    "path": "g1_unitree_lowstate.py",
+    "sha256": "8bd5e3ef458e646c8c3278133aec83cb0410dea2d63d7a256e7333395f5eb7f2",
+    "subscriber_only": true,
+    "lazy_sdk_import": true,
+    "send_channel_created": false,
+    "robot_command_type_imported": false,
+    "mode_switch_client_imported": false,
+    "robot_execution_performed": false,
+    "local_tests": "7/7 passed"
+  },
+  "downloaded_to_robot": false,
+  "installed_on_robot": false,
+  "robot_command_sent": false,
+  "g1_execution_enabled": false,
+  "next_gate": "operator-approved read-only inventory of Python, SDK, CycloneDDS and robot-facing network interface"
+}

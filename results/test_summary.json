@@ -1,7 +1,7 @@
 {
-  "passed": 71,
+  "passed": 78,
   "failed": 0,
-  "total": 71,
+  "total": 78,
   "success": true,
-  "scope": "Local tests directory including structured HTML update auditing; GitHub Actions rerun pending."
+  "scope": "Local tests including the Unitree G1 SDK2 subscriber-only adapter and static no-command audit; GitHub Actions rerun pending."
 }
