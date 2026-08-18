@@ -1,0 +1,43 @@
+{
+  "schema_version": "g1_first_motion_readiness_decision_v1",
+  "timestamp": "2026-08-18T14:45:42-04:00",
+  "operator_request": "Consider reusing a previously simulated test for a very small real-robot motion, but require explicit confirmation before starting.",
+  "current_robot_state_attestation": {
+    "mode": "Damping",
+    "safety_rope_and_physical_support": true,
+    "operator_near_estop": true,
+    "authenticated_readonly_shell": true
+  },
+  "blocking_evidence": {
+    "adaptive_off_completed_cycles": 0,
+    "simulation_task_success": false,
+    "simulation_abort_reason": "swept_path_preflight_failed",
+    "latest_complete_commit_age_ms": 119.93975099176168,
+    "maximum_allowed_commit_age_ms": 100.0,
+    "unitree_lowstate_adapter_implemented": false,
+    "unitree_command_adapter_implemented": false,
+    "official_joint_torque_current_limits_integrated": false,
+    "physical_scene_calibration_verified": false,
+    "watchdog_estop_communication_loss_validated": false,
+    "shadow_hil_completed": false,
+    "left_wrist_camera_integrity_verified": false,
+    "lgg100_policy_server_currently_available": false
+  },
+  "decision": {
+    "real_robot_motion_allowed_now": false,
+    "mode_change_allowed_now": false,
+    "command_publisher_allowed_now": false,
+    "recommended_first_test": "zero_motion_readonly_shadow_preflight",
+    "recommended_test_description": "Capture LowState and camera timestamps, map measured joints to the frozen contract, run FK/IK with a current-pose hold target, and run collision/limit/latency checks without creating or calling any command publisher."
+  },
+  "candidate_components_to_reuse": [
+    "g1_policy_contract.py validators",
+    "G1DualArmIK current-pose hold solve",
+    "G1SweptPathPreflight",
+    "safety_governor command-envelope checks",
+    "watchdog evidence logic in no-command shadow mode"
+  ],
+  "robot_command_sent": false,
+  "g1_execution_enabled": false,
+  "requires_operator_confirmation_before_readonly_inventory": true
+}

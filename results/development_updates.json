@@ -492,5 +492,43 @@
       "~/.local/bin/shihua-vla-connect mode 0700",
       "Herdr w1:p3 l40-ssh connected to nnmc65"
     ]
+  },
+  {
+    "time": "2026-08-18 14:46 EDT",
+    "title": "首个真机小动作前的 Gate 判断与零运动替代方案",
+    "status": "blocked",
+    "summary": "机器人已在 Damping、安全支撑和认证 shell 条件下就绪，但当前证据不允许复用模拟动作直接运动。最先可复用的是 contract、FK/IK、swept-path 和 watchdog 的 zero-motion Shadow preflight，全程不切模式、不创建 Publisher。",
+    "done": [
+      "对照当前 simulation、latency、hardware adapter、limits、calibration、watchdog 和 Shadow/HIL 证据审查首个动作资格。",
+      "确认 Adaptive-OFF 仍为 0 个执行周期、task success=false，最近 complete commit age 119.94 ms 超过 100 ms。",
+      "选择 current-pose hold 作为第一个真实状态输入测试，而不是抓取、夹爪或任意小位移动作。",
+      "明确等待用户确认前不在机器人 shell 运行 inventory。"
+    ],
+    "conclusions": [
+      "Damping 和 E-stop 就绪是必要条件，但不能替代 LowState、官方 limits、command adapter、watchdog 和通信丢失验证。",
+      "当前没有安全依据发送即使很小的动作；从 Damping 切换到控制模式本身也是未验证的硬件动作。",
+      "zero-motion Shadow 能验证数据格式、关节映射、时间戳、FK/IK 与安全拒绝链，是当前最有价值且最低风险的第一步。"
+    ],
+    "fixes": [
+      "将‘第一个小动作’重新定义为先做 current-pose hold 的 no-publish dry run，避免网络连通被误当作运动授权。",
+      "明确禁止 LowCmd、ChannelPublisher、SportClient、Dex1 command 和模式切换。",
+      "将首个动作 readiness 绑定到结构化 decision JSON。"
+    ],
+    "remaining": [
+      "需要只读识别 Unitree SDK、LowState topic、关节顺序、控制模式和时间戳质量。",
+      "需要真实 joint feedback→FK→pelvis state[16] parity、相机检查和物理标定。",
+      "需要官方 limits、local watchdog/E-stop/communication-loss、Shadow/HIL 和确定性小动作 preflight 全部通过。"
+    ],
+    "next": [
+      "等待用户明确确认 zero-motion read-only inventory/Shadow preflight。",
+      "确认后只运行 hostname/time/network/service/SDK/topic/LowState subscriber 检查，不使用 sudo、不重启服务。",
+      "根据只读证据生成 hardware profile；只有新一轮独立确认后才讨论确定性单臂 free-space 小动作。"
+    ],
+    "evidence": [
+      "results/g1_first_motion_readiness_decision_20260818.json",
+      "results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json",
+      "g1_policy_contract.yaml hardware blockers",
+      "results/g1_robot_ssh_connection_status_20260818.json"
+    ]
   }
 ]
