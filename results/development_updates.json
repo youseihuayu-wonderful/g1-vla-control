@@ -221,5 +221,45 @@
       "results/g1_hardware_network_preflight_20260818.json",
       "local route/ARP/ping/TCP-22 read-only probe"
     ]
+  },
+  {
+    "time": "2026-08-18 11:17 EDT",
+    "title": "机器人局域网上线并建立到 L40S 的 loopback-only policy tunnel",
+    "status": "partial",
+    "summary": "机器人 PC2 和开发机现已在专用局域网可达；通过现有双层 SSH ControlMaster 建立 127.0.0.1:8000 到 L40S 主机 nnmc65:127.0.0.1:8000 的持久转发。远端 policy server 尚未监听，因此网络隧道已就绪但推理服务不可用。",
+    "done": [
+      "验证机器人 192.168.1.11 与开发机 192.168.1.13 的 ICMP 和 TCP/22 均通过。",
+      "核对真实 LGG100 workflow 使用 WebSocket port 8000，并要求仅绑定 loopback。",
+      "在 shihua-vla SSH 配置加入 LocalForward 和 ExitOnForwardFailure，通过现有 ControlMaster 激活转发。",
+      "确认本地 127.0.0.1:8000 由 SSH master 监听，未公开到 0.0.0.0 或机器人 LAN。",
+      "只读检查 L40S GPU 和远端监听端口；没有停止、抢占或修改其他用户进程。"
+    ],
+    "conclusions": [
+      "机器人网络层已经上线，但这不代表 hardware adapter、Shadow 或运动权限通过。",
+      "L40S 远端 127.0.0.1:8000 当前没有 policy server；本地端口虽在监听，任何 policy client 目前都会在远端连接阶段失败。",
+      "8 张 L40S 当前均有高显存占用，不能为了启动 LGG100 干扰其他用户任务。"
+    ],
+    "fixes": [
+      "将 tunnel 固定为 127.0.0.1:8000→127.0.0.1:8000，避免公网或机器人局域网直接暴露 policy server。",
+      "让现有 ssh-keeper 重建 target master 时自动恢复 LocalForward，并在绑定失败时 fail closed。",
+      "保持 robot_command_sent=false、hardware_execution_allowed=false 和 g1_execution_enabled=false。"
+    ],
+    "remaining": [
+      "需要等待足够 GPU 显存，按 strict restore 启动 quarantined LGG100 server。",
+      "需要在发送 observation 前验证 server metadata、checkpoint/norm/contract hash 和 127.0.0.1:8000 可用性。",
+      "真机仍缺少只读 Unitree adapter、相机完整性/标定、watchdog、E-stop 与 Shadow/HIL。"
+    ],
+    "next": [
+      "保持机器人 Damping，不运行 LowCmd、Publisher、SportClient 或 Dex1 command。",
+      "GPU 可用后用 setsid、PID、日志和状态 JSON 启动 output-only policy server，再从 Mac 做 metadata-only probe。",
+      "随后只读登录开发机/PC2，采集 hostname、SDK、LowState 和相机状态，不连接动作出口。"
+    ],
+    "evidence": [
+      "results/lgg100_l40_tunnel_status_20260818.json",
+      "REAL_LGG100_ADAPTIVE_WORKFLOW.md R2/R3",
+      "local 127.0.0.1:8000 SSH listener",
+      "remote nnmc65 port 8000 not-listening",
+      "robot/dev PC ping and TCP/22 checks"
+    ]
   }
 ]
