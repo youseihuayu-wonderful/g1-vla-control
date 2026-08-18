@@ -375,5 +375,43 @@
       "30-packet robot/dev PC ICMP probes",
       "operator Damping/safety attestation"
     ]
+  },
+  {
+    "time": "2026-08-18 11:50 EDT",
+    "title": "诊断机器人 SSH 在密码提示后关闭的问题",
+    "status": "blocked",
+    "summary": "机器人交互 SSH 在密码提示后关闭。无密码诊断确认 PC2 网络和 sshd 健康，服务端允许 publickey/password，但本机现有 id_rsa 未获授权；阻塞点是 PC2 SSH 凭据，不是机器人掉线。",
+    "done": [
+      "重新验证机器人 5/5 ping、TCP/22 和 OpenSSH banner。",
+      "使用 BatchMode/零密码提示读取服务端允许的认证方式，不执行远端命令。",
+      "记录 ed25519 host-key fingerprint，便于后续人工核对目标设备。",
+      "检查 Herdr pane 已返回本地 shell，没有遗留 SSH 或密码进程。"
+    ],
+    "conclusions": [
+      "机器人当前 0% 丢包、平均 8.77 ms，OpenSSH 8.9 正常响应；Connection closed 不是网络不可达。",
+      "服务端明确支持 publickey,password，但现有本机 public key 被拒绝，尚未建立 authenticated session。",
+      "文档只提供专用 Wi-Fi 凭据，不应假设其也是 PC2 SSH 密码；禁止继续猜测。"
+    ],
+    "fixes": [
+      "停止连续密码重试，避免账户锁定或混淆 Wi-Fi/SSH credential。",
+      "将 host key SHA256:Qyye+0Sr2TzYHVfwD0aSRffGhD0Hpizwj/w0GjGaiy8 绑定到诊断证据。",
+      "继续保持 remote_command_executed=false、robot_command_sent=false。"
+    ],
+    "remaining": [
+      "需要实验室管理员确认 unitree@192.168.1.11 的 PC2 SSH 密码，或从已授权开发机登录。",
+      "认证成功后才能读取 teleimager、SDK、网卡和 LowState topic。",
+      "SSH 登录成功也不会解锁动作；只读 adapter、Shadow/HIL 和 safety gates 仍未完成。"
+    ],
+    "next": [
+      "向机器人/实验室负责人索取 PC2 SSH credential，不在聊天中传输。",
+      "也可在物理开发机 192.168.1.13 的本地终端尝试其已有 authorized key，再进入 PC2。",
+      "获得凭据后在 robot-readonly pane 单次重试，并先执行只读 inventory。"
+    ],
+    "evidence": [
+      "results/g1_robot_ssh_auth_diagnostic_20260818.json",
+      "OpenSSH_8.9p1 Ubuntu-3ubuntu0.13 banner",
+      "ed25519 fingerprint SHA256:Qyye+0Sr2TzYHVfwD0aSRffGhD0Hpizwj/w0GjGaiy8",
+      "Herdr pane w1:p5 returned to local zsh"
+    ]
   }
 ]

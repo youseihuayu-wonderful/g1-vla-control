@@ -1,0 +1,33 @@
+{
+  "schema_version": "g1_robot_ssh_auth_diagnostic_v1",
+  "timestamp": "2026-08-18T11:49:51-04:00",
+  "endpoint": "unitree@192.168.1.11:22",
+  "network": {
+    "packets_transmitted": 5,
+    "packets_received": 5,
+    "packet_loss_percent": 0,
+    "rtt_min_ms": 4.526,
+    "rtt_avg_ms": 8.770,
+    "rtt_max_ms": 13.549,
+    "tcp_22_reachable": true
+  },
+  "ssh_server": {
+    "protocol": "2.0",
+    "software": "OpenSSH_8.9p1 Ubuntu-3ubuntu0.13",
+    "host_key_algorithm": "ssh-ed25519",
+    "host_key_fingerprint": "SHA256:Qyye+0Sr2TzYHVfwD0aSRffGhD0Hpizwj/w0GjGaiy8",
+    "advertised_authentication_methods": ["publickey", "password"]
+  },
+  "authentication": {
+    "existing_local_id_rsa_accepted": false,
+    "operator_interactive_session_result": "connection_closed_after_password_prompt",
+    "authenticated_session_established": false,
+    "password_recorded": false,
+    "password_guessing_performed": false
+  },
+  "remote_command_executed": false,
+  "robot_command_sent": false,
+  "hardware_execution_allowed": false,
+  "g1_execution_enabled": false,
+  "conclusion": "The robot and sshd are healthy and reachable. Progress is blocked at SSH credentials, not networking. Obtain the PC2 SSH credential from the lab owner or use an already-authorized development PC; do not reuse or guess the Wi-Fi password."
+}
