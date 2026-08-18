@@ -451,5 +451,46 @@
       "prompt (base) unitree@unitree-g1-nx:~$",
       "authenticated nested SSH route through 192.168.1.13"
     ]
+  },
+  {
+    "time": "2026-08-18 14:43 EDT",
+    "title": "完整存档并恢复 Herdr Pane 3 的 L40S 连接",
+    "status": "pass",
+    "summary": "核对发现 w1:p3 标题虽显示 L40，但会话此前已退回本地 shell；现已恢复 ssh shihua-vla，并将跳板、目标、目录、隧道、ControlMaster、keepalive、健康检查和重连方法做脱敏持久存档。",
+    "done": [
+      "确认 w1:p3 实际前台状态并重新连接到 user1@nnmc65。",
+      "将 pane 重命名为 l40-ssh，验证 foreground command 为 ssh shihua-vla。",
+      "创建 0700 的 shihua-vla-connect，一条命令可启动 keeper、恢复 master 并进入 L40S。",
+      "创建 0600 的本地 Herdr connection profile，记录完整非秘密连接参数和远端路径。",
+      "新增仓库 CONNECTION_RUNBOOK.md 与 hash-bound connection archive JSON。",
+      "验证双 ControlMaster、本地 127.0.0.1:8000 listener 和 shihua-vla-connect --check。"
+    ],
+    "conclusions": [
+      "Pane 3 是 L40S 开发连接，不是机器人 shell；机器人只读连接位于独立 robot-readonly pane。",
+      "以后即使 Pane ID 或交互 SSH 会话变化，也可通过 shihua-vla-connect 恢复相同跳板、工作目录和 loopback tunnel。",
+      "SSH tunnel 存在不代表远端 policy server 正在监听，也不授予机器人动作权限。"
+    ],
+    "fixes": [
+      "修复 stale terminal title 导致的‘看似连接、实际已断开’状态混淆。",
+      "把重连逻辑从依赖单个 Herdr pane 改为 SSH alias、ControlMaster、keeper 和一键脚本共同恢复。",
+      "所有档案只引用 key 路径，不保存密码、私钥内容或 token；本地档案权限为 0600。"
+    ],
+    "remaining": [
+      "Herdr 新 session 后 pane ID 可能改变，应按 l40-ssh 标签或运行 shihua-vla-connect，而不是依赖固定 ID。",
+      "远端 LGG100 port 8000 和 GPU 空闲状态仍需每次单独验证。",
+      "本地连接持久化不能替代远端长任务的 setsid、PID、日志和状态 JSON。"
+    ],
+    "next": [
+      "今后使用 shihua-vla-connect 进入 L40S，使用 shihua-vla-connect --check 做健康检查。",
+      "远端实验继续使用 setsid/PID/log/status JSON，不依赖 Pane 3 生命周期。",
+      "保持机器人连接与 L40S 连接隔离，禁止由连接状态自动解锁动作。"
+    ],
+    "evidence": [
+      "CONNECTION_RUNBOOK.md",
+      "results/herdr_pane3_l40_connection_archive_20260818.json",
+      "~/.config/herdr/shihua-vla-connection.json mode 0600",
+      "~/.local/bin/shihua-vla-connect mode 0700",
+      "Herdr w1:p3 l40-ssh connected to nnmc65"
+    ]
   }
 ]

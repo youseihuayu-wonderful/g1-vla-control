@@ -1,0 +1,58 @@
+{
+  "schema_version": "herdr_l40_connection_archive_v1",
+  "timestamp": "2026-08-18T14:42:32-04:00",
+  "herdr": {
+    "workspace": "w1",
+    "pane": "w1:p3",
+    "label": "l40-ssh",
+    "connected": true,
+    "foreground_command": "ssh shihua-vla",
+    "expected_remote_prompt": "(base) user1@nnmc65:~/workspace/shihua$"
+  },
+  "route": {
+    "jump": "test@10.188.57.209:22",
+    "target": "user1@10.145.87.65:22",
+    "target_hostname": "nnmc65",
+    "ssh_aliases": ["shihua-vla-jump", "shihua-vla"]
+  },
+  "persistence": {
+    "control_master_jump_running": true,
+    "control_master_target_running": true,
+    "control_persist_seconds": 43200,
+    "keepalive_supervisor_running": true,
+    "reconnect_command": "shihua-vla-connect",
+    "status_command": "shihua-vla-connect --check"
+  },
+  "policy_tunnel": {
+    "local_bind": "127.0.0.1:8000",
+    "remote_target": "127.0.0.1:8000",
+    "local_listener_active": true,
+    "publicly_exposed": false
+  },
+  "remote_paths": {
+    "workspace": "/home/user1/workspace/shihua",
+    "repository": "/home/user1/workspace/shihua/projects/g1-vla-control",
+    "venv": "/home/user1/workspace/shihua/.venvs/g1-sim",
+    "results": "/home/user1/workspace/shihua/results",
+    "logs": "/home/user1/workspace/shihua/logs"
+  },
+  "local_archive": {
+    "connection_profile": "~/.config/herdr/shihua-vla-connection.json",
+    "connection_profile_mode": "0600",
+    "connect_script": "~/.local/bin/shihua-vla-connect",
+    "connect_script_mode": "0700",
+    "runbook": "CONNECTION_RUNBOOK.md"
+  },
+  "integrity": {
+    "ssh_config_sha256": "ee1517348c43e27de606bbcb79c41c817ebfb6085b8517ef094462f11f89d0cf",
+    "keepalive_sha256": "174df9d20390d14f1a23a0df4f3144a9716f7d26be833526f6db2e530152736c",
+    "connect_script_sha256": "26b37d6b7a5c934d2ae908d9fd75c935874c49abae40982c589d822c83a04440",
+    "local_profile_sha256": "e2e6c68edf9de542ed896414d659d4fc3a2cc4899e6030291ca6a566886a9ba8"
+  },
+  "credentials": {
+    "password_archived": false,
+    "private_key_content_archived": false,
+    "identity_reference_only": "~/.ssh/id_ed25519_shihua_vla"
+  },
+  "robot_execution_enabled": false
+}
