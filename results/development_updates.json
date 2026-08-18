@@ -147,5 +147,41 @@
       "tests/test_development_report.py",
       "71/71 local tests"
     ]
+  },
+  {
+    "time": "2026-08-17 18:20 PDT",
+    "title": "真机连接前的只读接口与安全边界审计",
+    "status": "blocked",
+    "summary": "用户计划连接 G1 真机。仓库审计确认当前尚无 Unitree SDK2 hardware adapter、LowState 只读采集器或 Shadow logger，且 contract 明确禁止硬件执行；因此只能先建立本地有线网络和 read-only telemetry，不能发送任何动作。",
+    "done": [
+      "检索 Unitree SDK、DDS subscriber/publisher、LowState/LowCmd、hardware adapter 和 Shadow/HIL 入口。",
+      "核对 g1_policy_contract.yaml 的硬件权限、runtime gates 和四项 hardware blocker。",
+      "确认现有 g1_mujoco_bridge.py 只是仿真边界说明，不是真机驱动。"
+    ],
+    "conclusions": [
+      "当前仓库没有可审计的真机只读接口，也没有任何被授权的真机动作入口。",
+      "可以开始连接真机网络并读取状态，但必须在机器人本地/同一有线 LAN 完成，不能直接让远端 GPU 控制停止能力。",
+      "在型号、firmware、SDK、网卡、关节映射和 E-stop 未确认前，不应猜测 IP、topic 或 control mode。"
+    ],
+    "fixes": [
+      "将‘连接真机’范围限定为 network preflight、read-only state/camera capture 和 Shadow logging。",
+      "保持 hardware_execution_allowed=false 与 g1_execution_enabled=false，不创建 Publisher、LowCmd 或运动客户端。"
+    ],
+    "remaining": [
+      "需要准确的 G1 EDU 型号/序列配置、firmware、Unitree SDK2 revision、Ubuntu 控制机网卡和机器人官方 IP。",
+      "需要实现 fail-closed read-only adapter、14 臂关节映射、Dex1 状态、相机时间同步和硬件 profile。",
+      "官方 limits、watchdog、通信丢失、E-stop、Shadow/HIL 和物理标定均未完成。"
+    ],
+    "next": [
+      "用户先确认机器人由支撑保护、E-stop 操作员在场，并提供控制机/机器人网络与版本信息。",
+      "随后实现只导入 ChannelSubscriber 的 g1_readonly_state_capture.py；禁止任何 command publisher。",
+      "生成 hash-bound hardware_readonly_preflight.json 后，才进入零动作 Shadow。"
+    ],
+    "evidence": [
+      "g1_policy_contract.yaml",
+      "g1_mujoco_bridge.py",
+      "README.md D6/D7",
+      "repository-wide Unitree SDK/LowState/LowCmd/Shadow interface audit"
+    ]
   }
 ]
