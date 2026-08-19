@@ -612,5 +612,43 @@
       "third_party/unitree_sdk2_python @ 65691c8",
       "78/78 local tests"
     ]
+  },
+  {
+    "time": "2026-08-19 15:10 EDT",
+    "title": "复查今日 L40S 可用性与 LGG100 启动资格",
+    "status": "blocked",
+    "summary": "今日只读检查 8 张 L40S。GPU 0 瞬时利用率最低且约有 9.1 GiB 空闲，但仍驻留约 36.4 GiB 的 wan_va/Isaac Sim 进程；其余卡仅剩约 2.3–4.5 GiB。没有完全未分配且已证明足够启动 LGG100 的 GPU。",
+    "done": [
+      "读取 8 张 L40S 的温度、功率、利用率、used/free memory。",
+      "枚举 compute process、运行时长和命令，确认每张卡都有现有 workload。",
+      "检查 LGG100 candidate server 和远端 port 8000，均未运行/监听。",
+      "尝试动态 dmon 采样；命令受远端响应延迟影响超时，但静态 query/process 证据完整。"
+    ],
+    "conclusions": [
+      "GPU 0 是唯一接近候选的卡，但低瞬时 utilization 不等于空闲；9.1 GiB 是否足够没有 strict restore 峰值证据。",
+      "GPU 1–7 的空闲显存只有约 2.3–4.5 GiB，不能考虑启动 LGG100。",
+      "当前没有安全依据启动 server，也不能停止或挤占共享账号下的 wan_va、RobotWin 或 Isaac Sim 任务。"
+    ],
+    "fixes": [
+      "继续用 resident process+free memory+server listener 联合判断，不用单次 utilization 误判空卡。",
+      "将 GPU 0 标记为 not-free candidate，而不是 available。",
+      "保持现有进程未修改、LGG100 未启动、port 8000 无监听。"
+    ],
+    "remaining": [
+      "需要现有任务正常结束，或管理员明确分配一张卡。",
+      "需要在真正空卡上测量 strict LGG100 restore 与 inference 的峰值显存，建立最低容量门限。",
+      "GPU 可用后仍需 server metadata/hash Gate，不能直接连接机器人动作。"
+    ],
+    "next": [
+      "继续等待并定期只读复查 GPU，不干扰现有 workload。",
+      "若 GPU 0 的 resident workload 完全退出，再确认 memory/process 两次稳定后启动 output-only server。",
+      "等待期间继续 CPU IK 回归和 Unitree 阶段 A 只读 inventory。"
+    ],
+    "evidence": [
+      "results/l40s_gpu_availability_20260819.json",
+      "nvidia-smi query-gpu/query-compute-apps",
+      "remote port 8000 not-listening",
+      "existing wan_va/RobotWin/Isaac Sim process listing"
+    ]
   }
 ]

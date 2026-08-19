@@ -1,0 +1,40 @@
+{
+  "schema_version": "l40s_gpu_availability_v1",
+  "timestamp": "2026-08-19T15:09:44-04:00",
+  "remote_timestamp": "2026-08-19T12:08:31-07:00",
+  "host": "nnmc65",
+  "probe_mode": "read_only",
+  "devices": [
+    {"index": 0, "temperature_c": 42, "power_w": 84.50, "util_percent": 0, "memory_used_mib": 36376, "memory_free_mib": 9083},
+    {"index": 1, "temperature_c": 56, "power_w": 98.43, "util_percent": 1, "memory_used_mib": 42004, "memory_free_mib": 3454},
+    {"index": 2, "temperature_c": 57, "power_w": 97.56, "util_percent": 0, "memory_used_mib": 41812, "memory_free_mib": 3646},
+    {"index": 3, "temperature_c": 50, "power_w": 105.55, "util_percent": 0, "memory_used_mib": 42645, "memory_free_mib": 2813},
+    {"index": 4, "temperature_c": 50, "power_w": 85.29, "util_percent": 3, "memory_used_mib": 42039, "memory_free_mib": 3420},
+    {"index": 5, "temperature_c": 51, "power_w": 91.58, "util_percent": 0, "memory_used_mib": 40924, "memory_free_mib": 4534},
+    {"index": 6, "temperature_c": 50, "power_w": 85.55, "util_percent": 0, "memory_used_mib": 42227, "memory_free_mib": 3232},
+    {"index": 7, "temperature_c": 53, "power_w": 99.19, "util_percent": 100, "memory_used_mib": 43205, "memory_free_mib": 2254}
+  ],
+  "process_summary": {
+    "all_eight_gpus_have_resident_compute_processes": true,
+    "wan_va_server_count": 8,
+    "robotwin_evaluation_clients_observed": 7,
+    "isaac_sim_multi_gpu_residency_observed": true,
+    "gpu0_has_wan_va_server": true,
+    "gpu0_has_isaac_sim_process": true,
+    "existing_processes_modified": false
+  },
+  "lgg100": {
+    "candidate_server_running": false,
+    "remote_port_8000_listening": false,
+    "measured_peak_memory_requirement_available": false
+  },
+  "decision": {
+    "fully_unallocated_gpu_available": false,
+    "safe_to_start_lgg100_now": false,
+    "best_observed_candidate": 0,
+    "candidate_free_memory_mib": 9083,
+    "candidate_is_not_free": true,
+    "reason": "GPU 0 has low instantaneous utilization but retains 36.4 GiB of other workloads. There is no measured LGG100 peak-memory budget proving that 9.1 GiB is sufficient, and existing shared workloads must not be disturbed."
+  },
+  "actions_on_existing_processes": "none"
+}
