@@ -650,5 +650,44 @@
       "remote port 8000 not-listening",
       "existing wan_va/RobotWin/Isaac Sim process listing"
     ]
+  },
+  {
+    "time": "2026-08-20 09:37 EDT",
+    "title": "新增现代化 Simulation→G1 真机闭环 Summary HTML",
+    "status": "pass",
+    "summary": "将当前 simulation 结果、每个 Gate 的含义、已完成工作和真机闭环缺口整理为独立现代化 HTML。页面从结构化 JSON 读取关键指标，以两张可视化流程图和逐阶段三栏卡片呈现，不把网络连接或离线结果误写成真机资格。",
+    "done": [
+      "新增 generate_simulation_deployment_summary.py，可重复生成独立 summary。",
+      "新增 Simulation Gate 图与真实机器人闭环图，并以 pass/partial/blocked/todo 配色。",
+      "每个阶段固定解释做了什么、这意味着什么、还差什么和证据来源。",
+      "加入当前允许/禁止事项、达到真机闭环的四级最短路径和全部 Release Gates。",
+      "新增 3 项报告一致性测试；完整本地测试 81/81。"
+    ],
+    "conclusions": [
+      "当前最准确的图形结论是：S0–S2 离线基础通过，Adaptive 部分通过，IK/闭环/实时 Gate 阻塞，真机动作禁止。",
+      "真机侧只有认证 shell 和本地 subscriber-only adapter；真实 LowState、相机/标定、policy server、command adapter 和 feedback loop 都未闭合。",
+      "summary 明确区分‘做过’、‘意味着什么’和‘还缺什么’，避免把 fail-closed hold 当作任务成功。"
+    ],
+    "fixes": [
+      "关键数字从 author、phase-speed、closed-loop、IK、SDK、GPU 和 test JSON 自动读取，减少静态摘要过期。",
+      "报告测试强制保留不允许真机动作、g1_execution_enabled=false 和 hardware_execution_performed=false。",
+      "使用纯本地 CSS、无外部前端依赖，便于离线打开和审计。"
+    ],
+    "remaining": [
+      "HTML 只总结证据，不能替代 IK 全路径、Adaptive-OFF 闭环和硬件 Gate 实验。",
+      "后续关键 JSON 更新后必须重新生成该页面并运行测试。",
+      "真机闭环仍需按页面 roadmap 完成 read-only、Shadow/HIL 和 staged motion。"
+    ],
+    "next": [
+      "打开 simulation_deployment_summary.html 供用户审阅。",
+      "后续每次 simulation 或硬件 Gate 更新时重跑生成器。",
+      "实际技术工作继续优先解决 IK 32-step 回归与 Unitree 阶段 A 只读 inventory。"
+    ],
+    "evidence": [
+      "simulation_deployment_summary.html",
+      "generate_simulation_deployment_summary.py",
+      "tests/test_simulation_deployment_summary.py",
+      "81/81 local tests"
+    ]
   }
 ]

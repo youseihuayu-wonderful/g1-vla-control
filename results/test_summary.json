@@ -1,7 +1,7 @@
 {
-  "passed": 78,
+  "passed": 81,
   "failed": 0,
-  "total": 78,
+  "total": 81,
   "success": true,
-  "scope": "Local tests including the Unitree G1 SDK2 subscriber-only adapter and static no-command audit; GitHub Actions rerun pending."
+  "scope": "Local tests including the modern evidence-bound Simulation-to-G1 deployment summary; GitHub Actions rerun pending."
 }
