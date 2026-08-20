@@ -1,3 +1,4 @@
+import html as html_lib
 import json
 from pathlib import Path
 import re
@@ -6,7 +7,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from generate_simulation_deployment_summary import build
+from generate_simulation_deployment_summary import build, build_public
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,6 +57,23 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn('id="term-tooltip"', rendered)
         self.assertIn("mouseenter", rendered)
         self.assertIn("focus", rendered)
+
+    def test_gen15_row_uses_the_correct_generalist_ai_model(self):
+        report = build()
+        plain = html_lib.unescape(re.sub(r"<[^>]+>", "", report))
+        self.assertIn("Generalist AI GEN-1.5 启发", plain)
+        self.assertIn("3–12 秒单次 demonstration", plain)
+        self.assertIn("one-shot 平均成功率 59%±10%", plain)
+        self.assertNotIn("GR00T N1.5", plain)
+
+    def test_public_report_redacts_private_topology_and_rewrites_links(self):
+        report = build_public()
+        for forbidden in ("192.168.", "10.145.", "10.188.", "unitree@", "yixiao@", "/Users/"):
+            self.assertNotIn(forbidden, report)
+        self.assertIn("PUBLIC SANITIZED", report)
+        self.assertIn("身份已脱敏", report)
+        relative_links = re.findall(r'href="(?!https://|http://|#)([^"]+)"', report)
+        self.assertEqual(relative_links, [])
 
     def test_checked_report_keeps_hardware_gates_closed(self):
         report = REPORT.read_text()

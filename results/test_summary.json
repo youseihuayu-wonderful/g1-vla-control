@@ -1,7 +1,7 @@
 {
-  "passed": 82,
+  "passed": 84,
   "failed": 0,
-  "total": 82,
+  "total": 84,
   "success": true,
-  "scope": "Local tests including linked terminology and detailed hover/focus explanations in the single-table deployment summary; GitHub Actions rerun pending."
+  "scope": "Local tests including public Vercel redaction and the correct Generalist AI GEN-1.5 evidence row; GitHub Actions rerun pending."
 }

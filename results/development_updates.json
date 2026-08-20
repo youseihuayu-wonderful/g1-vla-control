@@ -763,5 +763,51 @@
       "57 glossary terms / 126 rendered links",
       "82/82 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 10:35 EDT",
+    "title": "公开部署 Summary 并完成 Generalist AI GEN-1.5 相关性审查",
+    "status": "pass",
+    "summary": "将单表 Summary 脱敏后部署到 Vercel production，并从公网回读验证；随后根据用户提供的官方链接，将目标模型准确识别为 Generalist AI GEN-1.5，而非 NVIDIA GR00T N1.5，完成官方全文和证据边界审查。",
+    "done": [
+      "生成 public-sanitized HTML，移除机器人内网 IP、SSH identity、hostname 和本地用户路径。",
+      "将相对术语链接重写到公开 GitHub，并加入 CSP、nosniff、no-referrer 和 permissions headers。",
+      "创建 Vercel project g1-vla-simulation-readiness 并完成 production deployment。",
+      "从公开 alias 回读：HTTP 200、单表、126 术语链接、安全 headers 正常且敏感字符串为 0。",
+      "完整读取 https://generalistai.com/blog/gen-1.5 及引用，hash 绑定官方 HTML。",
+      "新增 GEN-1.5 研究文档、结构化 review 和 Summary 的 M0 研究行。",
+      "删除未提交的 GR00T N1.5 误识别分析，测试明确禁止该错误重新出现。"
+    ],
+    "conclusions": [
+      "GEN-1.5 最重要的启发是 3–12 秒 sensorimotor physical prompting、30 秒 context 和少步适配，而不是直接替换当前 LGG100。",
+      "官方报告 one-shot 59%±10%、10 steps/5 minutes 83%±9%，但明确限于简单短时任务且 one-shot 更脆弱。",
+      "当前没有公开 weights、code、API、action schema、latency、license 或 Unitree G1 support，因此只能作为战略研究信号。",
+      "GEN-1.5 的 100 Hz action trajectories 不等价于 100 Hz neural inference，也不解除 IK、标定、watchdog 或 command adapter Gate。"
+    ],
+    "fixes": [
+      "为公开部署建立独立脱敏构建和回归测试，避免把实验室连接拓扑发布到公网。",
+      "修正模型身份：Generalist AI GEN-1.5，发布日期 2026-08-19。",
+      "将 GEN-1.5、physical prompting、in-context learning、one-shot 和 sim-to-real 加入术语 hover registry。",
+      "测试覆盖 public redaction、正确模型名称和硬件关闭状态；完整本地测试 84/84。"
+    ],
+    "remaining": [
+      "GEN-1.5 不具备可下载/可调用的公开接口，无法做真实 output 或 latency benchmark。",
+      "当前 recorder 尚缺 3–12 秒同步 demonstration segment、30 秒 context、phase/contact/failure/recovery 标签。",
+      "Simulation 的 IK、Adaptive-OFF、100 ms Gate 与真机 read-only/标定/Shadow 缺口完全不变。"
+    ],
+    "next": [
+      "保持 LGG100 主线，先完成 IK 全路径与 Adaptive-OFF 闭环。",
+      "设计 policy-agnostic demonstration/context replay format，供未来 GEN-1.5 类模型离线评估。",
+      "若 Generalist AI 发布 API/schema/weights，只在 output-only quarantine 中审查，不直接连接机器人。",
+      "用更新后的 public page 重新部署 Vercel production。"
+    ],
+    "evidence": [
+      "https://g1-vla-simulation-readiness.vercel.app",
+      "results/vercel_public_deployment_20260820.json",
+      "https://generalistai.com/blog/gen-1.5",
+      "GEN_1_5_RELEVANCE.md",
+      "results/gen_1_5_relevance_review_20260820.json",
+      "84/84 local tests"
+    ]
   }
 ]

@@ -1,0 +1,31 @@
+{
+  "schema_version": "vercel_public_deployment_v1",
+  "timestamp": "2026-08-20T10:35:30-04:00",
+  "project": "g1-vla-simulation-readiness",
+  "production_alias": "https://g1-vla-simulation-readiness.vercel.app",
+  "deployment_id": "dpl_DcMNPcSkNd9Nfbo1RppPrMj7vaNw",
+  "ready_state": "READY",
+  "http_status": 200,
+  "content": {
+    "single_table": true,
+    "table_count": 1,
+    "terminology_links": 142,
+    "public_sanitized_marker_present": true
+  },
+  "security_headers": {
+    "content_security_policy": true,
+    "x_content_type_options_nosniff": true,
+    "referrer_policy_no_referrer": true,
+    "permissions_policy_camera_microphone_geolocation_disabled": true,
+    "hsts_present": true
+  },
+  "redaction_verification": {
+    "private_ipv4_found": false,
+    "ssh_identity_found": false,
+    "local_user_path_found": false,
+    "robot_hostname_found": false
+  },
+  "credentials_or_tokens_persisted": false,
+  "robot_command_sent": false,
+  "g1_execution_enabled": false
+}

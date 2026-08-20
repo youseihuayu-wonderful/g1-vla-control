@@ -10,11 +10,17 @@ import json
 from pathlib import Path
 import re
 from typing import Any
+from urllib.parse import quote
 
 
 ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "results"
 OUTPUT = ROOT / "simulation_deployment_summary.html"
+PUBLIC_OUTPUT = ROOT / "vercel_public" / "index.html"
+PUBLIC_GITHUB_BASE = (
+    "https://github.com/youseihuayu-wonderful/g1-vla-control/"
+    "blob/work/lgg100-semantic-speed-gates/"
+)
 
 TERM_INFO = {
     "IK": ("Inverse Kinematics，逆运动学：根据双手目标位置/姿态求解各关节角。本项目用它把 LGG100 的 EEF action 转成 G1 双臂 14 关节目标；不收敛时必须 hold。", "https://en.wikipedia.org/wiki/Inverse_kinematics"),
@@ -22,6 +28,11 @@ TERM_INFO = {
     "EEF": ("End Effector，末端执行器：机械臂最末端用于抓取的参考点/坐标系。本项目定义在左右 wrist yaw link 前方的特定 site，真机必须实测一致。", "https://en.wikipedia.org/wiki/Robot_end_effector"),
     "VLA": ("Vision-Language-Action 模型：根据图像、语言指令和机器人状态预测动作。本项目的 VLA 是 LGG100；输出必须先经过 contract、IK 和安全预检。", "https://deepmind.google/discover/blog/rt-2-new-model-translates-vision-and-language-into-action/"),
     "LGG100": ("本项目使用的高层 VLA policy/checkpoint。它输出 32×16 的双手 EEF action chunk，但输出 shape 正确不等于抓取任务或硬件执行已经安全。", "https://huggingface.co/LGG100/stack-cube-eef-24k"),
+    "GEN-1.5": ("Generalist AI 于 2026-08-19 发布的 embodied foundation model。官方称其可用 3–12 秒 sensorimotor demonstration 做 one-shot physical prompting；目前未公开权重、代码、API 或 action schema。", "https://generalistai.com/blog/gen-1.5"),
+    "physical prompting": ("把同步的传感器观测与动作轨迹示例放入模型 context window，让模型无需梯度更新就推断并执行新任务。该能力不能假定适用于 LGG100。", "https://generalistai.com/blog/gen-1.5#one-shot-in-context"),
+    "in-context learning": ("上下文学习：模型根据当前输入上下文中的示例临时表现出新能力，而不修改权重。GEN-1.5 将 sensorimotor demonstration 作为 physical prompt。", "https://generalistai.com/blog/gen-1.5#one-shot-in-context"),
+    "one-shot": ("单示例学习：只给一个演示就尝试新任务。GEN-1.5 官方报告平均成功率 59%，并明确说明短时任务且比微调模型更脆弱。", "https://generalistai.com/blog/gen-1.5"),
+    "sim-to-real": ("从仿真到真实迁移。GEN-1.5 声称可把模拟 rollout 作为 real robot 的 physical prompt；这不消除真实标定、动力学差异或安全 Gate。", "https://generalistai.com/blog/gen-1.5#sim2real"),
     "MuJoCo": ("用于机器人动力学与接触仿真的物理引擎。本项目在 MuJoCo 中验证 observation、IK、碰撞和 retiming；仿真结果不能替代真机标定。", "https://mujoco.org/"),
     "Quaternion": ("四元数：无奇异表示三维旋转的四个数。必须明确分量顺序并归一化；本项目 policy contract 使用 xyzw。", "https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation"),
     "quaternion": ("四元数：无奇异表示三维旋转的四个数。必须明确分量顺序并归一化；本项目 policy contract 使用 xyzw。", "https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation"),
@@ -140,6 +151,7 @@ def build() -> str:
     tests = load("test_summary.json")
     sdk = load("unitree_g1_sdk2_readonly_audit_20260818.json")
     gpu = load("l40s_gpu_availability_20260819.json")
+    gen15 = load("gen_1_5_relevance_review_20260820.json")
 
     inference = author["inference"]
     semantic = author["semantic_validation"]
@@ -274,6 +286,35 @@ def build() -> str:
             "evidence": ["results/test_summary.json", "tests/"],
         },
         {
+            "domain": "MODEL RESEARCH", "id": "M0", "title": "Generalist AI GEN-1.5 启发", "status": "partial", "label": "仅研究",
+            "done": [
+                "读取 Generalist AI 官方 GEN-1.5 发布全文及引用边界。",
+                "核对 one-shot physical prompting、few-step adaptation、sim-to-real 与 physical generalization claims。",
+                "比较其公开信息与当前 LGG100/G1 contract、延迟和安全链。",
+            ],
+            "result": [
+                f"官方称 3–12 秒单次 demonstration 的 one-shot 平均成功率 {gen15['official_claims']['one_shot_average_success_percent']}%±{gen15['official_claims']['one_shot_stddev_percent']}%。",
+                f"10 gradient steps/5 分钟数据平均 {gen15['official_claims']['ten_step_five_minute_average_success_percent']}%±{gen15['official_claims']['ten_step_five_minute_stddev_percent']}%。",
+                "30 秒多模态 memory，输出 100 Hz action trajectories（不等于 100 Hz neural inference）。",
+                "目前没有公开 weights、code、API、action schema、latency 或 Unitree G1 support。",
+            ],
+            "meaning": [
+                "最重要启发是把同步 sensorimotor demonstration 当作 runtime context，而不只是训练集。",
+                "Simulation rollout 未来可能成为 physical prompt，但只有 contract-matched 成功轨迹才有资格。",
+                "更强的 improvisation 会产生新接触/transition，因此更需要 IK、swept collision 和 watchdog。",
+            ],
+            "missing": [
+                "官方模型/API/schema/license 和独立复现。",
+                "当前数据 recorder 还没有 3–12 秒 prompt segment、30 秒 context 和 phase/contact/failure 标签。",
+                "GEN-1.5 无法证明与当前 bimanual EEF-16 contract drop-in compatible。",
+            ],
+            "next": [
+                "先建立 policy-agnostic demonstration/context replay format。",
+                "若官方开放访问，只做 output-only offline candidate audit；不替换 LGG100，不连接真机动作。",
+            ],
+            "evidence": ["GEN_1_5_RELEVANCE.md", "results/gen_1_5_relevance_review_20260820.json", "https://generalistai.com/blog/gen-1.5"],
+        },
+        {
             "domain": "REAL ROBOT", "id": "H0", "title": "网络与认证 Shell", "status": "partial", "label": "仅连接",
             "done": [
                 "机器人由操作员保持 Damping、安全绳/支撑和 E-stop 就绪。",
@@ -400,9 +441,52 @@ window.addEventListener('scroll',()=>{{if(activeTerm){{const r=activeTerm.getBou
 </main></body></html>"""
 
 
+def build_public() -> str:
+    """Build a public copy with private lab topology and identities redacted."""
+    rendered = build()
+    rendered = rendered.replace(
+        "Mac→开发机 192.168.1.13→机器人 192.168.123.164 登录成功。",
+        "Operator host→lab gateway→robot internal compute 登录成功（地址已脱敏）。",
+    )
+    rendered = rendered.replace(
+        "Prompt: unitree@unitree-g1-nx。",
+        "已获得认证的机器人内部只读 shell（身份已脱敏）。",
+    )
+    rendered = re.sub(
+        r"(?<![0-9])(?:10(?:\.[0-9]{1,3}){3}|192\.168(?:\.[0-9]{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.[0-9]{1,3}){2})(?![0-9])",
+        "[private-address-redacted]",
+        rendered,
+    )
+    rendered = re.sub(
+        r"\b(?:user1|yixiao|unitree|test)@[A-Za-z0-9_.-]+",
+        "[ssh-identity-redacted]",
+        rendered,
+    )
+
+    def public_href(match: re.Match[str]) -> str:
+        href = match.group(1)
+        if href.startswith(("https://", "http://", "#")):
+            return f'href="{href}"'
+        return f'href="{PUBLIC_GITHUB_BASE}{quote(href, safe="/")}"'
+
+    rendered = re.sub(r'href="([^"]+)"', public_href, rendered)
+    rendered = rendered.replace(
+        "EVIDENCE-BOUND SUMMARY",
+        "PUBLIC SANITIZED · EVIDENCE-BOUND SUMMARY",
+    )
+    rendered = rendered.replace(
+        "G1 VLA single-table summary ·",
+        "G1 VLA public sanitized summary · private LAN identities redacted ·",
+    )
+    return rendered
+
+
 def main() -> None:
     OUTPUT.write_text(build())
+    PUBLIC_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    PUBLIC_OUTPUT.write_text(build_public())
     print(OUTPUT)
+    print(PUBLIC_OUTPUT)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,74 @@
+{
+  "schema_version": "generalist_gen_1_5_relevance_review_v1",
+  "timestamp": "2026-08-20T10:34:11-04:00",
+  "identification": {
+    "model": "Generalist AI GEN-1.5",
+    "title": "Embodied Foundation Models are One-Shot Learners",
+    "release_date": "2026-08-19",
+    "official_url": "https://generalistai.com/blog/gen-1.5",
+    "retrieved_html_sha256": "a999de7b30c0afb29ec230e700d10f3d6877be378648dbcbd78c8e26319d1452",
+    "previous_gr00t_interpretation_rejected": true
+  },
+  "official_claims": {
+    "model_type": "large multimodal robot foundation model",
+    "context_memory_seconds": 30,
+    "output_trajectory_rate_hz": 100,
+    "physical_prompt_demo_seconds": [3, 12],
+    "one_shot_average_success_percent": 59,
+    "one_shot_stddev_percent": 10,
+    "evaluated_task_count": 10,
+    "few_step_gradient_steps": [1, 10],
+    "few_step_data_minutes": [1, 5],
+    "ten_step_five_minute_average_success_percent": 83,
+    "ten_step_five_minute_stddev_percent": 9,
+    "one_step_one_minute_heldout_success_percent": 66.5,
+    "capabilities": [
+      "in-context physical prompting",
+      "compositional prompt chaining",
+      "zero-shot simulation-prompt-to-real transfer",
+      "human-to-robot in-context imitation in some cases",
+      "few-gradient-step adaptation",
+      "improvisation and novel tool use",
+      "ambidexterity and error recovery"
+    ],
+    "author_stated_limitations": [
+      "tasks are simple and short-horizon",
+      "one-shot skills are more brittle than finetuned models",
+      "one-shot success rates are modest"
+    ]
+  },
+  "reproducibility_boundary": {
+    "peer_reviewed_paper_linked": false,
+    "model_weights_released": false,
+    "source_code_released": false,
+    "public_inference_api_documented": false,
+    "action_schema_documented": false,
+    "supported_robot_list_documented": false,
+    "unitree_g1_support_documented": false,
+    "latency_or_compute_requirements_documented": false,
+    "license_documented": false,
+    "independent_reproduction_available": false,
+    "interpretation": "first-party research claims only"
+  },
+  "project_relevance": [
+    "Record synchronized 3-12 second sensorimotor demonstration segments as future physical prompts.",
+    "Build a policy-agnostic context/prompt replay interface without changing LGG100 semantics.",
+    "Use only successful, contract-matched simulation rollouts in a future prompt library.",
+    "Separate multimodal policy inference from a local validated high-rate feedback controller.",
+    "Add phase, contact, failure and recovery labels to faster-grasp demonstrations.",
+    "Evaluate prompt sensitivity, contact risk, recovery, latency and variance in addition to task success."
+  ],
+  "compatibility": {
+    "drop_in_compatible_with_lgg100_contract": false,
+    "reason": "No public action/state schema, camera mapping, normalization, horizon, checkpoint or controller API.",
+    "replace_lgg100_now": false,
+    "download_or_deploy_now": false,
+    "recommended_future_scope": "offline quarantined candidate if official access and schema become available"
+  },
+  "safety_decision": {
+    "simulation_gates_changed": false,
+    "hardware_gates_changed": false,
+    "robot_command_sent": false,
+    "g1_execution_enabled": false
+  }
+}
