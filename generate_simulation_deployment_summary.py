@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Generate the evidence-bound Simulation → G1 deployment summary."""
+"""Generate the single-table Simulation → G1 deployment summary."""
 
 from __future__ import annotations
 
@@ -20,43 +20,27 @@ def load(name: str) -> dict[str, Any]:
     return json.loads((RESULTS / name).read_text())
 
 
-def number(value: Any, digits: int = 1, suffix: str = "") -> str:
-    if value is None:
-        return "—"
-    return f"{float(value):.{digits}f}{suffix}"
-
-
-def pill(status: str, text: str) -> str:
-    return f'<span class="pill {html.escape(status)}"><i></i>{html.escape(text)}</span>'
-
-
-def list_html(items: list[str]) -> str:
+def bullet_cell(items: list[str]) -> str:
     return "<ul>" + "".join(f"<li>{html.escape(item)}</li>" for item in items) + "</ul>"
 
 
-def stage_card(stage: dict[str, Any]) -> str:
-    return f"""
-    <article class="stage-card {stage['status']}">
-      <div class="stage-top"><span class="stage-id">{html.escape(stage['id'])}</span>{pill(stage['status'], stage['label'])}</div>
-      <h3>{html.escape(stage['title'])}</h3>
-      <div class="stage-columns">
-        <div><h4>做了什么</h4>{list_html(stage['done'])}</div>
-        <div><h4>这意味着什么</h4>{list_html(stage['meaning'])}</div>
-        <div><h4>还差什么</h4>{list_html(stage['missing'])}</div>
-      </div>
-      <p class="evidence"><b>证据：</b>{html.escape(stage['evidence'])}</p>
-    </article>
-    """
+def status_pill(status: str, label: str) -> str:
+    return f'<span class="pill {html.escape(status)}"><i></i>{html.escape(label)}</span>'
 
 
-def flow_node(node: dict[str, str]) -> str:
+def table_row(row: dict[str, Any]) -> str:
     return f"""
-    <div class="flow-node {node['status']}">
-      <span>{html.escape(node['id'])}</span>
-      <b>{html.escape(node['title'])}</b>
-      <small>{html.escape(node['detail'])}</small>
-    </div>
-    """
+    <tr class="{html.escape(row['status'])}">
+      <td class="stage"><span class="domain">{html.escape(row['domain'])}</span><b>{html.escape(row['id'])}</b><strong>{html.escape(row['title'])}</strong></td>
+      <td class="state">{status_pill(row['status'], row['label'])}</td>
+      <td>{bullet_cell(row['done'])}</td>
+      <td>{bullet_cell(row['result'])}</td>
+      <td>{bullet_cell(row['meaning'])}</td>
+      <td>{bullet_cell(row['missing'])}</td>
+      <td>{bullet_cell(row['next'])}</td>
+      <td class="evidence">{bullet_cell(row['evidence'])}</td>
+    </tr>
+    """.strip()
 
 
 def build() -> str:
@@ -73,266 +57,227 @@ def build() -> str:
     record = closed["records"][0]
     scenarios = {item["role"]: item for item in phase["scenarios"]}
     commit_age = record["observation_age_at_commit_ms"]
-    max_age = record["maximum_observation_age_ms"]
+    maximum_age = record["maximum_observation_age_ms"]
     passing_ik = len(ik["passing_both_trials"])
     generated = datetime.now().astimezone().isoformat(timespec="seconds")
 
-    sim_flow = [
-        {"id": "S0", "title": "G1 Contract", "detail": "16-D · pelvis · xyzw", "status": "pass"},
-        {"id": "S1", "title": "Observation", "detail": "3 RGB + state[16]", "status": "pass"},
-        {"id": "S2", "title": "LGG100 Output", "detail": f"{inference['finite_shape_passes']}/{inference['samples']} finite [32,16]", "status": "pass"},
-        {"id": "S3", "title": "Adaptive Timing", "detail": "near/far pass · mixed blocked", "status": "partial"},
-        {"id": "S4", "title": "IK / Swept Path", "detail": "cycle 0 rejection", "status": "blocked"},
-        {"id": "S5", "title": "Closed Loop", "detail": f"{closed['completed_cycles']} cycles · success=false", "status": "blocked"},
-        {"id": "S6", "title": "Realtime", "detail": f"{commit_age:.2f} / {max_age:.0f} ms", "status": "blocked"},
-        {"id": "S7", "title": "Randomized", "detail": "fault/jitter not complete", "status": "todo"},
-    ]
-
-    sim_stages = [
+    rows = [
         {
-            "id": "S0–S1", "title": "冻结 G1 数据契约与 MuJoCo Observation", "status": "pass", "label": "已验证",
+            "domain": "SIMULATION", "id": "S0", "title": "G1 数据契约", "status": "pass", "label": "通过",
             "done": [
-                "冻结三路 480×640 RGB，经 resize_with_pad 变为 224×224。",
-                "冻结 pelvis-frame state/action[16]、xyzw 四元数、双 Dex1 和双臂 14 关节顺序。",
-                "MuJoCo observation、policy client 和 action validator 共用同一 contract。",
+                "冻结 pelvis-frame state/action[16] 和 xyzw 四元数。",
+                "冻结双臂 14 关节、双 Dex1、30 Hz 和 horizon 32。",
+                "实现 contract metadata/hash 与 fail-closed validator。",
+            ],
+            "result": [
+                "Contract ID: g1_edu_dual_dex1_eef_v1。",
+                "Action semantics: absolute EEF target。",
+                "错误 shape、NaN/Inf、错误 quaternion 会被拒绝。",
             ],
             "meaning": [
-                "模型、仿真与未来硬件 adapter 有明确的数据边界。",
-                "错误 shape、非有限值、错误四元数和未知 contract 会 fail closed。",
+                "仿真、模型 client 和未来真机 adapter 有统一接口。",
+                "其他机器人 schema 不能误入主链。",
             ],
             "missing": [
-                "真实三相机、LowState、Dex1 还没有证明能产生相同 observation。",
-                "真实 EEF site、相机外参和时间同步尚未标定。",
+                "真实 LowState、相机和 Dex1 尚未证明满足同一 contract。",
+                "真实 EEF site 与单位仍需硬件验证。",
             ],
-            "evidence": "g1_policy_contract.yaml · g1_policy_contract.py · MuJoCo bridge tests",
+            "next": ["保持 contract 冻结；任何硬件 profile 必须绑定相同 ID/SHA。"],
+            "evidence": ["g1_policy_contract.yaml", "g1_policy_contract.py"],
         },
         {
-            "id": "S2", "title": "严格恢复真实 LGG100 并识别输出语义", "status": "pass", "label": "离线通过",
+            "domain": "SIMULATION", "id": "S1", "title": "MuJoCo Observation", "status": "pass", "label": "通过",
             "done": [
-                f"固定 pi05_g1_eef、horizon 32 和 checkpoint revision {author['checkpoint']['revision'][:10]}…。",
-                f"采集 {inference['samples']} 次输出；{inference['finite_shape_passes']}/{inference['samples']} 为有限 [32,16]。",
-                f"在 {semantic['usable_samples']} 个可用样本上比较语义假设，最佳为 {semantic['best_hypothesis']}。",
+                "建立 G1 29-DOF、双臂、Dex1、桌面和方块场景。",
+                "生成三路 480×640 RGB，经 resize_with_pad 到 224×224。",
+                "从 MuJoCo FK 生成 pelvis-frame EEF state[16]。",
             ],
-            "meaning": [
-                "真实模型能够稳定产生符合基础 shape 的双手 EEF action chunk。",
-                "支持 absolute、xyzw、left→right 的解释，但这仍是离线证据。",
-            ],
-            "missing": [
-                "离线输出不能证明任务抓取成功、闭环稳定或硬件安全。",
-                "当前 L40S 没有可安全启动 LGG100 的完全空闲 GPU。",
-            ],
-            "evidence": "results/lgg100_author32_revalidation_summary.json",
+            "result": ["仿真 observation schema 与冻结 contract 一致。", "共享场景测量减少每个 chunk 的重复计算。"],
+            "meaning": ["模型输入不再依赖临时 fixture 或其他机器人 action schema。"],
+            "missing": ["真实相机域、时间戳、EEF 与仿真 parity 未验证。", "物理场景标定不能由 MuJoCo 代替。"],
+            "next": ["用真实同步测量建立 hardware observation parity。"],
+            "evidence": ["g1_mujoco_bridge.py", "g1_sim_speed_context.py", "MuJoCo tests"],
         },
         {
-            "id": "S3", "title": "Adaptive 远处加速、近处减速", "status": "partial", "label": "部分通过",
+            "domain": "SIMULATION", "id": "S2", "title": "真实 LGG100 输出与语义", "status": "pass", "label": "离线通过",
             "done": [
-                f"Near 场景使用 {scenarios['near']['scale_range'][0]:.2f}×，避免高速接触。",
-                f"Far 场景 chunk duration 改善 {abs(scenarios['far']['duration_change_percent']):.1f}%。",
-                f"Mixed 场景产生最多 {scenarios['mixed']['scale_range'][1]:.2f}× 的局部加速。",
+                "固定 pi05_g1_eef、checkpoint revision 和 author horizon 32。",
+                f"采集 {inference['samples']} 次真实神经输出并验证 shape/finite。",
+                "比较 absolute/delta、xyzw/wxyz、左右顺序等语义假设。",
             ],
-            "meaning": [
-                "调速器已展示 clearance/phase-aware 的局部速度行为。",
-                "速度改变的是 timing，不改变 LGG100 action path。",
+            "result": [
+                f"{inference['finite_shape_passes']}/{inference['samples']} 为有限 [32,16]。",
+                f"最佳语义为 {semantic['best_hypothesis']}，usable samples={semantic['usable_samples']}。",
+                f"Warm inference P50={inference['warm_latency_ms']['p50']:.2f} ms，P95={inference['warm_latency_ms']['p95']:.2f} ms。",
             ],
-            "missing": [
-                "Mixed grasp transition coverage 未通过，因此该场景被正确拒绝。",
-                "尚未证明完整抓取总时间下降且成功率不降低。",
-            ],
-            "evidence": "results/lgg100_author32_t0_phase_speed_sweep_validation.json",
+            "meaning": ["模型能稳定输出符合基础 shape 的 EEF action chunk。", "这仍是离线证据，不证明闭环抓取成功。"],
+            "missing": ["真实 observation 下的 task success。", "当前没有可安全启动 server 的完全空闲 L40S。"],
+            "next": ["GPU 空闲后 strict restore，并先做 output-only metadata/hash probe。"],
+            "evidence": ["results/lgg100_author32_revalidation_summary.json"],
         },
         {
-            "id": "S4", "title": "IK、连续路径与碰撞预检", "status": "blocked", "label": "当前阻塞",
-            "done": [
-                "实现双臂 IK、5 mm/3° 误差 Gate、关节限制和 sequential swept-path collision。",
-                "诊断证明 30 次迭代失败主要是收敛预算，而不是目标物理不可达。",
-                f"参数扫描中有 {passing_ik} 组候选在两个 committed target 上通过。",
+            "domain": "SIMULATION", "id": "S3", "title": "Adaptive Timing", "status": "partial", "label": "部分通过",
+            "done": ["实现 clearance/phase/stale-aware retiming。", "验证 near、mixed、far 三种距离场景。"],
+            "result": [
+                f"Near: {scenarios['near']['scale_range'][0]:.2f}×，保守接近。",
+                f"Far: chunk duration 改善 {abs(scenarios['far']['duration_change_percent']):.1f}%。",
+                f"Mixed: 最大 {scenarios['mixed']['scale_range'][1]:.2f}×，但 transition coverage=false。",
             ],
-            "meaning": [
-                "系统不会把未经验证的 EEF action 直接变成关节命令。",
-                "现有 hold 是安全拒绝，不是任务执行成功。",
-            ],
-            "missing": [
-                "候选参数必须通过完整 32-step、多 chunk、随机可达目标与已知碰撞回归。",
-                "不能放宽 5 mm/3° 阈值，也不能只依赖前两个 target。",
-            ],
-            "evidence": "results/lgg100_author32_online_ik_convergence_trace.json · parameter sweep",
+            "meaning": ["调速器展示了远处加速、近处减速。", "只改变 timing，不改变 LGG100 action path。"],
+            "missing": ["Mixed grasp transition coverage。", "完整抓取总时间下降且成功率不降低的任务级证据。"],
+            "next": ["先让 Adaptive-OFF 稳定抓取，再进行相同 action/初态的 OFF/ON 配对。"],
+            "evidence": ["results/lgg100_author32_t0_phase_speed_sweep_validation.json"],
         },
         {
-            "id": "S5", "title": "Adaptive-OFF 真实神经闭环", "status": "blocked", "label": "未完成",
+            "domain": "SIMULATION", "id": "S4", "title": "IK 与 Swept Path", "status": "blocked", "label": "阻塞",
             "done": [
-                "建立 quarantined closed-loop：observation→LGG100→preflight→commit/hold。",
-                "修复没有新鲜动作执行也把 watchdog 判为通过的问题。",
-                "记录 inference、observation age、preflight、commit 和 rejection evidence。",
+                "实现双臂 IK、5 mm/3° Gate、关节限制和 sequential swept collision。",
+                "对 committed target 做 0–250 iteration 收敛跟踪。",
+                "扫描 damping 和 numerical step。",
             ],
-            "meaning": [
-                f"当前在 cycle 0 因 {closed['abort_reason']} 停止。",
-                "动作未执行，说明 fail-closed 链有效，但任务能力没有得到证明。",
+            "result": [
+                "30 iterations: 姿态误差约 6.89°/6.29°，超过 3°。",
+                "60 iterations: 约 1.74°/1.59°，位置 <1 mm，无关节触限。",
+                f"{passing_ik} 组候选在两个 sampled target 上通过。",
             ],
-            "missing": [
-                "Adaptive-OFF 必须先稳定完成抓取/堆叠。",
-                "之后才能在同 action、同初态下比较 Adaptive-ON。",
-            ],
-            "evidence": "results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json",
+            "meaning": ["目标不是物理不可达，主要问题是数值收敛预算。", "当前 hold 是正确的安全拒绝。"],
+            "missing": ["完整 32-step、多 chunk、连续性和随机目标回归。", "已知碰撞目标必须继续被拒绝。"],
+            "next": ["完成 candidate IK sequential swept-path 全回归，不放宽 5 mm/3°。"],
+            "evidence": ["results/lgg100_author32_online_ik_convergence_trace.json", "results/lgg100_author32_online_ik_parameter_sweep.json"],
         },
         {
-            "id": "S6–S7", "title": "实时性、随机化与故障注入", "status": "blocked", "label": "未达标",
+            "domain": "SIMULATION", "id": "S5", "title": "Adaptive-OFF 闭环", "status": "blocked", "label": "未通过",
             "done": [
-                f"测得 warm inference P50 {inference['warm_latency_ms']['p50']:.2f} ms。",
-                f"测得完整 observation-to-commit {commit_age:.2f} ms。",
-                "将重复场景测量改为每周期一次，本地 context 构建大幅下降。",
+                "建立 observation→LGG100→preflight→commit/hold 的 quarantined closed loop。",
+                "记录 action hash、IK rejection、stage latency 和 observation age。",
+                "修复无新鲜动作也判 watchdog 通过的问题。",
             ],
-            "meaning": [
-                f"完整链仍超过 {max_age:.0f} ms Gate，不能用推理时间代替端到端时间。",
-                "无新鲜 commit 时 watchdog 继续保持未验证。",
+            "result": [
+                f"completed_cycles={closed['completed_cycles']}。",
+                f"task_success={str(closed['task_success']).lower()}。",
+                f"abort_reason={closed['abort_reason']}，cycle 0 未执行动作。",
             ],
-            "missing": [
-                "远端重新实测优化后的 render/inference/context/preflight/commit。",
-                "完成网络 jitter、stale、断线、相机变化、摩擦和物体随机化。",
-            ],
-            "evidence": "closed-loop timing records · watchdog regression tests",
-        },
-    ]
-
-    real_flow = [
-        {"id": "H0", "title": "Robot Shell", "detail": "authenticated · Damping", "status": "partial"},
-        {"id": "H1", "title": "LowState", "detail": "adapter local only", "status": "todo"},
-        {"id": "H2", "title": "3 Cameras", "detail": "calibration missing", "status": "blocked"},
-        {"id": "H3", "title": "Real Observation", "detail": "parity unverified", "status": "blocked"},
-        {"id": "H4", "title": "L40S Policy", "detail": "no safe GPU/server", "status": "blocked"},
-        {"id": "H5", "title": "IK + Safety", "detail": "hardware profile missing", "status": "blocked"},
-        {"id": "H6", "title": "Command Adapter", "detail": "not implemented", "status": "blocked"},
-        {"id": "H7", "title": "Feedback Loop", "detail": "execution disabled", "status": "blocked"},
-    ]
-
-    hardware_stages = [
-        {
-            "id": "H0–H1", "title": "认证连接与 Unitree LowState 只读入口", "status": "partial", "label": "连接完成",
-            "done": [
-                "通过开发机进入 unitree@unitree-g1-nx，机器人由操作员保持 Damping。",
-                f"固定官方 unitree_sdk2_python commit {sdk['official_sources']['python']['commit'][:10]}…。",
-                "实现 subscriber-only LowState adapter，并以 AST 测试禁止 command API。",
-            ],
-            "meaning": [
-                "已经有安全的源码基础，可在后续独立批准后读取真实反馈。",
-                "SSH shell 在线不等于 DDS、LowState 或动作链已验证。",
-            ],
-            "missing": [
-                "只读 inventory：Python、CycloneDDS、SDK、robot-facing interface。",
-                "真实订阅后验证 29-DOF、索引、单位、tick、IMU 顺序和 freshness。",
-            ],
-            "evidence": "UNITREE_G1_SDK_READONLY.md · g1_unitree_lowstate.py",
+            "meaning": ["Fail-closed 链有效。", "任务能力和稳定抓取尚未得到证明。"],
+            "missing": ["Adaptive-OFF 稳定完成抓取/堆叠。", "fresh action commit 后的 watchdog 证据。"],
+            "next": ["IK Gate 通过后重跑 instrumented Adaptive-OFF。"],
+            "evidence": ["results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json"],
         },
         {
-            "id": "H2–H3", "title": "真实相机、EEF、Dex1 与物理标定", "status": "blocked", "label": "缺少真实数据",
-            "done": [
-                "仿真端已冻结三相机 key、图像格式、pelvis EEF 和 Dex1 state。",
-                "文档确认左腕相机曾损坏并粘回，已标记为高风险输入。",
+            "domain": "SIMULATION", "id": "S6", "title": "端到端实时性", "status": "blocked", "label": "超时",
+            "done": ["测量 render、inference、context、preflight 与 commit。", "将重复场景测量改为每周期一次。"],
+            "result": [
+                f"Warm inference P50={inference['warm_latency_ms']['p50']:.2f} ms。",
+                f"Complete observation-to-commit={commit_age:.2f} ms。",
+                f"Gate ≤{maximum_age:.0f} ms，当前超出 {commit_age-maximum_age:.2f} ms。",
             ],
-            "meaning": [
-                "真机 observation 必须与训练/仿真 contract 一致，不能复制或替换相机。",
-                "有画面不代表外参、时间同步或 EEF site 正确。",
-            ],
-            "missing": [
-                "三相机内外参、时间同步、左腕相机完整性。",
-                "pelvis/桌面/方块坐标、EEF offset、Dex1 零点与方向的真实测量。",
-            ],
-            "evidence": "g1_policy_contract.yaml hardware blockers · operator document",
+            "meaning": ["不能只用推理延迟代表控制链延迟。", "过期 action 不得 commit。"],
+            "missing": ["远端实测 context 优化后的完整链。", "继续减少约 9–20 ms，并验证 P95/P99。"],
+            "next": ["GPU 可用后做分阶段 profile，并保持 watchdog fail closed。"],
+            "evidence": ["closed-loop timing record", "g1_sim_speed_context benchmark"],
         },
         {
-            "id": "H4", "title": "L40S output-only policy 服务", "status": "blocked", "label": "GPU 阻塞",
-            "done": [
-                "建立 Mac 127.0.0.1:8000→L40S 127.0.0.1:8000 的 loopback tunnel。",
-                "建立 ControlMaster、keeper、连接 runbook 和 GPU 只读监控。",
-            ],
-            "meaning": [
-                "网络路径已准备，但 tunnel listener 不等于 policy server 可用。",
-                "不会终止共享账号下的其他 GPU workload。",
-            ],
-            "missing": [
-                f"当前没有完全未分配 GPU；最佳候选仍只有约 {gpu['decision']['candidate_free_memory_mib']/1024:.1f} GiB 空闲且有常驻任务。",
-                "空卡上 strict restore、peak memory 和 metadata/hash Gate。",
-            ],
-            "evidence": "results/l40s_gpu_availability_20260819.json",
+            "domain": "SIMULATION", "id": "S7", "title": "随机化与故障注入", "status": "todo", "label": "未完成",
+            "done": ["已有 stale/hold、collision 和部分安全单元测试。"],
+            "result": [f"完整本地自动测试 {tests['passed']}/{tests['total']} 通过。"],
+            "meaning": ["代码回归通过不等于任务在随机物理环境中稳定。"],
+            "missing": ["相机、物体、摩擦、网络 jitter、断线和传感器 stale 随机化。", "预注册成功率和安全阈值。"],
+            "next": ["Adaptive-OFF 基线通过后运行 randomized/fault suite。"],
+            "evidence": ["results/test_summary.json", "tests/"],
         },
         {
-            "id": "H5", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",
+            "domain": "REAL ROBOT", "id": "H0", "title": "网络与认证 Shell", "status": "partial", "label": "仅连接",
             "done": [
-                "定义 current-pose hold：真实 LowState→FK→当前 EEF→IK→safety，不 publish。",
-                "结构化记录要求 publisher_created=false、robot_command_sent=false。",
+                "机器人由操作员保持 Damping、安全绳/支撑和 E-stop 就绪。",
+                "Mac→开发机 192.168.1.13→机器人 192.168.123.164 登录成功。",
+                "建立独立 L40S ControlMaster、keeper 和 loopback tunnel。",
             ],
-            "meaning": [
-                "这是把仿真安全链接到真实数据的最低风险测试。",
-                "机器人不应因软件产生动作，模式保持 Damping。",
-            ],
-            "missing": [
-                "阶段 A inventory 与 subscriber-only capture 尚未运行。",
-                "真实 FK/contract parity、stale、断线和 no-command watchdog 尚未验证。",
-            ],
-            "evidence": "results/g1_first_motion_readiness_decision_20260818.json",
+            "result": ["Prompt: unitree@unitree-g1-nx。", "SSH shell 可用；没有执行机器人命令。", "开发机链路曾观察到较大 RTT jitter。"],
+            "meaning": ["已具备只读 inventory 入口。", "SSH 在线不代表实时链路或动作权限。"],
+            "missing": ["机器人内部实时 supervisor 架构。", "稳定有线延迟、断线与恢复测试。"],
+            "next": ["只执行阶段 A inventory；保持 Damping。"],
+            "evidence": ["results/g1_robot_ssh_connection_status_20260818.json", "CONNECTION_RUNBOOK.md"],
         },
         {
-            "id": "H6–H7", "title": "Hardware command、watchdog 与真实反馈闭环", "status": "blocked", "label": "禁止动作",
+            "domain": "REAL ROBOT", "id": "H1", "title": "Unitree SDK / LowState", "status": "partial", "label": "本地完成",
             "done": [
-                "已明确禁止直接运行官方 low-level/arm7 运动示例。",
-                "已注册 hardware_execution_allowed=false 和 fail-closed runtime gates。",
+                f"固定官方 unitree_sdk2_python {sdk['official_sources']['python']['commit'][:10]}…。",
+                "确认 G1 使用 unitree_hg、rt/lowstate，双臂索引 15–28。",
+                "实现 subscriber-only adapter 和 AST 禁写测试。",
             ],
-            "meaning": [
-                "当前没有可审计的 Unitree command adapter。",
-                "从 Damping 切换模式本身也是硬件动作，不因 SSH 成功而获准。",
+            "result": ["本地 extraction/fail-closed 测试通过。", "SDK 未上传、未安装、未在机器人初始化 DDS。", "官方运动示例被明确禁止。"],
+            "meaning": ["有可审计的真实反馈读取代码。", "还没有任何真实 LowState 样本。"],
+            "missing": ["Python/CycloneDDS/SDK/网卡 inventory。", "29-DOF variant、单位、IMU 顺序、tick 和 freshness 真机验证。"],
+            "next": ["独立确认后执行只读 inventory，再决定是否运行固定样本 subscriber。"],
+            "evidence": ["UNITREE_G1_SDK_READONLY.md", "g1_unitree_lowstate.py", "results/unitree_g1_sdk2_readonly_audit_20260818.json"],
+        },
+        {
+            "domain": "REAL ROBOT", "id": "H2", "title": "相机、Dex1 与物理标定", "status": "blocked", "label": "缺数据",
+            "done": ["冻结真实 observation 应满足的三相机、EEF 与 Dex1 schema。", "记录左腕相机损坏并粘回的风险。"],
+            "result": ["physical_scene_calibration_verified=false。", "没有真实同步相机/关节/EEF/桌面/方块测量。"],
+            "meaning": ["当前不能证明真机输入与训练/仿真一致。", "有画面也不代表外参和时序正确。"],
+            "missing": ["三相机内外参和时间同步。", "pelvis、EEF offset、桌面、方块、Dex1 零点/方向。", "左腕相机完整性验证。"],
+            "next": ["采集真实同步 calibration dataset，并生成 hash-bound calibration report。"],
+            "evidence": ["g1_policy_contract.yaml hardware blockers", "operator-provided G1 guide"],
+        },
+        {
+            "domain": "REAL ROBOT", "id": "H3", "title": "L40S Policy 服务", "status": "blocked", "label": "无空卡",
+            "done": ["建立 127.0.0.1:8000 loopback-only tunnel。", "只读监控 8 张 L40S 和 resident process。"],
+            "result": [
+                "远端 port 8000 未监听，LGG100 server 未运行。",
+                f"最佳候选 GPU 仍只有约 {gpu['decision']['candidate_free_memory_mib']/1024:.1f} GiB 空闲且有其他 workload。",
             ],
-            "missing": [
-                "官方关节/速度/力矩/电流/温度 limits 与正确控制接口。",
-                "本地 watchdog、E-stop、通信丢失、balance/stance 和 command feedback。",
-                "Shadow/HIL 通过后，先做非 VLA、非 Adaptive 的确定性单臂 free-space 小动作。",
+            "meaning": ["Tunnel listener 只证明网络路径，不证明 policy 可用。"],
+            "missing": ["完全空闲或管理员明确分配的 GPU。", "Strict restore peak memory 与 server metadata/hash Gate。"],
+            "next": ["等待现有任务正常结束；不停止或挤占其他任务。"],
+            "evidence": ["results/l40s_gpu_availability_20260819.json"],
+        },
+        {
+            "domain": "REAL ROBOT", "id": "H4", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",
+            "done": ["定义 current-pose hold：LowState→FK→当前 EEF→IK→safety，不 publish。", "定义 no-command 证据字段。"],
+            "result": ["publisher_created=false 为必须条件。", "robot_command_sent=false，mode_changed=false。", "尚未实际运行。"],
+            "meaning": ["这是把仿真安全链连接到真实数据的最低风险步骤。"],
+            "missing": ["真实 LowState 与 FK parity。", "真实 stale/断线/watchdog no-command 测试。"],
+            "next": ["完成 H1/H2 后运行 zero-motion Shadow，并独立审阅报告。"],
+            "evidence": ["results/g1_first_motion_readiness_decision_20260818.json"],
+        },
+        {
+            "domain": "REAL ROBOT", "id": "H5", "title": "Hardware Command 与安全限制", "status": "blocked", "label": "未实现",
+            "done": ["注册 hardware_execution_allowed=false。", "明确禁止官方 low-level/arm7 运动示例和任何未经审查 Publisher。"],
+            "result": ["Unitree command adapter 不存在。", "官方 torque/current/temperature/controller limits 未接入。", "real_time_watchdog_validated=false。"],
+            "meaning": ["当前没有可审计方式把关节目标安全发送给 G1。", "从 Damping 切模式本身也是未授权动作。"],
+            "missing": ["正确的官方控制接口与 hardware profile。", "本地 watchdog、E-stop、通信丢失、stance/balance、feedback。"],
+            "next": ["Shadow/HIL 全通过后，单独设计并审查 deterministic command adapter。"],
+            "evidence": ["g1_policy_contract.yaml", "results/unitree_g1_sdk2_readonly_audit_20260818.json"],
+        },
+        {
+            "domain": "REAL ROBOT", "id": "H6", "title": "真机闭环与抓取加速", "status": "blocked", "label": "禁止执行",
+            "done": ["定义 staged path：单臂→双臂→桌面→轻物体→Adaptive-OFF→Adaptive-ON。"],
+            "result": [
+                "g1_contract_verified=false。",
+                "g1_sim_eligible=false。",
+                "g1_execution_enabled=false。",
+                "hardware_execution_performed=false。",
             ],
-            "evidence": "g1_policy_contract.yaml · Unitree SDK read-only audit",
+            "meaning": ["当前只能继续 read-only、subscriber-only 和 zero-motion 工作。"],
+            "missing": ["S4–S7、H1–H5 全部通过。", "Adaptive-OFF 稳定任务基线和相同 action/初态的 ON/OFF 对比。"],
+            "next": ["先完成 IK 全路径与 Unitree 阶段 A inventory；不要发送动作。"],
+            "evidence": ["validation_report.html", "simulation_deployment_summary.html"],
         },
     ]
 
     css = """
-    :root{--bg:#060913;--panel:#0e1628dc;--line:#ffffff14;--text:#eef5ff;--muted:#8ea0ba;--cyan:#35d7e8;--blue:#7185ff;--green:#41d99c;--amber:#ffc45c;--red:#ff6f89;--violet:#b594ff}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 8% 2%,#153c63 0,transparent 26%),radial-gradient(circle at 92% 4%,#322264 0,transparent 28%),linear-gradient(180deg,#080d18,var(--bg) 44%);line-height:1.55}.shell{width:min(1440px,calc(100% - 32px));margin:auto;padding:28px 0 70px}.glass{background:var(--panel);border:1px solid var(--line);box-shadow:0 26px 90px #0007;backdrop-filter:blur(18px);border-radius:24px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:34px}.brand{display:flex;align-items:center;gap:12px;font-weight:850}.logo{width:44px;height:44px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#06111b}.stamp{color:var(--muted);font-size:12px}.hero{display:grid;grid-template-columns:1.5fr .5fr;gap:18px}.hero-main{padding:38px}.eyebrow{color:var(--cyan);font-size:12px;font-weight:900;letter-spacing:.17em}.hero h1{font-size:clamp(40px,6vw,78px);line-height:.98;letter-spacing:-.055em;margin:14px 0 20px;max-width:980px}.hero p{font-size:17px;color:#b9c7da;max-width:900px}.verdict{padding:28px;display:flex;flex-direction:column;justify-content:center}.verdict strong{font-size:25px;color:var(--red)}.verdict small{color:var(--muted);margin-top:9px}.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:18px 0}.metric{padding:18px}.metric label{display:block;color:var(--muted);font-size:11px;letter-spacing:.07em;text-transform:uppercase}.metric b{display:block;font-size:25px;margin-top:9px}.metric small{color:var(--muted)}nav{position:sticky;top:10px;z-index:5;display:flex;gap:7px;width:max-content;max-width:100%;overflow:auto;margin:24px 0;padding:8px;background:#0a1020e8;border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(18px)}nav a{color:var(--muted);text-decoration:none;padding:9px 13px;border-radius:10px;font-weight:750;white-space:nowrap}nav a:hover{background:#ffffff0b;color:var(--text)}section{margin-top:26px}.section{padding:27px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:20px}.section-head h2{margin:0;font-size:27px}.section-head p{margin:6px 0 0;color:var(--muted)}.legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.legend .pass:before{background:var(--green)}.legend .partial:before{background:var(--amber)}.legend .blocked:before{background:var(--red)}.legend .todo:before{background:var(--violet)}.flow{display:flex;gap:25px;overflow:auto;padding:8px 4px 20px}.flow-node{position:relative;min-width:170px;padding:18px;border:1px solid var(--line);border-radius:17px;background:#ffffff05}.flow-node:not(:last-child):after{content:"→";position:absolute;right:-21px;top:40%;color:#66809d}.flow-node span{font-size:10px;font-weight:900;letter-spacing:.12em}.flow-node b,.flow-node small{display:block}.flow-node b{margin:7px 0}.flow-node small{color:var(--muted)}.flow-node.pass{border-color:#41d99c55}.flow-node.pass span{color:var(--green)}.flow-node.partial{border-color:#ffc45c66}.flow-node.partial span{color:var(--amber)}.flow-node.blocked{border-color:#ff6f8955}.flow-node.blocked span{color:var(--red)}.flow-node.todo{border-color:#b594ff44}.flow-node.todo span{color:var(--violet)}.stage-card{padding:24px;margin-top:16px;border-left:3px solid var(--line)}.stage-card.pass{border-left-color:var(--green)}.stage-card.partial{border-left-color:var(--amber)}.stage-card.blocked{border-left-color:var(--red)}.stage-card.todo{border-left-color:var(--violet)}.stage-top{display:flex;justify-content:space-between;gap:12px}.stage-id{font-size:11px;font-weight:900;letter-spacing:.15em;color:var(--cyan)}.stage-card h3{font-size:22px;margin:10px 0 18px}.stage-columns{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.stage-columns>div{border:1px solid var(--line);border-radius:15px;background:#ffffff04;padding:16px}.stage-columns h4{margin:0 0 10px;color:var(--cyan)}ul{margin:0;padding-left:19px;color:var(--muted);font-size:13px}li+li{margin-top:7px}.evidence{font-size:12px;color:#7488a5;margin:14px 0 0}.pill{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:99px;font-size:11px;font-weight:800}.pill i{width:6px;height:6px;border-radius:50%}.pill.pass{color:var(--green);background:#41d99c14}.pill.pass i{background:var(--green)}.pill.partial{color:var(--amber);background:#ffc45c14}.pill.partial i{background:var(--amber)}.pill.blocked{color:var(--red);background:#ff6f8914}.pill.blocked i{background:var(--red)}.pill.todo{color:var(--violet);background:#b594ff14}.pill.todo i{background:var(--violet)}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}.callout{padding:22px}.callout h3{margin-top:0}.callout.allowed{border-color:#41d99c44}.callout.forbidden{border-color:#ff6f8955}.callout p{color:var(--muted)}.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}.roadmap article{padding:18px;border:1px solid var(--line);border-radius:16px;background:#ffffff04}.roadmap em{font-style:normal;color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.1em}.roadmap h3{margin:8px 0}.roadmap p{font-size:13px;color:var(--muted)}.flags{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.flag{display:flex;justify-content:space-between;padding:12px 14px;border:1px solid var(--line);border-radius:12px;color:var(--muted)}.flag b{color:var(--red);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.sources{columns:2}.sources a{color:var(--cyan);text-decoration:none;display:block;margin:8px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}footer{text-align:center;color:#60718b;padding:30px;font-size:12px}@media(max-width:1100px){.metrics{grid-template-columns:repeat(3,1fr)}.stage-columns,.roadmap{grid-template-columns:1fr 1fr}}@media(max-width:760px){.shell{width:min(100% - 18px,1440px)}.hero,.two-col{grid-template-columns:1fr}.hero-main{padding:25px}.metrics,.stage-columns,.roadmap,.flags{grid-template-columns:1fr}.section{padding:19px}.sources{columns:1}}
+    :root{--bg:#070b14;--panel:#0e1727;--line:#ffffff17;--text:#eef5ff;--muted:#9aabc1;--cyan:#37d9e8;--green:#45dca1;--amber:#ffc75d;--red:#ff738d;--violet:#b69aff}*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(circle at 8% 0,#173d61 0,transparent 27%),radial-gradient(circle at 92% 0,#332268 0,transparent 25%),var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}.shell{width:min(1880px,calc(100% - 28px));margin:auto;padding:26px 0 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:28px;margin-bottom:16px;border:1px solid var(--line);border-radius:22px;background:#0e1727dd;box-shadow:0 28px 90px #0007;backdrop-filter:blur(18px)}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.16em}.hero h1{font-size:clamp(32px,4vw,58px);line-height:1;margin:10px 0 12px;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);max-width:1050px}.verdict{text-align:right;min-width:240px}.verdict b{display:block;color:var(--red);font-size:20px}.verdict small{color:var(--muted)}.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 18px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.legend .pass:before{background:var(--green)}.legend .partial:before{background:var(--amber)}.legend .blocked:before{background:var(--red)}.legend .todo:before{background:var(--violet)}.table-wrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid var(--line);border-radius:20px;background:#0b1220e8;box-shadow:0 28px 90px #0008}table{width:100%;min-width:1900px;border-collapse:separate;border-spacing:0;font-size:13px}caption{text-align:left;padding:15px 18px;color:var(--muted);border-bottom:1px solid var(--line)}thead{position:sticky;top:0;z-index:8;background:#131e31}th{text-align:left;padding:14px 15px;color:#b8c7db;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #ffffff24}th:nth-child(1){width:200px}th:nth-child(2){width:100px}th:nth-child(3),th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:270px}th:nth-child(8){width:230px}td{padding:16px 15px;vertical-align:top;border-bottom:1px solid #ffffff0d;border-right:1px solid #ffffff09;background:#0d1625aa}tr:hover td{background:#142138}tr.pass td:first-child{box-shadow:inset 4px 0 var(--green)}tr.partial td:first-child{box-shadow:inset 4px 0 var(--amber)}tr.blocked td:first-child{box-shadow:inset 4px 0 var(--red)}tr.todo td:first-child{box-shadow:inset 4px 0 var(--violet)}.stage{position:sticky;left:0;z-index:3;background:#101b2d!important}.stage .domain{display:block;color:var(--cyan);font-size:9px;font-weight:900;letter-spacing:.14em}.stage b{display:block;margin:6px 0;color:#7891af}.stage strong{display:block;font-size:16px}.state{position:sticky;left:200px;z-index:3;background:#101b2d!important}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;font-size:11px;font-weight:850;white-space:nowrap}.pill i{width:6px;height:6px;border-radius:50%}.pill.pass{color:var(--green);background:#45dca116}.pill.pass i{background:var(--green)}.pill.partial{color:var(--amber);background:#ffc75d16}.pill.partial i{background:var(--amber)}.pill.blocked{color:var(--red);background:#ff738d16}.pill.blocked i{background:var(--red)}.pill.todo{color:var(--violet);background:#b69aff16}.pill.todo i{background:var(--violet)}ul{margin:0;padding-left:17px;color:var(--muted)}li+li{margin-top:8px}.evidence li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#7890ae;overflow-wrap:anywhere}footer{text-align:center;color:#64758c;padding:22px;font-size:11px}@media(max-width:760px){.shell{width:calc(100% - 12px)}.hero{align-items:start;flex-direction:column;padding:20px}.verdict{text-align:left}.table-wrap{max-height:calc(100vh - 260px)}}
     """
 
-    sources = [
-        "results/lgg100_author32_revalidation_summary.json",
-        "results/lgg100_author32_t0_phase_speed_sweep_validation.json",
-        "results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json",
-        "results/lgg100_author32_online_ik_convergence_trace.json",
-        "results/lgg100_author32_online_ik_parameter_sweep.json",
-        "results/unitree_g1_sdk2_readonly_audit_20260818.json",
-        "results/l40s_gpu_availability_20260819.json",
-        "g1_policy_contract.yaml",
-        "UNITREE_G1_SDK_READONLY.md",
-    ]
-
     return f"""<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>G1 VLA · Simulation → Real Robot Readiness</title><style>{css}</style></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>G1 VLA · Simulation 与真机闭环总表</title><style>{css}</style></head>
 <body><main class="shell">
-<div class="top"><div class="brand"><span class="logo">G1</span><span>VLA Safety Lab</span></div><div class="stamp">Evidence-bound · generated {html.escape(generated)}</div></div>
-<section class="hero"><div class="glass hero-main"><div class="eyebrow">LGG100 · UNITREE G1 EDU · FAIL-CLOSED</div><h1>Simulation 到真机闭环：我们在哪里，还缺什么。</h1><p>当前离线模型输出与动作语义已有证据，Adaptive 展示了远处加速和近处减速；但 IK 全路径、Adaptive-OFF 闭环、100 ms 实时性、真实传感器与硬件 command 安全链尚未完成。</p></div><aside class="glass verdict"><span class="eyebrow">CURRENT VERDICT</span><strong>不允许真机动作</strong><small>只允许 read-only inventory、subscriber-only LowState 和 zero-motion Shadow。</small></aside></section>
-<div class="metrics">
-<div class="glass metric"><label>Neural output</label><b>{inference['finite_shape_passes']}/{inference['samples']}</b><small>finite [32,16]</small></div>
-<div class="glass metric"><label>Semantic</label><b>{html.escape(semantic['best_hypothesis'])}</b><small>{semantic['usable_samples']} usable samples</small></div>
-<div class="glass metric"><label>Far duration</label><b>−{abs(scenarios['far']['duration_change_percent']):.1f}%</b><small>offline chunk</small></div>
-<div class="glass metric"><label>Closed-loop</label><b>{closed['completed_cycles']}</b><small>completed cycles</small></div>
-<div class="glass metric"><label>Commit age</label><b>{commit_age:.2f} ms</b><small>limit {max_age:.0f} ms</small></div>
-<div class="glass metric"><label>Tests</label><b>{tests['passed']}/{tests['total']}</b><small>local passed</small></div>
-</div>
-<nav><a href="#simulation">Simulation</a><a href="#hardware">真机闭环</a><a href="#allowed">当前权限</a><a href="#roadmap">最短路径</a><a href="#flags">Release Gates</a><a href="#sources">证据</a></nav>
-<section id="simulation" class="glass section"><div class="section-head"><div><h2>Simulation Gate 图</h2><p>绿色代表证据通过；红色不是“没做”，而是现有证据明确不满足 Gate。</p></div><div class="legend"><span class="pass">通过</span><span class="partial">部分</span><span class="blocked">阻塞</span><span class="todo">未开始</span></div></div><div class="flow">{''.join(flow_node(node) for node in sim_flow)}</div></section>
-<section>{''.join(stage_card(stage) for stage in sim_stages)}</section>
-<section id="hardware" class="glass section"><div class="section-head"><div><h2>真实机器人闭环图</h2><p>目标是 Real sensors → Policy → IK/Safety → Command → Robot → Fresh feedback；当前只有认证 shell 和本地只读 adapter。</p></div></div><div class="flow">{''.join(flow_node(node) for node in real_flow)}</div></section>
-<section>{''.join(stage_card(stage) for stage in hardware_stages)}</section>
-<section id="allowed" class="two-col"><article class="glass callout allowed"><h3>现在可以做</h3>{list_html(["阶段 A：只读检查 Python、SDK、CycloneDDS、网卡和服务。","独立批准后运行 subscriber-only LowState 固定样本采集。","真实状态的 current-pose FK/IK zero-motion Shadow。","CPU-only IK 32-step sequential swept-path 回归。","只读复查 GPU；不干扰共享 workload。"])}<p>这些步骤都不能创建 robot command，也不能改变 Damping。</p></article><article class="glass callout forbidden"><h3>现在禁止做</h3>{list_html(["运行官方 g1_low_level_example.py 或 g1_arm7_sdk_dds_example.py。","创建 ChannelPublisher、LowCmd、arm_sdk、SportClient 或 Dex1 command。","切换 Ready/Walk/Control 或释放 motion service。","把仿真动作、LGG100 action 或 Adaptive timing 发送给机器人。","因 GPU 不足而停止或挤占其他任务。"])}<p>任何网络连接、SSH 登录或 tunnel listener 都不构成运动授权。</p></article></section>
-<section id="roadmap" class="glass section"><div class="section-head"><div><h2>达到真机闭环的最短安全路径</h2><p>每一级失败都停止，不自动进入下一级。</p></div></div><div class="roadmap">
-<article><em>01 · SIMULATION</em><h3>解除 IK/闭环/延迟阻塞</h3><p>完整 32-step 回归 → Adaptive-OFF 稳定抓取 → commit ≤100 ms → randomized/fault tests。</p></article>
-<article><em>02 · READ ONLY</em><h3>真实 observation parity</h3><p>LowState、Dex1、三相机、时间同步、EEF 与物理场景标定。</p></article>
-<article><em>03 · SHADOW/HIL</em><h3>真实输入，零命令</h3><p>current-pose hold、VLA output quarantine、stale/disconnect/watchdog/E-stop。</p></article>
-<article><em>04 · STAGED MOTION</em><h3>确定性小动作后才到 VLA</h3><p>单臂 free-space → 双臂 → 桌面 → 轻物体 → Adaptive-OFF → paired Adaptive-ON。</p></article>
-</div></section>
-<section id="flags" class="glass section"><div class="section-head"><div><h2>当前 Release Gates</h2><p>这些值保持 false 是当前正确的安全结果。</p></div></div><div class="flags">{''.join(f'<div class="flag"><span>{name}</span><b>false</b></div>' for name in ['policy_task_quality_passed','physical_scene_calibration_verified','real_time_watchdog_validated','g1_contract_verified','g1_sim_eligible','g1_execution_enabled','hardware_execution_performed'])}</div></section>
-<section id="sources" class="glass section"><div class="section-head"><div><h2>证据来源</h2><p>页面结论绑定到以下代码与 JSON；终端印象不能替代这些产物。</p></div></div><div class="sources">{''.join(f'<a href="{html.escape(source)}">{html.escape(source)}</a>' for source in sources)}</div></section>
-<footer>G1 VLA Simulation → Deployment Summary · no hardware action performed</footer>
+<header class="hero"><div><div class="eyebrow">LGG100 · UNITREE G1 EDU · EVIDENCE-BOUND SUMMARY</div><h1>Simulation 与真机闭环总表</h1><p>所有工作、结果、含义、缺口、下一步和证据集中在下方唯一表格。横向滚动查看全部八列，前两列固定。</p></div><div class="verdict"><b>当前不允许真机动作</b><small>只允许 read-only / subscriber-only / zero-motion</small></div></header>
+<div class="legend"><span class="pass">通过</span><span class="partial">部分完成</span><span class="blocked">阻塞</span><span class="todo">未开始</span></div>
+<div class="table-wrap"><table><caption>Generated {html.escape(generated)} · Neural {inference['finite_shape_passes']}/{inference['samples']} · Closed-loop {closed['completed_cycles']} cycles · Commit {commit_age:.2f}/{maximum_age:.0f} ms · Tests {tests['passed']}/{tests['total']}</caption>
+<thead><tr><th>阶段</th><th>状态</th><th>我们做了什么</th><th>当前结果 / 数据</th><th>这意味着什么</th><th>还差什么</th><th>下一步</th><th>证据</th></tr></thead>
+<tbody>{''.join(table_row(row) for row in rows)}</tbody></table></div>
+<footer>G1 VLA single-table summary · g1_execution_enabled=false · no hardware action performed</footer>
 </main></body></html>"""
 
 

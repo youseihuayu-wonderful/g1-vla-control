@@ -689,5 +689,41 @@
       "tests/test_simulation_deployment_summary.py",
       "81/81 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 09:47 EDT",
+    "title": "将 Simulation→真机 Summary 精简为唯一详细总表",
+    "status": "pass",
+    "summary": "根据用户反馈删除原 Summary 中分散的流程图、指标卡、阶段卡和多区块，只保留一个详细总表；所有 simulation 与真实机器人步骤现在按统一八列横向对照。",
+    "done": [
+      "将页面重构为标题、状态图例和唯一一个 table。",
+      "统一八列：阶段、状态、我们做了什么、当前结果/数据、这意味着什么、还差什么、下一步、证据。",
+      "将 Simulation S0–S7 与真机 H0–H6 全部放入同一表格。",
+      "保留 sticky header、固定前两列、状态颜色和横向滚动，减少视觉跳转。",
+      "更新报告测试，强制页面只能包含一个 table；81/81 测试通过。"
+    ],
+    "conclusions": [
+      "单表结构更适合逐行比较已完成工作、结果含义和闭环缺口。",
+      "所有关键数字和 false Gate 仍从结构化证据生成，没有为了简化界面删除安全边界。"
+    ],
+    "fixes": [
+      "移除 flow-node、stage-card、metrics、allowed/forbidden 独立卡片和 roadmap 分区。",
+      "把原分区信息合并进对应表格行，避免内容重复和杂乱。",
+      "新增测试验证 table 数量严格等于 1，并保留硬件关闭声明。"
+    ],
+    "remaining": [
+      "宽表需要横向滚动；已通过固定阶段/状态列降低阅读负担。",
+      "技术 Gate 本身没有改变，IK、闭环、延迟和硬件条件仍然阻塞。"
+    ],
+    "next": [
+      "重新打开 simulation_deployment_summary.html 供用户查看。",
+      "后续证据更新继续通过生成器刷新同一张表，不新增分散区块。"
+    ],
+    "evidence": [
+      "simulation_deployment_summary.html",
+      "generate_simulation_deployment_summary.py",
+      "tests/test_simulation_deployment_summary.py",
+      "81/81 local tests"
+    ]
   }
 ]
