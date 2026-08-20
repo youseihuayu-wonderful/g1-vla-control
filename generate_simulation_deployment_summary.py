@@ -196,35 +196,93 @@ def numbered_cell(items: list[str]) -> str:
     return "<ol>" + "".join(f"<li>{linked_text(item)}</li>" for item in items) + "</ol>"
 
 
-def pre_real_simulation_roadmap() -> str:
+def stage_table(rows: list[dict[str, Any]], label: str) -> str:
+    return f"""
+    <div class="table-shell" role="region" aria-label="{html.escape(label)}" tabindex="0">
+      <table class="detail-table">
+        <thead><tr><th>阶段</th><th>状态</th><th>已完成工作</th><th>客观结果 / 数据</th><th>证据含义</th><th>未完成项</th><th>后续动作</th><th>证据</th></tr></thead>
+        <tbody>{''.join(table_row(row) for row in rows)}</tbody>
+      </table>
+    </div>
+    """.strip()
+
+
+def next_steps_panel() -> str:
     priority_rows = "".join(
-        "<tr class=\"roadmap-priority\">"
-        f"<td>{linked_text(priority)}</td>"
-        f"<td>{linked_text(stage)}</td>"
-        f"<td colspan=\"4\">{linked_text(work)}</td>"
-        f"<td colspan=\"2\">{linked_text(gate)}</td>"
+        "<tr>"
+        f"<td><span class=\"priority-number\">{linked_text(priority)}</span></td>"
+        f"<td><b>{linked_text(stage)}</b></td>"
+        f"<td>{linked_text(work)}</td>"
+        f"<td>{linked_text(gate)}</td>"
         "</tr>"
         for priority, stage, work, gate in PRE_REAL_SIMULATION_PRIORITIES
     )
-    execution_order = (
-        "S4 完整 IK<br>"
-        "→ fresh-action watchdog<br>"
-        "→ Adaptive-OFF 成功闭环<br>"
-        "→ 延迟 ≤100 ms<br>"
-        "→ 随机化/故障注入<br>"
-        "→ simulated Shadow/HIL<br>"
-        "→ 才进入真实只读 LowState 和物理标定"
+    execution_order = [
+        "S4 完整 IK",
+        "fresh-action watchdog",
+        "Adaptive-OFF 成功闭环",
+        "延迟 ≤100 ms",
+        "随机化/故障注入",
+        "simulated Shadow/HIL",
+        "真实只读 LowState 和物理标定",
+    ]
+    flow = "".join(
+        f'<div class="flow-step"><span>{index}</span><b>{linked_text(item)}</b></div>'
+        for index, item in enumerate(execution_order, start=1)
     )
     return f"""
-    <tr class="roadmap-section"><td colspan="8"><b>可以。HTML 里在真机之前，仍有大量工作可以完全在 Simulation/Replay 中完成。优先级如下。</b></td></tr>
-    <tr class="roadmap-header"><th>优先级</th><th>对应 HTML</th><th colspan="4">可继续完成的工作</th><th colspan="2">通过标准</th></tr>
-    {priority_rows}
-    <tr class="roadmap-section"><td colspan="8"><h2>当前可以立即做、不依赖空闲 GPU</h2>{numbered_cell(PRE_REAL_IMMEDIATE)}</td></tr>
-    <tr class="roadmap-section"><td colspan="8"><h2>必须等 L40S 空闲</h2>{numbered_cell(PRE_REAL_WAIT_L40S)}</td></tr>
-    <tr class="roadmap-section"><td colspan="8"><h2>Simulation 无法替代的部分</h2>{bullet_cell(PRE_REAL_NOT_REPLACEABLE)}</td></tr>
-    <tr class="roadmap-section"><td colspan="8"><p>因此最合理的执行顺序是：</p><pre>{execution_order}</pre></td></tr>
-    <tr class="roadmap-section"><td colspan="8"><b>我下一步可以直接从 S4 完整 32-step sequential IK + swept-path 回归 开始，不涉及任何真机命令。</b></td></tr>
+    <div class="section-heading"><div><span class="kicker">PRE-REAL EXECUTION PLAN</span><h2>真机前执行计划</h2><p>所有项目按证据依赖关系排序；计划项不代表对应 Gate 已通过。</p></div><span class="owner-chip">Owner · Shihua Yu</span></div>
+    <div class="table-shell roadmap-shell" role="region" aria-label="真机前 Simulation 优先级" tabindex="0">
+      <table class="roadmap-table"><thead><tr><th>优先级</th><th>对应阶段</th><th>可继续完成的工作</th><th>通过标准</th></tr></thead><tbody>{priority_rows}</tbody></table>
+    </div>
+    <div class="split-grid">
+      <article class="info-card ready"><span class="card-label">AVAILABLE NOW</span><h3>当前可执行 · 不依赖空闲 GPU</h3>{numbered_cell(PRE_REAL_IMMEDIATE)}</article>
+      <article class="info-card waiting"><span class="card-label">COMPUTE BLOCKED</span><h3>必须等 L40S 空闲</h3>{numbered_cell(PRE_REAL_WAIT_L40S)}<p class="card-note">启动条件：设备完全空闲或管理员明确分配；不得终止或挤占其他任务。</p></article>
+    </div>
+    <article class="flow-card"><span class="card-label">DEPENDENCY ORDER</span><h3>客观执行顺序</h3><div class="flow">{flow}</div><p>S4 完整 32-step sequential IK + swept-path 回归是当前最高优先级；该工作不涉及任何真机命令。</p></article>
     """.strip()
+
+
+def objective_text(value: str) -> str:
+    replacements = {
+        "我们做了什么": "已完成工作",
+        "这意味着什么": "证据含义",
+    }
+    for source, target in replacements.items():
+        value = value.replace(source, target)
+    return linked_text(value)
+
+
+def objective_bullet_cell(items: list[str]) -> str:
+    return "<ul>" + "".join(f"<li>{objective_text(item)}</li>" for item in items) + "</ul>"
+
+
+def updates_panel(updates: list[dict[str, Any]]) -> str:
+    cards: list[str] = []
+    labels = (
+        ("done", "已完成"),
+        ("conclusions", "结论"),
+        ("fixes", "修复"),
+        ("remaining", "未完成"),
+        ("next", "后续动作"),
+        ("evidence", "证据"),
+    )
+    for index, update in enumerate(reversed(updates)):
+        sections = "".join(
+            f'<div class="update-block"><h4>{heading}</h4>{objective_bullet_cell(update.get(key, []))}</div>'
+            for key, heading in labels
+            if update.get(key)
+        )
+        open_attr = " open" if index == 0 else ""
+        cards.append(
+            f'<details class="update-card"{open_attr}>'
+            f'<summary><span class="update-dot {html.escape(update["status"])}"></span>'
+            f'<span><time>{html.escape(update["time"])}</time><b>{objective_text(update["title"])}</b></span>'
+            '<span class="expand-icon" aria-hidden="true">＋</span></summary>'
+            f'<div class="update-content"><p class="update-summary">{objective_text(update["summary"])}</p>'
+            f'<div class="update-grid">{sections}</div></div></details>'
+        )
+    return "".join(cards)
 
 
 def build() -> str:
@@ -236,6 +294,7 @@ def build() -> str:
     sdk = load("unitree_g1_sdk2_readonly_audit_20260818.json")
     gpu = load("l40s_gpu_availability_20260819.json")
     gen15 = load("gen_1_5_relevance_review_20260820.json")
+    updates = load("development_updates.json")
 
     inference = author["inference"]
     semantic = author["semantic_validation"]
@@ -479,40 +538,114 @@ def build() -> str:
         },
     ]
 
+    simulation_rows = [row for row in rows if row["domain"] == "SIMULATION"]
+    model_rows = [row for row in rows if row["domain"] == "MODEL RESEARCH"]
+    hardware_rows = [row for row in rows if row["domain"] == "REAL ROBOT"]
+    simulation_passed = sum(row["status"] == "pass" for row in simulation_rows)
+    hardware_blocked = sum(row["status"] in {"blocked", "todo"} for row in hardware_rows)
+
     css = """
     :root{--bg:#070b14;--panel:#0e1727;--line:#ffffff17;--text:#eef5ff;--muted:#9aabc1;--cyan:#37d9e8;--green:#45dca1;--amber:#ffc75d;--red:#ff738d;--violet:#b69aff}*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(circle at 8% 0,#173d61 0,transparent 27%),radial-gradient(circle at 92% 0,#332268 0,transparent 25%),var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}.shell{width:min(1880px,calc(100% - 28px));margin:auto;padding:26px 0 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:28px;margin-bottom:16px;border:1px solid var(--line);border-radius:22px;background:#0e1727dd;box-shadow:0 28px 90px #0007;backdrop-filter:blur(18px)}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.16em}.hero h1{font-size:clamp(32px,4vw,58px);line-height:1;margin:10px 0 12px;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);max-width:1050px}.verdict{text-align:right;min-width:240px}.verdict b{display:block;color:var(--red);font-size:20px}.verdict small{color:var(--muted)}.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 18px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.legend .pass:before{background:var(--green)}.legend .partial:before{background:var(--amber)}.legend .blocked:before{background:var(--red)}.legend .todo:before{background:var(--violet)}.table-wrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid var(--line);border-radius:20px;background:#0b1220e8;box-shadow:0 28px 90px #0008}table{width:100%;min-width:1900px;border-collapse:separate;border-spacing:0;font-size:13px}caption{text-align:left;padding:15px 18px;color:var(--muted);border-bottom:1px solid var(--line)}thead{position:sticky;top:0;z-index:8;background:#131e31}th{text-align:left;padding:14px 15px;color:#b8c7db;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #ffffff24}th:nth-child(1){width:200px}th:nth-child(2){width:100px}th:nth-child(3),th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:270px}th:nth-child(8){width:230px}td{padding:16px 15px;vertical-align:top;border-bottom:1px solid #ffffff0d;border-right:1px solid #ffffff09;background:#0d1625aa}tr:hover td{background:#142138}tr.pass td:first-child{box-shadow:inset 4px 0 var(--green)}tr.partial td:first-child{box-shadow:inset 4px 0 var(--amber)}tr.blocked td:first-child{box-shadow:inset 4px 0 var(--red)}tr.todo td:first-child{box-shadow:inset 4px 0 var(--violet)}.stage{position:sticky;left:0;z-index:3;background:#101b2d!important}.stage .domain{display:block;color:var(--cyan);font-size:9px;font-weight:900;letter-spacing:.14em}.stage b{display:block;margin:6px 0;color:#7891af}.stage strong{display:block;font-size:16px}.state{position:sticky;left:200px;z-index:3;background:#101b2d!important}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;font-size:11px;font-weight:850;white-space:nowrap}.pill i{width:6px;height:6px;border-radius:50%}.pill.pass{color:var(--green);background:#45dca116}.pill.pass i{background:var(--green)}.pill.partial{color:var(--amber);background:#ffc75d16}.pill.partial i{background:var(--amber)}.pill.blocked{color:var(--red);background:#ff738d16}.pill.blocked i{background:var(--red)}.pill.todo{color:var(--violet);background:#b69aff16}.pill.todo i{background:var(--violet)}ul{margin:0;padding-left:17px;color:var(--muted)}li+li{margin-top:8px}.evidence li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#7890ae;overflow-wrap:anywhere}a.term{color:#6fe6f0;text-decoration-line:underline;text-decoration-style:dotted;text-decoration-color:#6fe6f099;text-underline-offset:3px;font-weight:720;cursor:help}a.term:hover,a.term:focus-visible{color:#b6f8ff;background:#35d9e812;border-radius:4px;outline:none}.roadmap-section td{padding:20px 22px;background:linear-gradient(90deg,#14233b,#111a2e);color:#dcecff}.roadmap-section b{font-size:16px;color:#eef7ff}.roadmap-section h2{margin:0 0 12px;color:var(--cyan);font-size:17px}.roadmap-section p{margin:0 0 10px;color:var(--muted)}.roadmap-section ol{columns:2;column-gap:46px}.roadmap-section pre{display:inline-block;margin:0;padding:15px 18px;border:1px solid #37d9e844;border-radius:12px;background:#07101f;color:#dffcff;font:700 13px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}.roadmap-header th{position:static;background:#20304a;color:#7de7ef;border-right:1px solid #ffffff18}.roadmap-priority td{background:#101b2d;color:#aebfd4}.roadmap-priority td:first-child{color:var(--cyan);font-size:17px;font-weight:900;text-align:center}.roadmap-priority td:nth-child(2){color:#f1f6ff;font-weight:800}.term-tooltip{position:fixed;z-index:9999;width:min(430px,calc(100vw - 28px));padding:13px 15px;border:1px solid #6fe6f055;border-radius:13px;background:#07101ff5;color:#dcecff;box-shadow:0 18px 60px #000b;font-size:12px;line-height:1.55;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .12s ease,transform .12s ease}.term-tooltip.visible{opacity:1;transform:translateY(0)}footer{text-align:center;color:#64758c;padding:22px;font-size:11px}@media(max-width:760px){.shell{width:calc(100% - 12px)}.hero{align-items:start;flex-direction:column;padding:20px}.verdict{text-align:left}.table-wrap{max-height:calc(100vh - 260px)}}
+    /* 2026 tabbed product UI */
+    :root{--bg:#070a11;--surface:#0d131f;--surface-2:#121b2a;--surface-3:#172236;--line:#ffffff14;--line-strong:#ffffff26;--text:#f4f7fb;--muted:#92a0b4;--cyan:#55d9e6;--blue:#6c8cff;--green:#4bd7a2;--amber:#f7c765;--red:#ff7188;--violet:#b49bff}
+    html{scroll-behavior:smooth}body{min-height:100vh;background:radial-gradient(900px 600px at 8% -10%,#194f6966,transparent 68%),radial-gradient(760px 620px at 92% -8%,#4b327155,transparent 65%),linear-gradient(180deg,#080b12,#070a11 45%,#090d15);font-feature-settings:"tnum" 1,"ss01" 1}body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;background-image:linear-gradient(#ffffff05 1px,transparent 1px),linear-gradient(90deg,#ffffff05 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,#000,transparent 72%)}.shell{position:relative;width:min(1600px,calc(100% - 36px));padding:26px 0 54px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;color:var(--muted);font-size:12px}.brand{display:flex;align-items:center;gap:10px;color:var(--text);font-weight:800;letter-spacing:.02em}.brand-mark{display:grid;place-items:center;width:30px;height:30px;border:1px solid #63e1ed55;border-radius:10px;background:linear-gradient(145deg,#4ce0ec22,#7d74ff22);color:var(--cyan);box-shadow:inset 0 0 18px #55d9e611}.top-meta{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.mini-chip,.owner-chip{padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:#ffffff06;color:#b9c5d5;font-size:11px;font-weight:750}.hero{position:relative;overflow:hidden;align-items:center;min-height:270px;margin-bottom:18px;padding:42px;border-color:#ffffff1c;border-radius:30px;background:linear-gradient(135deg,#101b2bdd,#111425e8 58%,#17152add);box-shadow:0 30px 90px #0008,inset 0 1px #ffffff0b}.hero:after{content:"";position:absolute;width:370px;height:370px;right:-90px;top:-150px;border-radius:50%;background:radial-gradient(circle,#6d8cff38,transparent 66%);pointer-events:none}.hero-copy{position:relative;z-index:1;max-width:1000px}.eyebrow{display:flex;align-items:center;gap:9px;color:#84e7ef}.eyebrow:before{content:"";width:24px;height:1px;background:var(--cyan)}.hero h1{max-width:950px;margin:14px 0 16px;font-size:clamp(38px,5.2vw,78px);line-height:.96;letter-spacing:-.06em}.hero h1 span{background:linear-gradient(100deg,#f7fbff,#a9eaf0 48%,#b9adff);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:880px;font-size:15px;line-height:1.75}.hero-side{position:relative;z-index:1;display:flex;flex-direction:column;align-items:flex-end;gap:10px;min-width:260px}.decision-badge{padding:15px 18px;border:1px solid #ff71884a;border-radius:16px;background:#ff71880d;text-align:right}.decision-badge small{display:block;color:#ff9bad;font-size:10px;font-weight:900;letter-spacing:.13em}.decision-badge b{display:block;margin-top:4px;color:#ffd9df;font-size:17px}.author-card{padding:12px 16px;border:1px solid var(--line);border-radius:15px;background:#ffffff06;text-align:right}.author-card small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.12em}.author-card b{font-size:14px}.tabs{position:sticky;top:12px;z-index:30;display:flex;gap:6px;margin:0 0 22px;padding:7px;border:1px solid var(--line);border-radius:18px;background:#0b111cdb;box-shadow:0 18px 45px #0007;backdrop-filter:blur(20px);overflow-x:auto;scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.tab{appearance:none;border:0;border-radius:12px;padding:11px 16px;background:transparent;color:#8796aa;font:800 12px/1 inherit;letter-spacing:.01em;white-space:nowrap;cursor:pointer;transition:.18s ease}.tab:hover{color:#dfe8f3;background:#ffffff08}.tab[aria-selected="true"]{color:#f7fbff;background:linear-gradient(135deg,#263751,#202b43);box-shadow:inset 0 1px #ffffff12,0 8px 22px #0005}.tab-count{display:inline-grid;place-items:center;min-width:21px;height:21px;margin-left:7px;padding:0 6px;border-radius:999px;background:#ffffff0b;color:#9debf1;font-size:10px}.tab-panel{display:none;animation:panel-in .24s ease}.tab-panel.active{display:block}@keyframes panel-in{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}.section-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:4px 2px 18px}.section-heading h2{margin:4px 0 4px;font-size:clamp(25px,3vw,38px);letter-spacing:-.035em}.section-heading p{margin:0;color:var(--muted);font-size:13px}.kicker,.card-label{color:var(--cyan);font-size:9px;font-weight:950;letter-spacing:.16em}.metric-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:14px}.metric-card{position:relative;overflow:hidden;min-height:148px;padding:20px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(145deg,#111a28dd,#0c121ddd);box-shadow:inset 0 1px #ffffff09}.metric-card:after{content:"";position:absolute;width:90px;height:90px;right:-26px;bottom:-40px;border-radius:50%;background:var(--accent,#6c8cff);filter:blur(35px);opacity:.18}.metric-card small{display:block;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.metric-card b{display:block;margin:18px 0 7px;font-size:27px;line-height:1;letter-spacing:-.035em}.metric-card span{color:#8fa0b5;font-size:11px}.metric-card.good{--accent:var(--green)}.metric-card.warn{--accent:var(--amber)}.metric-card.bad{--accent:var(--red)}.metric-card.info{--accent:var(--cyan)}.decision-grid,.split-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0}.decision-grid{grid-template-columns:1.05fr 1fr 1fr}.info-card,.flow-card,.hardware-callout{padding:22px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(150deg,#111a28d9,#0d131ed9);box-shadow:inset 0 1px #ffffff08}.info-card h3,.flow-card h3,.hardware-callout h3{margin:7px 0 14px;font-size:17px}.info-card ul,.info-card ol,.hardware-callout ul{color:#a9b6c8}.info-card.ready{border-color:#4bd7a22e}.info-card.waiting{border-color:#f7c76533}.info-card.blocker{border-color:#ff718832}.card-note{margin:16px 0 0;padding-top:14px;border-top:1px solid var(--line);color:#8493a7;font-size:11px}.gate-strip{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0 20px;padding:16px 18px;border:1px solid #ff71882e;border-radius:17px;background:linear-gradient(90deg,#ff71880c,#101722)}.gate-strip b{color:#ffc4ce}.gate-strip code{color:#92a3b8;font-size:11px}.table-shell{overflow:auto;border:1px solid var(--line);border-radius:22px;background:#0b111be8;box-shadow:0 22px 55px #0005}.detail-table{min-width:1800px}.roadmap-table{min-width:1180px}.detail-table,.roadmap-table{border-collapse:separate;border-spacing:0;font-size:12px}.detail-table thead,.roadmap-table thead{position:sticky;top:0;background:#151f30}.detail-table th,.roadmap-table th{padding:14px;color:#9dacbf}.detail-table td,.roadmap-table td{padding:16px 14px;background:#0e1623d9}.detail-table th:nth-child(1){width:185px}.detail-table th:nth-child(2){width:105px}.detail-table th:nth-child(n+3):nth-child(-n+7){width:255px}.detail-table th:nth-child(8){width:225px}.roadmap-table th:nth-child(1){width:80px}.roadmap-table th:nth-child(2){width:190px}.roadmap-table th:nth-child(3),.roadmap-table th:nth-child(4){width:455px}.roadmap-table td:first-child{text-align:center}.priority-number{display:inline-grid;place-items:center;width:30px;height:30px;border:1px solid #55d9e64a;border-radius:10px;background:#55d9e60c;color:#91f0f7;font-weight:900}.stage{left:0}.state{left:185px}.flow-card{margin-top:14px}.flow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;margin:18px 0}.flow-step{position:relative;min-height:92px;padding:14px 10px;border:1px solid var(--line);border-radius:15px;background:#ffffff05}.flow-step:not(:last-child):after{content:"›";position:absolute;right:-8px;top:34px;z-index:2;color:#78dce5;font-size:18px}.flow-step span{display:grid;place-items:center;width:22px;height:22px;margin-bottom:10px;border-radius:7px;background:#55d9e615;color:#7de8f0;font-size:10px;font-weight:900}.flow-step b{font-size:11px;line-height:1.4}.flow-card>p{margin:14px 0 0;color:#a8b6c8}.hardware-callout{margin-bottom:14px;border-color:#ff71883c;background:linear-gradient(145deg,#23131b,#101722 66%)}.hardware-callout h3{color:#ffd7de}.hardware-phases{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;margin:16px 0 20px}.hardware-phase{padding:16px 13px;border:1px solid var(--line);border-radius:17px;background:#0e1622}.hardware-phase span{display:block;color:#77889f;font-size:9px;font-weight:900;letter-spacing:.1em}.hardware-phase b{display:block;margin:8px 0;color:#e8eff7;font-size:12px}.hardware-phase small{color:#8392a6;font-size:10px;line-height:1.45}.updates-list{display:grid;gap:10px}.update-card{border:1px solid var(--line);border-radius:18px;background:#0d141fca;overflow:hidden}.update-card[open]{border-color:#55d9e62e;background:#0e1724}.update-card summary{display:grid;grid-template-columns:10px 1fr 26px;align-items:center;gap:14px;padding:17px 19px;cursor:pointer;list-style:none}.update-card summary::-webkit-details-marker{display:none}.update-card time{display:block;margin-bottom:3px;color:#7f8fa5;font:700 10px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace}.update-card summary b{font-size:13px}.update-dot{width:8px;height:8px;border-radius:50%;background:var(--violet)}.update-dot.pass{background:var(--green)}.update-dot.partial{background:var(--amber)}.update-dot.blocked{background:var(--red)}.expand-icon{color:#718198;font-size:18px;transition:.2s}.update-card[open] .expand-icon{transform:rotate(45deg);color:var(--cyan)}.update-content{padding:0 19px 20px 43px}.update-summary{margin:0 0 16px;padding:14px 16px;border-left:2px solid #55d9e65c;background:#55d9e607;color:#aab8ca;font-size:12px}.update-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.update-block{padding:13px;border:1px solid #ffffff0c;border-radius:13px;background:#ffffff03}.update-block h4{margin:0 0 9px;color:#a8b7ca;font-size:10px;text-transform:uppercase;letter-spacing:.08em}.update-block ul{font-size:11px}.term-tooltip{backdrop-filter:blur(16px)}footer{margin-top:24px;border-top:1px solid var(--line);text-align:left;display:flex;justify-content:space-between;gap:15px}footer span:last-child{text-align:right}
+    @media(max-width:1100px){.metric-grid{grid-template-columns:repeat(3,1fr)}.decision-grid{grid-template-columns:1fr}.flow{grid-template-columns:repeat(4,1fr)}.hardware-phases{grid-template-columns:repeat(3,1fr)}.update-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:760px){.shell{width:calc(100% - 18px);padding-top:12px}.topbar{align-items:flex-start;gap:10px}.top-meta .mini-chip:not(:last-child){display:none}.hero{min-height:0;padding:26px 21px;border-radius:22px;align-items:flex-start}.hero h1{font-size:42px}.hero-side{align-items:flex-start;min-width:0}.decision-badge,.author-card{text-align:left}.tabs{top:6px;border-radius:15px}.tab{padding:10px 12px}.metric-grid{grid-template-columns:repeat(2,1fr)}.metric-card{min-height:128px;padding:16px}.metric-card b{font-size:22px}.split-grid,.update-grid{grid-template-columns:1fr}.flow{grid-template-columns:repeat(2,1fr)}.hardware-phases{grid-template-columns:repeat(2,1fr)}.section-heading{align-items:flex-start;flex-direction:column}.update-content{padding-left:19px}.roadmap-table{min-width:980px}footer{flex-direction:column}footer span:last-child{text-align:left}}
     """
 
     return f"""<!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>G1 VLA · Simulation 与真机闭环总表</title><style>{css}</style></head>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="author" content="Shihua Yu"><meta name="description" content="Evidence-bound Unitree G1 VLA simulation and hardware readiness dashboard"><title>G1 VLA · Evidence & Readiness</title><style>{css}</style></head>
 <body><main class="shell">
-<header class="hero"><div><div class="eyebrow">LGG100 · UNITREE G1 EDU · EVIDENCE-BOUND SUMMARY</div><h1>Simulation 与真机闭环总表</h1><p>所有工作、结果、含义、缺口、下一步和证据集中在下方唯一表格。横向滚动查看全部八列，前两列固定；蓝色虚线术语可悬停查看详细解释，点击打开参考资料。</p></div><div class="verdict"><b>当前不允许真机动作</b><small>只允许 read-only / subscriber-only / zero-motion</small></div></header>
-<div class="legend"><span class="pass">通过</span><span class="partial">部分完成</span><span class="blocked">阻塞</span><span class="todo">未开始</span></div>
-<div class="table-wrap"><table><caption>Generated {html.escape(generated)} · Neural {inference['finite_shape_passes']}/{inference['samples']} · Closed-loop {closed['completed_cycles']} cycles · Commit {commit_age:.2f}/{maximum_age:.0f} ms · Tests {tests['passed']}/{tests['total']} · Glossary {len(TERM_INFO)} terms</caption>
-<thead><tr><th>阶段</th><th>状态</th><th>我们做了什么</th><th>当前结果 / 数据</th><th>这意味着什么</th><th>还差什么</th><th>下一步</th><th>证据</th></tr></thead>
-<tbody>{pre_real_simulation_roadmap()}{''.join(table_row(row) for row in rows)}</tbody></table></div>
+<div class="topbar"><div class="brand"><span class="brand-mark">G1</span><span>VLA Readiness</span></div><div class="top-meta"><span class="mini-chip">Generated {html.escape(generated)}</span><span class="mini-chip">Tests {tests['passed']}/{tests['total']}</span><span class="mini-chip">Shihua Yu</span></div></div>
+<header class="hero"><div class="hero-copy"><div class="eyebrow">LGG100 · UNITREE G1 EDU · EVIDENCE-BOUND</div><h1><span>Simulation to Hardware</span><br>Readiness Dashboard</h1><p>页面依据已保存的模型、仿真、延迟与安全证据生成。已验证结果、未完成项和硬件执行边界分别陈述；缺少证据的项目不推定为通过。</p></div><div class="hero-side"><div class="decision-badge"><small>EXECUTION DECISION</small><b>当前不允许真机动作</b></div><div class="author-card"><small>Project owner</small><b>Shihua Yu</b></div></div></header>
+<nav class="tabs" role="tablist" aria-label="项目视图">
+  <button class="tab" id="tab-current" role="tab" aria-selected="true" aria-controls="panel-current" tabindex="0" data-tab="current">当前状态</button>
+  <button class="tab" id="tab-next" role="tab" aria-selected="false" aria-controls="panel-next" tabindex="-1" data-tab="next">下一步计划<span class="tab-count">10</span></button>
+  <button class="tab" id="tab-simulation" role="tab" aria-selected="false" aria-controls="panel-simulation" tabindex="-1" data-tab="simulation">Simulation<span class="tab-count">{len(simulation_rows) + len(model_rows)}</span></button>
+  <button class="tab" id="tab-hardware" role="tab" aria-selected="false" aria-controls="panel-hardware" tabindex="-1" data-tab="hardware">真机阶段<span class="tab-count">{len(hardware_rows)}</span></button>
+  <button class="tab" id="tab-updates" role="tab" aria-selected="false" aria-controls="panel-updates" tabindex="-1" data-tab="updates">开发更新<span class="tab-count">{len(updates)}</span></button>
+</nav>
+<section class="tab-panel active" id="panel-current" role="tabpanel" aria-labelledby="tab-current" data-panel="current">
+  <div class="section-heading"><div><span class="kicker">CURRENT EVIDENCE</span><h2>当前状态</h2><p>指标均来自版本化结果文件；状态不依据推测或目标值填写。</p></div><span class="owner-chip">Evidence owner · Shihua Yu</span></div>
+  <div class="metric-grid">
+    <article class="metric-card good"><small>Neural output</small><b>{inference['finite_shape_passes']}/{inference['samples']}</b><span>有限 [32,16] action chunks</span></article>
+    <article class="metric-card bad"><small>Closed-loop</small><b>{closed['completed_cycles']} cycles</b><span>task_success=false</span></article>
+    <article class="metric-card bad"><small>Commit age</small><b>{commit_age:.2f} ms</b><span>Gate ≤ {maximum_age:.0f} ms</span></article>
+    <article class="metric-card good"><small>Local regression</small><b>{tests['passed']}/{tests['total']}</b><span>automated tests passed</span></article>
+    <article class="metric-card warn"><small>Simulation stages</small><b>{simulation_passed}/{len(simulation_rows)}</b><span>通过；其余仍需证据</span></article>
+  </div>
+  <div class="gate-strip"><b>总体验证结论：未达到真机动作条件</b><code>g1_execution_enabled=false · hardware_execution_performed=false</code></div>
+  <div class="decision-grid">
+    <article class="info-card ready"><span class="card-label">ESTABLISHED</span><h3>已建立的证据</h3>{bullet_cell(["G1 pelvis-frame EEF-16 数据契约已冻结。", "MuJoCo observation schema 与 contract 一致。", "真实 LGG100 输出 50/50 shape/finite 通过，最佳语义为 absolute_xyzw_lr。", "安全链在 IK/preflight 失败时执行 fail-closed hold。"])} </article>
+    <article class="info-card blocker"><span class="card-label">ACTIVE BLOCKERS</span><h3>当前阻塞项</h3>{bullet_cell(["S4 尚缺完整 32-step、多 chunk 与随机目标 IK/swept-path 回归。", "Adaptive-OFF completed_cycles=0，稳定抓取尚未证明。", f"完整 commit age 为 {commit_age:.2f} ms，超过 {maximum_age:.0f} ms Gate。", "真实相机、EEF、Dex1 与物理场景尚未标定。"])} </article>
+    <article class="info-card waiting"><span class="card-label">EXECUTION BOUNDARY</span><h3>允许范围</h3>{bullet_cell(["允许：本地 Simulation、离线 replay、subscriber-only 代码审计。", "条件允许后：真实 LowState 只读订阅与 zero-motion Shadow。", "禁止：ChannelPublisher、LowCmd、模式切换和任何真机运动。", f"硬件阻塞或未开始阶段：{hardware_blocked}/{len(hardware_rows)}。"])} </article>
+  </div>
+</section>
+<section class="tab-panel" id="panel-next" role="tabpanel" aria-labelledby="tab-next" data-panel="next" hidden>{next_steps_panel()}</section>
+<section class="tab-panel" id="panel-simulation" role="tabpanel" aria-labelledby="tab-simulation" data-panel="simulation" hidden>
+  <div class="section-heading"><div><span class="kicker">SIMULATION & MODEL</span><h2>Simulation 详细进展</h2><p>S0–S7 与 GEN-1.5 研究项按完成、结果、缺口、后续动作和证据展开。</p></div><div class="legend"><span class="pass">通过</span><span class="partial">部分完成</span><span class="blocked">阻塞</span><span class="todo">未开始</span></div></div>
+  {stage_table(simulation_rows + model_rows, "Simulation 与模型研究详细进展")}
+</section>
+<section class="tab-panel" id="panel-hardware" role="tabpanel" aria-labelledby="tab-hardware" data-panel="hardware" hidden>
+  <div class="section-heading"><div><span class="kicker">HARDWARE STAGING</span><h2>之后的真机阶段</h2><p>真机阶段按只读、零运动、受保护确定性动作和任务闭环递进；任何前置 Gate 失败均停止升级。</p></div><span class="owner-chip">Motion authority · OFF</span></div>
+  <article class="hardware-callout"><span class="card-label">NOT REPLACEABLE BY SIMULATION</span><h3>Simulation 无法替代的部分</h3>{bullet_cell(PRE_REAL_NOT_REPLACEABLE)}<p class="card-note">以上项目只能通过真实同步测量、厂商限制或受控硬件验证完成，MuJoCo 数据不得作为物理标定证据。</p></article>
+  <div class="hardware-phases">
+    <article class="hardware-phase"><span>PHASE A</span><b>只读 Inventory</b><small>Python、CycloneDDS、SDK、网卡、服务与机器人 variant；不初始化 Publisher。</small></article>
+    <article class="hardware-phase"><span>PHASE B</span><b>LowState Subscriber</b><small>固定样本读取、freshness、motor index、IMU 顺序与单位；保持 Damping。</small></article>
+    <article class="hardware-phase"><span>PHASE C</span><b>物理标定</b><small>三相机、pelvis/EEF、桌面、方块和 Dex1 同步测量与 hash-bound report。</small></article>
+    <article class="hardware-phase"><span>PHASE D</span><b>Zero-motion Shadow</b><small>LowState→FK→current pose IK→safety，仅记录建议动作，不 publish。</small></article>
+    <article class="hardware-phase"><span>PHASE E</span><b>受保护确定性动作</b><small>仅在前序 Gate、watchdog、E-stop、limits 和 command adapter 全部通过后评审。</small></article>
+    <article class="hardware-phase"><span>PHASE F</span><b>任务闭环</b><small>单臂→双臂→桌面→轻物体→Adaptive-OFF；Adaptive-ON 最后评估。</small></article>
+  </div>
+  {stage_table(hardware_rows, "真机阶段详细进展")}
+</section>
+<section class="tab-panel" id="panel-updates" role="tabpanel" aria-labelledby="tab-updates" data-panel="updates" hidden>
+  <div class="section-heading"><div><span class="kicker">STRUCTURED CHANGELOG</span><h2>开发更新</h2><p>{len(updates)} 条结构化记录；每条记录分别列出完成项、结论、修复、缺口、后续动作与证据。</p></div><span class="owner-chip">Maintainer · Shihua Yu</span></div>
+  <div class="updates-list">{updates_panel(updates)}</div>
+</section>
 <div id="term-tooltip" class="term-tooltip" role="tooltip" aria-hidden="true"></div>
-<footer>G1 VLA single-table summary · g1_execution_enabled=false · no hardware action performed</footer>
+<footer><span>G1 VLA evidence dashboard · Shihua Yu</span><span>g1_execution_enabled=false · no hardware action performed</span></footer>
 <script>
+const tabs=[...document.querySelectorAll('[role="tab"]')];
+const panels=[...document.querySelectorAll('[role="tabpanel"]')];
+function activateTab(name,moveFocus=false){{
+  tabs.forEach(tab=>{{
+    const selected=tab.dataset.tab===name;
+    tab.setAttribute('aria-selected',String(selected));
+    tab.tabIndex=selected?0:-1;
+    if(selected&&moveFocus) tab.focus();
+  }});
+  panels.forEach(panel=>{{
+    const selected=panel.dataset.panel===name;
+    panel.hidden=!selected;
+    panel.classList.toggle('active',selected);
+  }});
+  if(history.replaceState) history.replaceState(null,'','#'+name);
+}}
+tabs.forEach((tab,index)=>{{
+  tab.addEventListener('click',()=>activateTab(tab.dataset.tab));
+  tab.addEventListener('keydown',event=>{{
+    let target=null;
+    if(event.key==='ArrowRight') target=(index+1)%tabs.length;
+    if(event.key==='ArrowLeft') target=(index-1+tabs.length)%tabs.length;
+    if(event.key==='Home') target=0;
+    if(event.key==='End') target=tabs.length-1;
+    if(target!==null){{event.preventDefault();activateTab(tabs[target].dataset.tab,true);}}
+  }});
+}});
+const initial=location.hash.slice(1);
+if(tabs.some(tab=>tab.dataset.tab===initial)) activateTab(initial);
 const tooltip=document.getElementById('term-tooltip');
 let activeTerm=null;
 function placeTooltip(x,y){{
-  const pad=14;
-  const width=tooltip.offsetWidth;
-  const height=tooltip.offsetHeight;
+  const pad=14,width=tooltip.offsetWidth,height=tooltip.offsetHeight;
   let left=Math.max(pad,Math.min(x+15,window.innerWidth-width-pad));
   let top=y+18;
   if(top+height>window.innerHeight-pad) top=Math.max(pad,y-height-15);
-  tooltip.style.left=left+'px'; tooltip.style.top=top+'px';
+  tooltip.style.left=left+'px';tooltip.style.top=top+'px';
 }}
-function showTooltip(term,x,y){{
-  activeTerm=term; tooltip.textContent=term.dataset.tip;
-  tooltip.classList.add('visible'); tooltip.setAttribute('aria-hidden','false');
-  placeTooltip(x,y);
-}}
-function hideTooltip(){{
-  activeTerm=null; tooltip.classList.remove('visible'); tooltip.setAttribute('aria-hidden','true');
-}}
+function showTooltip(term,x,y){{activeTerm=term;tooltip.textContent=term.dataset.tip;tooltip.classList.add('visible');tooltip.setAttribute('aria-hidden','false');placeTooltip(x,y);}}
+function hideTooltip(){{activeTerm=null;tooltip.classList.remove('visible');tooltip.setAttribute('aria-hidden','true');}}
 document.querySelectorAll('a.term').forEach(term=>{{
   term.addEventListener('mouseenter',event=>showTooltip(term,event.clientX,event.clientY));
   term.addEventListener('mousemove',event=>{{if(activeTerm===term) placeTooltip(event.clientX,event.clientY);}});
@@ -537,13 +670,23 @@ def build_public() -> str:
         "已获得认证的机器人内部只读 shell（身份已脱敏）。",
     )
     rendered = re.sub(
-        r"(?<![0-9])(?:10(?:\.[0-9]{1,3}){3}|192\.168(?:\.[0-9]{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.[0-9]{1,3}){2})(?![0-9])",
-        "[private-address-redacted]",
+        r"\b(?:user1|yixiao|unitree|test)@[A-Za-z0-9_.-]+",
+        "[ssh-identity-redacted]",
         rendered,
     )
     rendered = re.sub(
-        r"\b(?:user1|yixiao|unitree|test)@[A-Za-z0-9_.-]+",
-        "[ssh-identity-redacted]",
+        r"\b(?:shihua-vla(?:-jump|-connect|-keepalive)?|unitree-g1-nx|nnmc65)\b",
+        "[private-host-redacted]",
+        rendered,
+    )
+    rendered = re.sub(
+        r"(?<![A-Za-z0-9])/(?:Users|home)/[^\s<\"']+",
+        "[private-path-redacted]",
+        rendered,
+    )
+    rendered = re.sub(
+        r"(?<![0-9])(?:10(?:\.[0-9]{1,3}){3}|192\.168(?:\.[0-9]{1,3}){2}|172\.(?:1[6-9]|2[0-9]|3[01])(?:\.[0-9]{1,3}){2})(?![0-9])",
+        "[private-address-redacted]",
         rendered,
     )
 
@@ -555,12 +698,13 @@ def build_public() -> str:
 
     rendered = re.sub(r'href="([^"]+)"', public_href, rendered)
     rendered = rendered.replace(
-        "EVIDENCE-BOUND SUMMARY",
-        "PUBLIC SANITIZED · EVIDENCE-BOUND SUMMARY",
+        "EVIDENCE-BOUND",
+        "PUBLIC SANITIZED · EVIDENCE-BOUND",
+        1,
     )
     rendered = rendered.replace(
-        "G1 VLA single-table summary ·",
-        "G1 VLA public sanitized summary · private LAN identities redacted ·",
+        "G1 VLA evidence dashboard ·",
+        "G1 VLA public sanitized dashboard · private LAN identities redacted ·",
     )
     return rendered
 

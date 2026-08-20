@@ -849,5 +849,48 @@
       "tests/test_simulation_deployment_summary.py",
       "85/85 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 11:28 EDT",
+    "title": "将公开 Summary 升级为客观表述的现代化分栏 Dashboard",
+    "status": "pass",
+    "summary": "页面信息架构由单一长表升级为五个可访问 Tab：当前状态、下一步计划、Simulation、真机阶段和开发更新；可见文案改为证据导向的客观陈述，并明确标注项目负责人 Shihua Yu。",
+    "done": [
+      "在页面 metadata、顶部状态栏、Hero、下一步计划、开发更新和 Footer 中标注 Shihua Yu。",
+      "新增当前状态 Tab，以五项 KPI、总体验证结论、已建立证据、当前阻塞项和允许范围呈现当前决策。",
+      "新增下一步计划 Tab，保留十项优先级表、无需 GPU 项、等待 L40S 项和依赖顺序。",
+      "新增 Simulation Tab，独立展示 S0–S7 与 GEN-1.5 研究项的八列详细证据。",
+      "新增真机阶段 Tab，独立展示 Simulation 无法替代项、Phase A–F 安全递进和 H0–H6 详细证据。",
+      "新增开发更新 Tab，以可折叠结构展示全部结构化更新及完成、结论、修复、缺口、后续动作和证据。",
+      "实现 keyboard-accessible tabs、URL hash、ARIA state、responsive layout 和术语 hover/focus tooltip。"
+    ],
+    "conclusions": [
+      "新信息架构明确分离当前事实、后续计划、Simulation 证据、真机阶段和历史更新，避免把计划项误读为已通过项。",
+      "当前总体验证结论保持不变：g1_execution_enabled=false，未达到真机动作条件。",
+      "S4 完整 32-step sequential IK + swept-path 回归仍是最高优先级。"
+    ],
+    "fixes": [
+      "移除可见文案中的第一人称表达，将旧栏目名称替换为已完成工作、客观结果/数据、证据含义、未完成项和后续动作。",
+      "公开脱敏扩展到全部历史更新：先移除 SSH identity，再移除私有 hostname、绝对路径和内网地址。",
+      "新增 Tab 架构、Shihua Yu attribution、客观语言和完整 public redaction 回归测试。",
+      "本地完整测试更新为 86/86，并通过内嵌 JavaScript syntax check。"
+    ],
+    "remaining": [
+      "Dashboard 重构只改善信息呈现，不改变 S4–S7 或 H1–H6 的 Gate 状态。",
+      "L40S 仍需完全空闲或管理员明确分配后才能运行真实 LGG100 闭环。",
+      "真实相机、EEF、Dex1、LowState、硬件限制和 E-stop 仍不能由 Simulation 代替。"
+    ],
+    "next": [
+      "重新生成 public-sanitized app 并部署 Vercel production。",
+      "公网回读验证五个 Tab、Shihua Yu、客观语言、完整更新、脱敏和安全 headers。",
+      "UI 发布完成后继续 S4 Simulation 工作。"
+    ],
+    "evidence": [
+      "generate_simulation_deployment_summary.py",
+      "simulation_deployment_summary.html",
+      "vercel_public/index.html",
+      "tests/test_simulation_deployment_summary.py",
+      "86/86 local tests"
+    ]
   }
 ]

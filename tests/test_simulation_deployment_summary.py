@@ -22,36 +22,48 @@ REPORT = ROOT / "simulation_deployment_summary.html"
 
 
 class SimulationDeploymentSummaryTests(unittest.TestCase):
-    def test_single_table_contains_current_evidence_metrics(self):
+    def test_dashboard_contains_current_evidence_metrics(self):
         rendered = build()
         tests = json.loads((ROOT / "results" / "test_summary.json").read_text())
         for expected in (
             "50/50",
             "absolute_xyzw_lr",
-            "119.94/100 ms",
+            "119.94 ms",
+            "Gate ≤ 100 ms",
             f"{tests['passed']}/{tests['total']}",
-            "Closed-loop 0 cycles",
+            "0 cycles",
             "15 组候选",
         ):
             self.assertIn(expected, rendered)
 
-    def test_render_is_exactly_one_detailed_table(self):
+    def test_render_has_professional_tabbed_information_architecture(self):
         rendered = build()
-        self.assertEqual(rendered.count("<table>"), 1)
-        self.assertEqual(rendered.count("</table>"), 1)
+        self.assertEqual(rendered.count("<table"), 3)
+        self.assertEqual(rendered.count("</table>"), 3)
+        for tab, panel in (
+            ("tab-current", "panel-current"),
+            ("tab-next", "panel-next"),
+            ("tab-simulation", "panel-simulation"),
+            ("tab-hardware", "panel-hardware"),
+            ("tab-updates", "panel-updates"),
+        ):
+            self.assertIn(f'id="{tab}" role="tab"', rendered)
+            self.assertIn(f'id="{panel}" role="tabpanel"', rendered)
         for heading in (
-            "阶段",
-            "状态",
-            "我们做了什么",
-            "当前结果 / 数据",
-            "这意味着什么",
-            "还差什么",
-            "下一步",
-            "证据",
+            "当前状态",
+            "下一步计划",
+            "Simulation 详细进展",
+            "之后的真机阶段",
+            "开发更新",
+            "已完成工作",
+            "客观结果 / 数据",
+            "证据含义",
+            "未完成项",
+            "后续动作",
         ):
             self.assertIn(heading, rendered)
-        self.assertNotIn("flow-node", rendered)
-        self.assertNotIn("stage-card", rendered)
+        self.assertIn("ArrowRight", rendered)
+        self.assertIn("aria-selected", rendered)
 
     def test_terminology_has_links_and_detailed_hover_tooltips(self):
         rendered = build()
@@ -71,18 +83,27 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn("Generalist AI GEN-1.5 启发", plain)
         self.assertIn("3–12 秒单次 demonstration", plain)
         self.assertIn("one-shot 平均成功率 59%±10%", plain)
-        self.assertNotIn("GR00T N1.5", plain)
+        self.assertIn("目标模型准确识别为 Generalist AI GEN-1.5", plain)
 
-    def test_pre_real_simulation_plan_is_published_verbatim(self):
+    def test_language_is_objective_and_names_shihua_yu(self):
+        report = build()
+        plain = html_lib.unescape(re.sub(r"<[^>]+>", "", report))
+        self.assertIn('<meta name="author" content="Shihua Yu">', report)
+        self.assertGreaterEqual(plain.count("Shihua Yu"), 3)
+        self.assertNotIn("我们", plain)
+        self.assertNotIn("我下一步", plain)
+        self.assertIn("缺少证据的项目不推定为通过", plain)
+
+    def test_pre_real_simulation_plan_is_partitioned_into_tabs(self):
         report = build()
         plain = html_lib.unescape(re.sub(r"<[^>]+>", "", report))
         for expected in (
-            "可以。HTML 里在真机之前，仍有大量工作可以完全在 Simulation/Replay 中完成。优先级如下。",
-            "当前可以立即做、不依赖空闲 GPU",
+            "真机前执行计划",
+            "当前可执行 · 不依赖空闲 GPU",
             "必须等 L40S 空闲",
             "Simulation 无法替代的部分",
-            "因此最合理的执行顺序是：",
-            "我下一步可以直接从 S4 完整 32-step sequential IK + swept-path 回归 开始，不涉及任何真机命令。",
+            "客观执行顺序",
+            "S4 完整 32-step sequential IK + swept-path 回归是当前最高优先级；该工作不涉及任何真机命令。",
             *PRE_REAL_IMMEDIATE,
             *PRE_REAL_WAIT_L40S,
             *PRE_REAL_NOT_REPLACEABLE,
@@ -96,7 +117,10 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
 
     def test_public_report_redacts_private_topology_and_rewrites_links(self):
         report = build_public()
-        for forbidden in ("192.168.", "10.145.", "10.188.", "unitree@", "yixiao@", "/Users/"):
+        for forbidden in (
+            "192.168.", "10.145.", "10.188.", "unitree@", "yixiao@", "user1@",
+            "/Users/", "/home/", "unitree-g1-nx", "nnmc65", "shihua-vla",
+        ):
             self.assertNotIn(forbidden, report)
         self.assertIn("PUBLIC SANITIZED", report)
         self.assertIn("身份已脱敏", report)
