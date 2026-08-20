@@ -809,5 +809,45 @@
       "results/gen_1_5_relevance_review_20260820.json",
       "84/84 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 11:15 EDT",
+    "title": "将真机前 Simulation 优先级、L40S 等待项和不可替代项逐字加入公开 Summary",
+    "status": "pass",
+    "summary": "按用户要求，将上一轮列出的十项真机前 Simulation 优先级、当前无需 GPU 即可执行的工作、必须等待 L40S 的工作、Simulation 无法替代的物理验证和执行顺序，逐字加入唯一详细总表并准备重新部署 Vercel。",
+    "done": [
+      "在唯一 HTML table 的 tbody 内加入十行 PRE-REAL SIMULATION ROADMAP，没有创建第二张 table。",
+      "逐字加入当前可以立即做、不依赖空闲 GPU 的七项工作。",
+      "逐字加入必须等 L40S 空闲的四项工作。",
+      "逐字加入 Simulation 无法替代的七项真实硬件/标定验证。",
+      "逐字加入 S4→watchdog→Adaptive-OFF→100 ms→随机化/故障注入→Shadow/HIL→真实只读/标定的执行顺序。",
+      "新增 verbatim publication 回归测试并保持公开版脱敏。"
+    ],
+    "conclusions": [
+      "S4 完整 32-step sequential IK + swept-path 回归是下一项不依赖真机的最高优先级。",
+      "真实 LGG100 chunks、Adaptive-OFF 多轮闭环、OFF/ON 配对和完整 P95/P99 延迟必须等待空闲或明确分配的 L40S。",
+      "三相机、Dex1、真实 EEF、LowState、硬件限制、E-stop/stance 和腕相机物理状态不能由 Simulation 代替。"
+    ],
+    "fixes": [
+      "新增 L40S、Monte Carlo、Simulation/Replay、mock sink、ground truth、Supervisor 和 Physical-prompt hover 解释。",
+      "新增 roadmap 专用样式，同时保持 Summary 只有一张 HTML table。",
+      "本地完整测试更新为 85/85。"
+    ],
+    "remaining": [
+      "Roadmap 是执行计划，不代表 S4–S7 已经通过。",
+      "当前 L40S policy service 仍未确认可用。",
+      "所有真机动作 Gate 继续关闭。"
+    ],
+    "next": [
+      "重新生成 public-sanitized HTML 并部署 Vercel production。",
+      "公网回读确认逐字内容、单表、术语链接、安全 headers 和脱敏结果。",
+      "随后开始 S4 完整 32-step sequential IK + swept-path 回归。"
+    ],
+    "evidence": [
+      "simulation_deployment_summary.html",
+      "vercel_public/index.html",
+      "tests/test_simulation_deployment_summary.py",
+      "85/85 local tests"
+    ]
   }
 ]

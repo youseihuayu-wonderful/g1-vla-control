@@ -7,7 +7,14 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from generate_simulation_deployment_summary import build, build_public
+from generate_simulation_deployment_summary import (
+    PRE_REAL_IMMEDIATE,
+    PRE_REAL_NOT_REPLACEABLE,
+    PRE_REAL_SIMULATION_PRIORITIES,
+    PRE_REAL_WAIT_L40S,
+    build,
+    build_public,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +72,27 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn("3–12 秒单次 demonstration", plain)
         self.assertIn("one-shot 平均成功率 59%±10%", plain)
         self.assertNotIn("GR00T N1.5", plain)
+
+    def test_pre_real_simulation_plan_is_published_verbatim(self):
+        report = build()
+        plain = html_lib.unescape(re.sub(r"<[^>]+>", "", report))
+        for expected in (
+            "可以。HTML 里在真机之前，仍有大量工作可以完全在 Simulation/Replay 中完成。优先级如下。",
+            "当前可以立即做、不依赖空闲 GPU",
+            "必须等 L40S 空闲",
+            "Simulation 无法替代的部分",
+            "因此最合理的执行顺序是：",
+            "我下一步可以直接从 S4 完整 32-step sequential IK + swept-path 回归 开始，不涉及任何真机命令。",
+            *PRE_REAL_IMMEDIATE,
+            *PRE_REAL_WAIT_L40S,
+            *PRE_REAL_NOT_REPLACEABLE,
+        ):
+            self.assertIn(expected, plain)
+        for priority, stage, work, gate in PRE_REAL_SIMULATION_PRIORITIES:
+            self.assertIn(priority, plain)
+            self.assertIn(stage, plain)
+            self.assertIn(work, plain)
+            self.assertIn(gate, plain)
 
     def test_public_report_redacts_private_topology_and_rewrites_links(self):
         report = build_public()

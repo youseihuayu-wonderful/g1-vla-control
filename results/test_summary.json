@@ -1,7 +1,7 @@
 {
-  "passed": 84,
+  "passed": 85,
   "failed": 0,
-  "total": 84,
+  "total": 85,
   "success": true,
-  "scope": "Local tests including public Vercel redaction and the correct Generalist AI GEN-1.5 evidence row; GitHub Actions rerun pending."
+  "scope": "Local tests including verbatim pre-real Simulation/L40S/non-replaceable roadmap publication, Vercel redaction, and Generalist AI GEN-1.5 evidence; GitHub Actions rerun pending."
 }

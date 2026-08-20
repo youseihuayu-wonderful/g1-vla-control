@@ -85,6 +85,14 @@ TERM_INFO = {
     "closed loop": ("闭环：每周期读取新反馈、重新推理/规划、执行并再次验证；与只播放预存动作的 open-loop 不同。", "https://en.wikipedia.org/wiki/Closed-loop_controller"),
     "RTT": ("Round-Trip Time，网络往返延迟。高 RTT/jitter 会降低远程观测与控制的 freshness。", "https://en.wikipedia.org/wiki/Round-trip_delay"),
     "GPU": ("图形处理器；L40S 用于 LGG100 推理。瞬时 utilization 低不等于显存和设备未被其他任务占用。", "https://www.nvidia.com/en-us/data-center/l40s/"),
+    "L40S": ("NVIDIA 数据中心 GPU；本项目用它承载 LGG100 推理。只有完全空闲或管理员明确分配的设备才能启动服务。", "https://www.nvidia.com/en-us/data-center/l40s/"),
+    "Monte Carlo": ("蒙特卡洛测试：对物体、相机、摩擦、延迟等随机变量运行大量可复现 seed，用统计结果评估成功率和安全边界。", "https://en.wikipedia.org/wiki/Monte_Carlo_method"),
+    "Simulation/Replay": ("Simulation 运行物理仿真；Replay 确定性重放记录的 observation/state/action，用于在不控制真机时验证相同 pipeline。", "https://en.wikipedia.org/wiki/Robotics_simulator"),
+    "replay": ("确定性重放已记录的传感器和动作数据，使解析、FK、IK、安全和 watchdog 回归可以复核。", "https://en.wikipedia.org/wiki/Record_and_replay"),
+    "mock sink": ("模拟动作接收端：记录或在 MuJoCo 中执行获准目标，但不创建 Unitree Publisher，也不能向真机发送命令。", "https://en.wikipedia.org/wiki/Mock_object"),
+    "ground truth": ("已知真值：合成测试中预先知道的相机、EEF 或场景参数，用来量化标定算法能否无偏恢复参数。", "https://en.wikipedia.org/wiki/Ground_truth"),
+    "Supervisor": ("安全监督器：独立检查 freshness、limits、碰撞、模式和停止条件；任何检查失败都必须阻断动作。", "https://en.wikipedia.org/wiki/Supervisory_control"),
+    "Physical-prompt": ("GEN-1.5 风格的短时 sensorimotor demonstration 片段；当前只建立记录/replay 格式，不声称 LGG100 支持该能力。", "https://generalistai.com/blog/gen-1.5"),
 }
 _TERM_PATTERN = re.compile(
     r"(?<![A-Za-z0-9_])(?:"
@@ -140,6 +148,82 @@ def table_row(row: dict[str, Any]) -> str:
       <td>{bullet_cell(row['next'])}</td>
       <td class="evidence">{bullet_cell(row['evidence'])}</td>
     </tr>
+    """.strip()
+
+
+PRE_REAL_SIMULATION_PRIORITIES = [
+    ("1", "S4 IK / Swept Path", "把候选 IK 参数扩展到完整 32-step、连续多 chunk、随机可达目标；检查关节连续性、限制、自碰撞和桌面碰撞；加入已知碰撞负例", "合法路径全部满足 ≤5 mm/≤3°；禁入路径全部拒绝；不放宽阈值"),
+    ("2", "S5 Adaptive-OFF", "IK 通过后，用真实 LGG100 chunk 跑完整 observation→policy→IK→preflight→commit→physics 闭环", "不再是 0 cycles；稳定完成抓取/堆叠；fresh commit 后 watchdog 有真实证据"),
+    ("3", "S6 实时性", "分别优化 render、context、IK、collision 和 commit；注入 GPU/network jitter；测 P50/P95/P99", "完整 observation-to-commit 不超过 100 ms，stale action 必须 hold"),
+    ("4", "S3 Adaptive Timing", "修复 Mixed transition coverage；在完全相同 seed、初态和 action path 上做 OFF/ON 配对", "Adaptive-ON 缩短任务时间，同时不降低成功率、不增加碰撞和接触风险"),
+    ("5", "S7 随机化", "随机 cube pose/mass/friction、桌面、光照、相机偏移；运行多 seed Monte Carlo", "预注册成功率、碰撞率、IK rejection 和完成时间阈值后再运行"),
+    ("6", "S7 故障注入", "模拟图像丢帧、冻结、乱序、NaN、LowState stale、policy timeout、断线和 watchdog 超时", "所有危险故障都只能进入 hold，不能 commit 新动作"),
+    ("7", "Simulation Shadow/HIL", "用 MuJoCo 生成假的 Unitree LowState，走 LowState→FK→current-pose IK→safety 全链；使用 mock sink，禁止 Publisher", "current-pose round-trip 正确；断线/缺电机/错误 mode 时 fail-closed"),
+    ("8", "标定工具预验证", "用已知 ground truth 的合成相机/EEF/桌面数据验证标定算法、单位、frame 和不确定度", "能恢复已知外参并正确拒绝高残差数据；但不能把它标为真实物理标定通过"),
+    ("9", "安全 Supervisor", "在模拟 command sink 中验证 velocity/acceleration/joint/contact limits、E-stop、通信丢失和 mode mismatch", "每种故障都有确定的 hold/abort 状态和可回放证据；不实现真实 SDK Publisher"),
+    ("10", "GEN-1.5 式数据基础设施", "把成功仿真轨迹保存为 3–12 秒 prompt segment 和 30 秒 context，包含图像、EEF、action、phase、contact、失败恢复和 hash", "数据可确定性 replay、时间同步、contract 匹配；目前不宣称可用于 GEN-1.5 推理"),
+]
+
+PRE_REAL_IMMEDIATE = [
+    "S4 完整 IK 和碰撞回归",
+    "随机目标与已知碰撞负例",
+    "故障注入框架",
+    "Synthetic LowState Shadow/HIL",
+    "标定算法的 synthetic ground-truth 测试",
+    "Physical-prompt recorder/replay 格式",
+    "模拟安全 supervisor 和 no-command sink",
+]
+
+PRE_REAL_WAIT_L40S = [
+    "重新生成完整真实 LGG100 action chunks",
+    "Adaptive-OFF 多轮闭环",
+    "OFF/ON 成对比较",
+    "完整端到端 P95/P99 延迟测试",
+]
+
+PRE_REAL_NOT_REPLACEABLE = [
+    "三相机真实内外参和同步",
+    "Dex1 零点、方向和范围",
+    "真实 EEF offset",
+    "Unitree LowState 真值和 DDS freshness",
+    "torque/current/temperature 限制",
+    "E-stop、balance、stance 和真实通信丢失",
+    "左腕相机物理完整性",
+]
+
+
+def numbered_cell(items: list[str]) -> str:
+    return "<ol>" + "".join(f"<li>{linked_text(item)}</li>" for item in items) + "</ol>"
+
+
+def pre_real_simulation_roadmap() -> str:
+    priority_rows = "".join(
+        "<tr class=\"roadmap-priority\">"
+        f"<td>{linked_text(priority)}</td>"
+        f"<td>{linked_text(stage)}</td>"
+        f"<td colspan=\"4\">{linked_text(work)}</td>"
+        f"<td colspan=\"2\">{linked_text(gate)}</td>"
+        "</tr>"
+        for priority, stage, work, gate in PRE_REAL_SIMULATION_PRIORITIES
+    )
+    execution_order = (
+        "S4 完整 IK<br>"
+        "→ fresh-action watchdog<br>"
+        "→ Adaptive-OFF 成功闭环<br>"
+        "→ 延迟 ≤100 ms<br>"
+        "→ 随机化/故障注入<br>"
+        "→ simulated Shadow/HIL<br>"
+        "→ 才进入真实只读 LowState 和物理标定"
+    )
+    return f"""
+    <tr class="roadmap-section"><td colspan="8"><b>可以。HTML 里在真机之前，仍有大量工作可以完全在 Simulation/Replay 中完成。优先级如下。</b></td></tr>
+    <tr class="roadmap-header"><th>优先级</th><th>对应 HTML</th><th colspan="4">可继续完成的工作</th><th colspan="2">通过标准</th></tr>
+    {priority_rows}
+    <tr class="roadmap-section"><td colspan="8"><h2>当前可以立即做、不依赖空闲 GPU</h2>{numbered_cell(PRE_REAL_IMMEDIATE)}</td></tr>
+    <tr class="roadmap-section"><td colspan="8"><h2>必须等 L40S 空闲</h2>{numbered_cell(PRE_REAL_WAIT_L40S)}</td></tr>
+    <tr class="roadmap-section"><td colspan="8"><h2>Simulation 无法替代的部分</h2>{bullet_cell(PRE_REAL_NOT_REPLACEABLE)}</td></tr>
+    <tr class="roadmap-section"><td colspan="8"><p>因此最合理的执行顺序是：</p><pre>{execution_order}</pre></td></tr>
+    <tr class="roadmap-section"><td colspan="8"><b>我下一步可以直接从 S4 完整 32-step sequential IK + swept-path 回归 开始，不涉及任何真机命令。</b></td></tr>
     """.strip()
 
 
@@ -396,7 +480,7 @@ def build() -> str:
     ]
 
     css = """
-    :root{--bg:#070b14;--panel:#0e1727;--line:#ffffff17;--text:#eef5ff;--muted:#9aabc1;--cyan:#37d9e8;--green:#45dca1;--amber:#ffc75d;--red:#ff738d;--violet:#b69aff}*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(circle at 8% 0,#173d61 0,transparent 27%),radial-gradient(circle at 92% 0,#332268 0,transparent 25%),var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}.shell{width:min(1880px,calc(100% - 28px));margin:auto;padding:26px 0 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:28px;margin-bottom:16px;border:1px solid var(--line);border-radius:22px;background:#0e1727dd;box-shadow:0 28px 90px #0007;backdrop-filter:blur(18px)}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.16em}.hero h1{font-size:clamp(32px,4vw,58px);line-height:1;margin:10px 0 12px;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);max-width:1050px}.verdict{text-align:right;min-width:240px}.verdict b{display:block;color:var(--red);font-size:20px}.verdict small{color:var(--muted)}.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 18px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.legend .pass:before{background:var(--green)}.legend .partial:before{background:var(--amber)}.legend .blocked:before{background:var(--red)}.legend .todo:before{background:var(--violet)}.table-wrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid var(--line);border-radius:20px;background:#0b1220e8;box-shadow:0 28px 90px #0008}table{width:100%;min-width:1900px;border-collapse:separate;border-spacing:0;font-size:13px}caption{text-align:left;padding:15px 18px;color:var(--muted);border-bottom:1px solid var(--line)}thead{position:sticky;top:0;z-index:8;background:#131e31}th{text-align:left;padding:14px 15px;color:#b8c7db;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #ffffff24}th:nth-child(1){width:200px}th:nth-child(2){width:100px}th:nth-child(3),th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:270px}th:nth-child(8){width:230px}td{padding:16px 15px;vertical-align:top;border-bottom:1px solid #ffffff0d;border-right:1px solid #ffffff09;background:#0d1625aa}tr:hover td{background:#142138}tr.pass td:first-child{box-shadow:inset 4px 0 var(--green)}tr.partial td:first-child{box-shadow:inset 4px 0 var(--amber)}tr.blocked td:first-child{box-shadow:inset 4px 0 var(--red)}tr.todo td:first-child{box-shadow:inset 4px 0 var(--violet)}.stage{position:sticky;left:0;z-index:3;background:#101b2d!important}.stage .domain{display:block;color:var(--cyan);font-size:9px;font-weight:900;letter-spacing:.14em}.stage b{display:block;margin:6px 0;color:#7891af}.stage strong{display:block;font-size:16px}.state{position:sticky;left:200px;z-index:3;background:#101b2d!important}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;font-size:11px;font-weight:850;white-space:nowrap}.pill i{width:6px;height:6px;border-radius:50%}.pill.pass{color:var(--green);background:#45dca116}.pill.pass i{background:var(--green)}.pill.partial{color:var(--amber);background:#ffc75d16}.pill.partial i{background:var(--amber)}.pill.blocked{color:var(--red);background:#ff738d16}.pill.blocked i{background:var(--red)}.pill.todo{color:var(--violet);background:#b69aff16}.pill.todo i{background:var(--violet)}ul{margin:0;padding-left:17px;color:var(--muted)}li+li{margin-top:8px}.evidence li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#7890ae;overflow-wrap:anywhere}a.term{color:#6fe6f0;text-decoration-line:underline;text-decoration-style:dotted;text-decoration-color:#6fe6f099;text-underline-offset:3px;font-weight:720;cursor:help}a.term:hover,a.term:focus-visible{color:#b6f8ff;background:#35d9e812;border-radius:4px;outline:none}.term-tooltip{position:fixed;z-index:9999;width:min(430px,calc(100vw - 28px));padding:13px 15px;border:1px solid #6fe6f055;border-radius:13px;background:#07101ff5;color:#dcecff;box-shadow:0 18px 60px #000b;font-size:12px;line-height:1.55;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .12s ease,transform .12s ease}.term-tooltip.visible{opacity:1;transform:translateY(0)}footer{text-align:center;color:#64758c;padding:22px;font-size:11px}@media(max-width:760px){.shell{width:calc(100% - 12px)}.hero{align-items:start;flex-direction:column;padding:20px}.verdict{text-align:left}.table-wrap{max-height:calc(100vh - 260px)}}
+    :root{--bg:#070b14;--panel:#0e1727;--line:#ffffff17;--text:#eef5ff;--muted:#9aabc1;--cyan:#37d9e8;--green:#45dca1;--amber:#ffc75d;--red:#ff738d;--violet:#b69aff}*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(circle at 8% 0,#173d61 0,transparent 27%),radial-gradient(circle at 92% 0,#332268 0,transparent 25%),var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}.shell{width:min(1880px,calc(100% - 28px));margin:auto;padding:26px 0 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:28px;margin-bottom:16px;border:1px solid var(--line);border-radius:22px;background:#0e1727dd;box-shadow:0 28px 90px #0007;backdrop-filter:blur(18px)}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.16em}.hero h1{font-size:clamp(32px,4vw,58px);line-height:1;margin:10px 0 12px;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);max-width:1050px}.verdict{text-align:right;min-width:240px}.verdict b{display:block;color:var(--red);font-size:20px}.verdict small{color:var(--muted)}.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 18px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.legend .pass:before{background:var(--green)}.legend .partial:before{background:var(--amber)}.legend .blocked:before{background:var(--red)}.legend .todo:before{background:var(--violet)}.table-wrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid var(--line);border-radius:20px;background:#0b1220e8;box-shadow:0 28px 90px #0008}table{width:100%;min-width:1900px;border-collapse:separate;border-spacing:0;font-size:13px}caption{text-align:left;padding:15px 18px;color:var(--muted);border-bottom:1px solid var(--line)}thead{position:sticky;top:0;z-index:8;background:#131e31}th{text-align:left;padding:14px 15px;color:#b8c7db;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #ffffff24}th:nth-child(1){width:200px}th:nth-child(2){width:100px}th:nth-child(3),th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:270px}th:nth-child(8){width:230px}td{padding:16px 15px;vertical-align:top;border-bottom:1px solid #ffffff0d;border-right:1px solid #ffffff09;background:#0d1625aa}tr:hover td{background:#142138}tr.pass td:first-child{box-shadow:inset 4px 0 var(--green)}tr.partial td:first-child{box-shadow:inset 4px 0 var(--amber)}tr.blocked td:first-child{box-shadow:inset 4px 0 var(--red)}tr.todo td:first-child{box-shadow:inset 4px 0 var(--violet)}.stage{position:sticky;left:0;z-index:3;background:#101b2d!important}.stage .domain{display:block;color:var(--cyan);font-size:9px;font-weight:900;letter-spacing:.14em}.stage b{display:block;margin:6px 0;color:#7891af}.stage strong{display:block;font-size:16px}.state{position:sticky;left:200px;z-index:3;background:#101b2d!important}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;font-size:11px;font-weight:850;white-space:nowrap}.pill i{width:6px;height:6px;border-radius:50%}.pill.pass{color:var(--green);background:#45dca116}.pill.pass i{background:var(--green)}.pill.partial{color:var(--amber);background:#ffc75d16}.pill.partial i{background:var(--amber)}.pill.blocked{color:var(--red);background:#ff738d16}.pill.blocked i{background:var(--red)}.pill.todo{color:var(--violet);background:#b69aff16}.pill.todo i{background:var(--violet)}ul{margin:0;padding-left:17px;color:var(--muted)}li+li{margin-top:8px}.evidence li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#7890ae;overflow-wrap:anywhere}a.term{color:#6fe6f0;text-decoration-line:underline;text-decoration-style:dotted;text-decoration-color:#6fe6f099;text-underline-offset:3px;font-weight:720;cursor:help}a.term:hover,a.term:focus-visible{color:#b6f8ff;background:#35d9e812;border-radius:4px;outline:none}.roadmap-section td{padding:20px 22px;background:linear-gradient(90deg,#14233b,#111a2e);color:#dcecff}.roadmap-section b{font-size:16px;color:#eef7ff}.roadmap-section h2{margin:0 0 12px;color:var(--cyan);font-size:17px}.roadmap-section p{margin:0 0 10px;color:var(--muted)}.roadmap-section ol{columns:2;column-gap:46px}.roadmap-section pre{display:inline-block;margin:0;padding:15px 18px;border:1px solid #37d9e844;border-radius:12px;background:#07101f;color:#dffcff;font:700 13px/1.75 ui-monospace,SFMono-Regular,Menlo,monospace}.roadmap-header th{position:static;background:#20304a;color:#7de7ef;border-right:1px solid #ffffff18}.roadmap-priority td{background:#101b2d;color:#aebfd4}.roadmap-priority td:first-child{color:var(--cyan);font-size:17px;font-weight:900;text-align:center}.roadmap-priority td:nth-child(2){color:#f1f6ff;font-weight:800}.term-tooltip{position:fixed;z-index:9999;width:min(430px,calc(100vw - 28px));padding:13px 15px;border:1px solid #6fe6f055;border-radius:13px;background:#07101ff5;color:#dcecff;box-shadow:0 18px 60px #000b;font-size:12px;line-height:1.55;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .12s ease,transform .12s ease}.term-tooltip.visible{opacity:1;transform:translateY(0)}footer{text-align:center;color:#64758c;padding:22px;font-size:11px}@media(max-width:760px){.shell{width:calc(100% - 12px)}.hero{align-items:start;flex-direction:column;padding:20px}.verdict{text-align:left}.table-wrap{max-height:calc(100vh - 260px)}}
     """
 
     return f"""<!doctype html>
@@ -406,7 +490,7 @@ def build() -> str:
 <div class="legend"><span class="pass">通过</span><span class="partial">部分完成</span><span class="blocked">阻塞</span><span class="todo">未开始</span></div>
 <div class="table-wrap"><table><caption>Generated {html.escape(generated)} · Neural {inference['finite_shape_passes']}/{inference['samples']} · Closed-loop {closed['completed_cycles']} cycles · Commit {commit_age:.2f}/{maximum_age:.0f} ms · Tests {tests['passed']}/{tests['total']} · Glossary {len(TERM_INFO)} terms</caption>
 <thead><tr><th>阶段</th><th>状态</th><th>我们做了什么</th><th>当前结果 / 数据</th><th>这意味着什么</th><th>还差什么</th><th>下一步</th><th>证据</th></tr></thead>
-<tbody>{''.join(table_row(row) for row in rows)}</tbody></table></div>
+<tbody>{pre_real_simulation_roadmap()}{''.join(table_row(row) for row in rows)}</tbody></table></div>
 <div id="term-tooltip" class="term-tooltip" role="tooltip" aria-hidden="true"></div>
 <footer>G1 VLA single-table summary · g1_execution_enabled=false · no hardware action performed</footer>
 <script>
