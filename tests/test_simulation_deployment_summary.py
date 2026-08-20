@@ -38,8 +38,8 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
 
     def test_render_has_professional_tabbed_information_architecture(self):
         rendered = build()
-        self.assertEqual(rendered.count("<table"), 4)
-        self.assertEqual(rendered.count("</table>"), 4)
+        self.assertEqual(rendered.count("<table"), 3)
+        self.assertEqual(rendered.count("</table>"), 3)
         for tab, panel in (
             ("tab-current", "panel-current"),
             ("tab-next", "panel-next"),
@@ -115,6 +115,12 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
             "controlled_phase_speed_behavior_passed=false",
         ):
             self.assertIn(expected, plain)
+        speed_panel = report.split('id="panel-speed"', 1)[1].split('id="panel-simulation"', 1)[0]
+        self.assertIn('class="speed-evidence-list"', speed_panel)
+        self.assertEqual(speed_panel.count('data-speed-row="'), 10)
+        self.assertNotIn("<table", speed_panel)
+        self.assertNotIn("table-shell", speed_panel)
+        self.assertIn("grid-template-columns:repeat(3,minmax(0,1fr))", report)
         next_panel = report.split('id="panel-next"', 1)[1].split('id="panel-speed"', 1)[0]
         self.assertNotIn("GEN-1.5 式数据基础设施", next_panel)
         self.assertNotIn("Physical-prompt recorder/replay 格式", next_panel)

@@ -973,5 +973,41 @@
       "results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json",
       "88/88 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 12:31 EDT",
+    "title": "重组速度模块 Tab 并移除横向滑动",
+    "status": "pass",
+    "summary": "速度模块从 1800 px 八列表格重组为纵向证据卡片，不再需要左右滑动；十项验证记录均在当前内容宽度内自动换行，并在桌面、平板和移动端分别使用三列、两列和单列 detail grid。",
+    "done": [
+      "移除速度模块 Tab 内的 table-shell 和宽表格。",
+      "新增 Verified、Partial、Blocked/Todo 三项成熟度概览。",
+      "将 V0–V9 分别组织为独立证据卡片，每张卡片包含已实现、当前验证数据、还剩什么、证据含义、后续动作和证据文件。",
+      "桌面使用三列 detail grid，1100 px 以下两列，760 px 以下单列。",
+      "保留状态颜色、术语 tooltip、客观证据边界和十项完整内容。"
+    ],
+    "conclusions": [
+      "速度模块内容区不再包含 HTML table 或 table-shell，因此不产生横向数据表滚动。",
+      "成熟度仍为六项机制通过、两项部分通过、两项阻塞或未开始。",
+      "该 UI 重组不改变 Adaptive-OFF/ON Gate。"
+    ],
+    "fixes": [
+      "新增 speed-evidence-list、speed-evidence-card、speed-card-grid 和 responsive border/layout rules。",
+      "回归测试确认速度 Tab 恰好包含十张卡片、零张表格，并保持完整内容。",
+      "完整本地测试保持 88/88。"
+    ],
+    "remaining": [
+      "Adaptive-OFF completed_cycles 仍为 0。",
+      "Mixed transition、任务级 speedup 和 Adaptive-ON 资格仍未通过。"
+    ],
+    "next": [
+      "重新部署 Vercel production 并公网验证速度模块无横向表格。",
+      "继续 S4 IK 全路径回归。"
+    ],
+    "evidence": [
+      "generate_simulation_deployment_summary.py",
+      "tests/test_simulation_deployment_summary.py",
+      "88/88 local tests"
+    ]
   }
 ]
