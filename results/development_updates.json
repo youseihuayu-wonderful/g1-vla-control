@@ -1009,5 +1009,46 @@
       "tests/test_simulation_deployment_summary.py",
       "88/88 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 14:13 EDT",
+    "title": "新增面向教授的结构化研究概要与独立公开页面",
+    "status": "pass",
+    "summary": "参考用户提供的 Benchmark 文档信息架构，将 LGG100×Unitree G1 Adaptive Speed 研究整理为独立、可打印、证据导向的教授版 Research Brief，并与公开 Dashboard 互相链接。",
+    "done": [
+      "新增研究目标与核心问题、五项核心研究问题和核心学术贡献。",
+      "将贡献明确分为已实现的方法贡献与仍需实验确认的经验贡献，避免把局部机制写成任务级结论。",
+      "新增研究假设、主要评价指标、系统架构、当前验证结果、速度模块成熟度、阻塞项、下一阶段计划、真机安全边界、预期输出和当前结论。",
+      "生成独立 print-ready HTML，包含固定目录、A4 Print/PDF 样式、响应式布局和 Shihua Yu attribution。",
+      "Dashboard 顶部新增教授版研究概要公开入口。",
+      "新增结构、证据边界、公开脱敏和 Dashboard 链接回归测试。"
+    ],
+    "conclusions": [
+      "教授版文档明确陈述当前已证明的是路径不变量、局部 phase-aware 速度决策和 fail-closed refusal。",
+      "文档明确陈述尚未证明 Adaptive-OFF 任务成功、Adaptive-ON 完整任务提速、统计稳定性或真机动作资格。",
+      "核心研究问题聚焦 path-invariant retiming、局部到任务级收益、G1 IK/实时 Gate 和 Simulation-to-Hardware 安全迁移。"
+    ],
+    "fixes": [
+      "避免使用未经验证的学术贡献措辞，将 empirical claims 标注为待实验确认。",
+      "所有公开内容不包含实验室内网、SSH identity、hostname 或本地路径。",
+      "完整本地测试更新为 92/92；HTML parser、Python compile 和 Print CSS 检查通过。"
+    ],
+    "remaining": [
+      "研究概要仍应由教授确认研究问题范围和贡献表述。",
+      "S4 IK、Adaptive-OFF、100 ms Gate、随机化与硬件安全状态没有因文档生成而改变。"
+    ],
+    "next": [
+      "部署 /research-brief/ 到 Vercel production。",
+      "公网回读验证章节、Shihua Yu、Print/PDF、Dashboard 链接、脱敏和安全 headers。",
+      "教授反馈后再冻结论文式摘要和实验假设。"
+    ],
+    "evidence": [
+      "PROFESSOR_RESEARCH_BRIEF_CN.md",
+      "professor_research_brief.html",
+      "generate_professor_research_brief.py",
+      "tests/test_professor_research_brief.py",
+      "Markdown SHA-256 6af79bd63ecc65afde8bc50f071313faccbd78b86e29331630b624e9a3311f04",
+      "92/92 local tests"
+    ]
   }
 ]

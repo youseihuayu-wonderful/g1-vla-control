@@ -1,9 +1,9 @@
 {
   "schema_version": "vercel_public_deployment_v1",
-  "timestamp": "2026-08-20T12:33:00-04:00",
+  "timestamp": "2026-08-20T14:15:00-04:00",
   "project": "g1-vla-simulation-readiness",
   "production_alias": "https://g1-vla-simulation-readiness.vercel.app",
-  "deployment_id": "dpl_4a3XPvfjXEdHe7aqjTHyyNdhHZCz",
+  "deployment_id": "dpl_DFv7TBbphPrgn929wRatWVmD1PqE",
   "ready_state": "READY",
   "http_status": 200,
   "content": {
@@ -11,11 +11,18 @@
     "tab_count": 6,
     "tabpanel_count": 6,
     "table_count": 3,
-    "terminology_links": 714,
+    "terminology_links": 723,
     "public_sanitized_marker_present": true,
     "project_owner_visible": "Shihua Yu",
     "objective_language_verified": true,
-    "structured_update_count": 26,
+    "structured_update_count": 27,
+    "professor_research_brief": {
+      "public_path": "/research-brief/",
+      "section_count": 12,
+      "table_count": 3,
+      "print_ready": true,
+      "project_owner": "Shihua Yu"
+    },
     "speed_module_evidence_rows": 10,
     "speed_module_layout": "responsive_vertical_evidence_cards",
     "speed_module_horizontal_table": false,
