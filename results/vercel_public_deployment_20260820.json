@@ -1,9 +1,9 @@
 {
   "schema_version": "vercel_public_deployment_v1",
-  "timestamp": "2026-08-20T11:30:00-04:00",
+  "timestamp": "2026-08-20T11:55:00-04:00",
   "project": "g1-vla-simulation-readiness",
   "production_alias": "https://g1-vla-simulation-readiness.vercel.app",
-  "deployment_id": "dpl_8WbKeKVonguBibQrxdRLZt5R5pyv",
+  "deployment_id": "dpl_sqcvWpnEyEw9P4i2K99X3JuzQNqM",
   "ready_state": "READY",
   "http_status": 200,
   "content": {
@@ -15,7 +15,10 @@
     "public_sanitized_marker_present": true,
     "project_owner_visible": "Shihua Yu",
     "objective_language_verified": true,
-    "structured_update_count": 23,
+    "structured_update_count": 24,
+    "desktop_navigation": "left_vertical_column",
+    "mobile_navigation": "horizontal_scroll",
+    "responsive_aria_orientation": true,
     "pre_real_priority_rows": 10,
     "wait_l40s_section_present": true,
     "simulation_non_replaceable_section_present": true

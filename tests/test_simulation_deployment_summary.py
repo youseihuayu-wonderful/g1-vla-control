@@ -65,6 +65,15 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn("ArrowRight", rendered)
         self.assertIn("aria-selected", rendered)
 
+    def test_desktop_tabs_are_a_left_vertical_column(self):
+        rendered = build()
+        self.assertIn('<div class="workspace">', rendered)
+        self.assertIn('aria-orientation="vertical"', rendered)
+        self.assertIn("grid-template-columns:220px minmax(0,1fr)", rendered)
+        self.assertIn("flex-direction:column", rendered)
+        self.assertIn("ArrowDown", rendered)
+        self.assertIn("syncTabOrientation", rendered)
+
     def test_terminology_has_links_and_detailed_hover_tooltips(self):
         rendered = build()
         term_links = re.findall(r'<a class="term"[^>]+data-tip="([^"]+)"[^>]*>([^<]+)</a>', rendered)

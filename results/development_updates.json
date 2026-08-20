@@ -892,5 +892,42 @@
       "tests/test_simulation_deployment_summary.py",
       "86/86 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 11:53 EDT",
+    "title": "将 Dashboard Tab 导航改为左侧纵向栏",
+    "status": "pass",
+    "summary": "桌面端项目视图导航由顶部横向 Tab 改为左侧 sticky column，右侧保留当前状态、下一步计划、Simulation、真机阶段和开发更新内容区；窄屏自动回退为可横向滚动导航。",
+    "done": [
+      "新增 220 px 左侧 navigation rail 和独立 tab-content 区域。",
+      "五个 Tab 改为纵向排列，当前项使用高亮背景、左侧 cyan indicator 和数量 badge。",
+      "桌面端设置 aria-orientation=vertical，并支持 ArrowUp/ArrowDown/Home/End 键盘导航。",
+      "760 px 以下自动切换为横向可滚动 Tab，并同步更新 ARIA orientation。",
+      "保持所有五个 Tab 的内容、Shihua Yu attribution、客观语言、术语 tooltip 和公开脱敏不变。"
+    ],
+    "conclusions": [
+      "左侧纵向导航减少顶部占用并使五类信息保持固定可见，适合宽屏证据 Dashboard。",
+      "移动端继续使用横向导航，避免左栏压缩数据表和状态卡。",
+      "该 UI 调整不改变任何 Simulation 或硬件 Gate。"
+    ],
+    "fixes": [
+      "新增 workspace grid、vertical tab rail、responsive breakpoint 和 active indicator。",
+      "新增左右与上下方向键兼容逻辑及 MediaQuery orientation 同步。",
+      "新增左侧纵向 Tab 回归测试；完整本地测试更新为 87/87。"
+    ],
+    "remaining": [
+      "S4–S7 与 H1–H6 状态保持不变。",
+      "真机动作仍被禁止。"
+    ],
+    "next": [
+      "重新部署 Vercel production。",
+      "公网回读验证左栏结构、五个 Tab、响应式脚本、脱敏和安全 headers。",
+      "UI 发布完成后继续 S4 Simulation 回归。"
+    ],
+    "evidence": [
+      "generate_simulation_deployment_summary.py",
+      "tests/test_simulation_deployment_summary.py",
+      "87/87 local tests"
+    ]
   }
 ]
