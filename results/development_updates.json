@@ -797,7 +797,7 @@
     ],
     "next": [
       "保持 LGG100 主线，先完成 IK 全路径与 Adaptive-OFF 闭环。",
-      "设计 policy-agnostic demonstration/context replay format，供未来 GEN-1.5 类模型离线评估。",
+      "GEN-1.5 保留为研究记录，不纳入当前执行计划。",
       "若 Generalist AI 发布 API/schema/weights，只在 output-only quarantine 中审查，不直接连接机器人。",
       "用更新后的 public page 重新部署 Vercel production。"
     ],
@@ -928,6 +928,50 @@
       "generate_simulation_deployment_summary.py",
       "tests/test_simulation_deployment_summary.py",
       "87/87 local tests"
+    ]
+  },
+  {
+    "time": "2026-08-20 11:59 EDT",
+    "title": "删除 GEN-1.5 数据基础设施计划并新增速度模块详细证据表",
+    "status": "pass",
+    "summary": "GEN-1.5 式数据基础设施及 Physical-prompt recorder/replay 已从当前执行计划删除；Dashboard 新增独立速度模块 Tab，以十行证据表区分已验证机制、部分通过结果和仍被阻塞的任务级收益。",
+    "done": [
+      "从真机前优先级表删除 GEN-1.5 式数据基础设施，优先级项目由十项调整为九项。",
+      "从当前可执行列表删除 Physical-prompt recorder/replay 格式。",
+      "将 GEN-1.5 处置更新为仅保留研究记录，不建设相关数据基础设施、不纳入执行计划。",
+      "新增速度模块左栏 Tab、五项 KPI 和 V0–V9 八列详细证据表。",
+      "详细记录模块不变量、context 输入、fail-closed 条件、phase caps、motion envelope、MuJoCo context 性能、deterministic coverage、真实 LGG100 phase sweep、Adaptive-OFF 和 Adaptive-ON 资格。"
+    ],
+    "conclusions": [
+      "速度模块已验证只改 timestamps，action samples 保持 byte-identical。",
+      "safe free_space 可加速；grasp/place/contact/low-clearance 强制 ≤0.50×；stale、NaN、timeout、IK/collision/limits failure 均 hold。",
+      "真实 LGG100 Near 以 0.50× 保守执行；Far single-chunk duration 改善 6.90%。",
+      "Mixed transition 未通过；deterministic fixture 整体反而慢 0.422 s；任务级 speedup 未证明。",
+      "Adaptive-OFF completed_cycles=0，因此 Adaptive-ON 继续禁止。"
+    ],
+    "fixes": [
+      "速度表明确区分局部机制通过与整体任务收益未通过，避免把 25.44% Mixed 表面缩时误写为有效结果。",
+      "记录 context median 11.96→0.61 ms 优化及其仍需 L40S 端复测的边界。",
+      "新增 speed-tab 数据、GEN 计划删除和 UI 分栏回归测试；完整本地测试更新为 88/88。"
+    ],
+    "remaining": [
+      "完整 32-step/multi-chunk IK 与 swept-path 回归。",
+      "Adaptive-OFF 稳定抓取/堆叠基线。",
+      "同一轨迹的 free_space→approach→grasp Mixed coverage。",
+      "≤100 ms 完整 commit age 和 fresh-action watchdog。",
+      "多 seed、同 action/初态 OFF/ON 配对及真实硬件 limits/标定。"
+    ],
+    "next": [
+      "重新部署 Vercel production 并公网验证速度模块 Tab。",
+      "继续执行 S4 IK 全路径回归；Adaptive-ON 保持关闭。"
+    ],
+    "evidence": [
+      "adaptive_speed_context.py",
+      "g1_sim_speed_context.py",
+      "results/g1_adaptive_phase_validation.json",
+      "results/lgg100_author32_t0_phase_speed_sweep_validation.json",
+      "results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json",
+      "88/88 local tests"
     ]
   }
 ]

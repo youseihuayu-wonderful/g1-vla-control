@@ -140,11 +140,11 @@ candidate behind the same contract and safety boundaries:
 
 ## Decision
 
-GEN-1.5 is strategically important because it shifts the research question
+GEN-1.5 is strategically relevant because it shifts the research question
 from “How many task-specific episodes are needed?” to “Can a safe robot learn
-from one short sensorimotor example?” The useful near-term response is to build
-better synchronized demonstration/context infrastructure and a policy-agnostic
-evaluation harness.
+from one short sensorimotor example?” The current project decision is to retain
+this as a research record only. No GEN-1.5-specific demonstration/context
+infrastructure is planned, and it is not part of the execution roadmap.
 
 It does **not** change the immediate blocker order: complete IK regression,
 obtain a stable Adaptive-OFF simulation baseline, reach the 100 ms commit Gate,

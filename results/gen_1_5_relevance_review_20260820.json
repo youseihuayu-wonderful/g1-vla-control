@@ -51,19 +51,20 @@
     "interpretation": "first-party research claims only"
   },
   "project_relevance": [
-    "Record synchronized 3-12 second sensorimotor demonstration segments as future physical prompts.",
-    "Build a policy-agnostic context/prompt replay interface without changing LGG100 semantics.",
-    "Use only successful, contract-matched simulation rollouts in a future prompt library.",
-    "Separate multimodal policy inference from a local validated high-rate feedback controller.",
-    "Add phase, contact, failure and recovery labels to faster-grasp demonstrations.",
-    "Evaluate prompt sensitivity, contact risk, recovery, latency and variance in addition to task success."
+    "Research observation only: separate multimodal policy inference from a local validated high-rate feedback controller.",
+    "Research observation only: evaluate contact risk, recovery, latency and variance in addition to task success."
   ],
+  "project_decision": {
+    "build_gen_1_5_data_infrastructure": false,
+    "include_in_execution_roadmap": false,
+    "disposition": "retain as research record only"
+  },
   "compatibility": {
     "drop_in_compatible_with_lgg100_contract": false,
     "reason": "No public action/state schema, camera mapping, normalization, horizon, checkpoint or controller API.",
     "replace_lgg100_now": false,
     "download_or_deploy_now": false,
-    "recommended_future_scope": "offline quarantined candidate if official access and schema become available"
+    "recommended_future_scope": "research record only; no integration or data-infrastructure work planned"
   },
   "safety_decision": {
     "simulation_gates_changed": false,

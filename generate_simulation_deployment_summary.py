@@ -161,7 +161,6 @@ PRE_REAL_SIMULATION_PRIORITIES = [
     ("7", "Simulation Shadow/HIL", "用 MuJoCo 生成假的 Unitree LowState，走 LowState→FK→current-pose IK→safety 全链；使用 mock sink，禁止 Publisher", "current-pose round-trip 正确；断线/缺电机/错误 mode 时 fail-closed"),
     ("8", "标定工具预验证", "用已知 ground truth 的合成相机/EEF/桌面数据验证标定算法、单位、frame 和不确定度", "能恢复已知外参并正确拒绝高残差数据；但不能把它标为真实物理标定通过"),
     ("9", "安全 Supervisor", "在模拟 command sink 中验证 velocity/acceleration/joint/contact limits、E-stop、通信丢失和 mode mismatch", "每种故障都有确定的 hold/abort 状态和可回放证据；不实现真实 SDK Publisher"),
-    ("10", "GEN-1.5 式数据基础设施", "把成功仿真轨迹保存为 3–12 秒 prompt segment 和 30 秒 context，包含图像、EEF、action、phase、contact、失败恢复和 hash", "数据可确定性 replay、时间同步、contract 匹配；目前不宣称可用于 GEN-1.5 推理"),
 ]
 
 PRE_REAL_IMMEDIATE = [
@@ -170,7 +169,6 @@ PRE_REAL_IMMEDIATE = [
     "故障注入框架",
     "Synthetic LowState Shadow/HIL",
     "标定算法的 synthetic ground-truth 测试",
-    "Physical-prompt recorder/replay 格式",
     "模拟安全 supervisor 和 no-command sink",
 ]
 
@@ -294,6 +292,8 @@ def build() -> str:
     sdk = load("unitree_g1_sdk2_readonly_audit_20260818.json")
     gpu = load("l40s_gpu_availability_20260819.json")
     gen15 = load("gen_1_5_relevance_review_20260820.json")
+    deterministic_speed = load("g1_adaptive_phase_validation.json")
+    retiming_safety = load("retiming_safety_validation.json")
     updates = load("development_updates.json")
 
     inference = author["inference"]
@@ -452,8 +452,8 @@ def build() -> str:
                 "GEN-1.5 无法证明与当前 bimanual EEF-16 contract drop-in compatible。",
             ],
             "next": [
-                "先建立 policy-agnostic demonstration/context replay format。",
-                "若官方开放访问，只做 output-only offline candidate audit；不替换 LGG100，不连接真机动作。",
+                "GEN-1.5 保留为研究记录，不建设相关数据基础设施，也不纳入当前执行计划。",
+                "若官方开放访问，只记录接口事实；不替换 LGG100，不连接真机动作。",
             ],
             "evidence": ["GEN_1_5_RELEVANCE.md", "results/gen_1_5_relevance_review_20260820.json", "https://generalistai.com/blog/gen-1.5"],
         },
@@ -538,6 +538,117 @@ def build() -> str:
         },
     ]
 
+    deterministic_coverage = deterministic_speed["coverage"]
+    deterministic_comparison = deterministic_speed["comparison"]
+    speed_rows = [
+        {
+            "domain": "SPEED MODULE", "id": "V0", "title": "模块边界与不变量", "status": "pass", "label": "已验证",
+            "done": [
+                "速度模块只重写 timestamps，不修改 LGG100 EEF action samples 或几何路径。",
+                "对 retimed action 使用 np.array_equal 检查 byte-identical。",
+                "Adaptive 模块不授予 Simulation 或硬件执行权限。",
+            ],
+            "result": ["path_actions_byte_identical=true。", "检测到 action sample 改动时返回 hold。"],
+            "meaning": ["已证明 retiming 与路径生成相互隔离。", "速度变化不能绕过 contract、IK、碰撞或 watchdog。"],
+            "missing": ["真实控制器插值和时间戳消费方式尚未验证。"],
+            "next": ["保持路径不变量；未来 controller adapter 必须重复验证。"],
+            "evidence": ["adaptive_speed_context.py", "tests/test_adaptive_speed_context.py"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V1", "title": "Context 输入与阶段识别", "status": "pass", "label": "已验证",
+            "done": [
+                "输入 task phase、EEF-to-cube clearance、contact、EEF/gripper tracking error、observation/policy age。",
+                "输入 IK/joint margin、pelvis stability、network timeout 和 preflight/limits 状态。",
+                "MuJoCo context 将 free_space、approach、grasp 和 place 映射为可审计 evidence。",
+            ],
+            "result": ["参考场景识别为 approach。", "方块移远后识别为 free_space。", "夹爪闭合意图识别为 grasp。"],
+            "meaning": ["速度决策已由单一距离规则扩展为 phase/clearance/tracking/contact/freshness 联合决策。"],
+            "missing": ["lift/retreat 的真实任务级 transition coverage。", "真实传感器与 contact 信号。"],
+            "next": ["在完整 Adaptive-OFF 轨迹上验证连续 phase transition。"],
+            "evidence": ["g1_sim_speed_context.py", "tests/test_g1_sim_speed_context.py"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V2", "title": "Fail-closed Hold 条件", "status": "pass", "label": "已验证",
+            "done": ["实现 non-finite、unknown phase、network timeout、stale observation/policy、IK/collision/limits failure 的 hold。", "实现 clearance、tracking error、gripper error、kinematic margin 和 pelvis stability 硬阈值。"],
+            "result": ["observation age >100 ms、policy age >500 ms、NaN、timeout 和 failed preflight 均拒绝 retiming。", "不连续且无法满足 envelope 的 path 被拒绝而不是误报通过。"],
+            "meaning": ["缺失或危险 context 不会回退为高速执行。"],
+            "missing": ["fresh committed action 之后的实时 watchdog 闭环证据。"],
+            "next": ["在 S5 成功 commit 后注入 stale/timeout/collision fault。"],
+            "evidence": ["adaptive_speed_context.py::decide_speed", "tests/test_adaptive_speed_context.py"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V3", "title": "阶段速度策略", "status": "pass", "label": "逻辑通过",
+            "done": ["定义 free_space 最大 1.60×、approach 上限 0.70×、grasp/place 0.50×、lift 0.80×、retreat 1.00×。", "只有无 contact 的安全 free_space 允许加速；低 clearance 或 tracking/margin/stability 风险强制保守。", "scale increase 限制为每秒 2.0。"],
+            "result": ["单元测试证明 safe free_space >1.0×。", "grasp、place、contact 和 low-clearance 均 ≤0.50×。"],
+            "meaning": ["局部规则符合远处加速、近处和接触阶段减速的设计目标。"],
+            "missing": ["真实 LGG100 mixed chunk 未覆盖 grasp transition。"],
+            "next": ["用包含 free_space→approach→grasp 的同一完整轨迹复测。"],
+            "evidence": ["ContextRetimerConfig", "tests/test_adaptive_speed_context.py"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V4", "title": "运动包络与平滑限制", "status": "pass", "label": "仿真通过",
+            "done": ["计算双手 EEF speed/acceleration/jerk、angular speed 和 gripper speed。", "迭代缩小 scale，直到所有 simulation MotionEnvelope ratios ≤1。", "跨 sample 限制 scale 上升并跨 chunk 保存 previous_scale。"],
+            "result": ["安全 free-space fixture 在保持 action byte-identical 时满足 EEF motion envelope。", "不可行 discontinuity 返回 motion_envelope_infeasible_at_safety_minimum_scale。"],
+            "meaning": ["速度模块不会只依据目标倍率而忽略轨迹导数。"],
+            "missing": [f"当前 envelope 来源为 {retiming_safety['motion_envelope']['source']}，不是官方 G1 hardware limits。", "真实 controller jerk/torque/current 限制。"],
+            "next": ["取得官方 hardware profile 后重新注册 limits；此前仅用于 Simulation。"],
+            "evidence": ["adaptive_speed_context.py::_motion_metrics", "results/retiming_safety_validation.json"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V5", "title": "MuJoCo 状态测量与 Context 性能", "status": "pass", "label": "本地通过",
+            "done": ["测量 Dex1-cube 最小距离、contact、双臂 joint-limit margin 和 pelvis stability。", "新增 SimulationStateSnapshot，使一个 action chunk 共享 action-independent scene measurement。"],
+            "result": ["cached snapshot 与逐次直接测量的 context/evidence 完全一致。", "本地 context median 由 11.96 ms 降至 0.61 ms，记录改善约 11.35 ms。"],
+            "meaning": ["已移除每个 32-step sample 重复执行 MuJoCo geometry/contact 查询的开销。"],
+            "missing": ["L40S 端完整 observation-to-commit profile 复测。"],
+            "next": ["GPU 可用后在真实闭环 timing report 中验证该改善。"],
+            "evidence": ["g1_sim_speed_context.py::measure_simulation_state", "tests/test_g1_sim_speed_context.py", "results/development_updates.json"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V6", "title": "Deterministic far-to-near Coverage", "status": "partial", "label": "局部通过",
+            "done": ["用 G1 contract deterministic 17 cm far-to-near fixture 比较 baseline 与 adaptive。", "检查 far/near coverage、path identity、EEF/joint filters 和 endpoint error。"],
+            "result": [
+                f"Far scale median={deterministic_coverage['far_scale_median']:.2f}×，max={deterministic_coverage['far_scale_max']:.2f}×。",
+                f"Near scale median={deterministic_coverage['near_scale_median']:.2f}×；path_actions_byte_identical={str(deterministic_coverage['path_actions_byte_identical']).lower()}。",
+                f"Adaptive simulated duration=4.056 s，baseline=3.634 s，反而增加 {deterministic_comparison['duration_delta_s']:.3f} s。",
+            ],
+            "meaning": ["远快近慢的局部行为成立。", "整体更快没有成立；该 fixture 不是 LGG100 task evidence。"],
+            "missing": ["真实 LGG100 multi-chunk、任务成功和总体时间收益。"],
+            "next": ["不把 deterministic success 写成 policy speedup；仅保留为局部机制证据。"],
+            "evidence": ["results/g1_adaptive_phase_validation.json"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V7", "title": "真实 LGG100 单 Chunk Phase Sweep", "status": "partial", "label": "Near/Far 通过",
+            "done": ["对 hash-bound LGG100 near、mixed、far single-chunk ensembles 运行 phase-aware retiming。", "Near/Far 与 Mixed transition 分开判定，禁止部分通过升级为整体通过。"],
+            "result": [
+                f"Near: clearance={scenarios['near']['clearance_m']:.5f} m，32/32 approach，scale=0.50×，duration {scenarios['near']['nominal_chunk_duration_s']:.4f}→{scenarios['near']['retimed_chunk_duration_s']:.4f} s，accepted=true。",
+                f"Far: clearance={scenarios['far']['clearance_m']:.5f} m，scale={scenarios['far']['scale_range'][0]:.3f}–{scenarios['far']['scale_range'][1]:.3f}×，duration 改善 {abs(scenarios['far']['duration_change_percent']):.2f}%，accepted=true。",
+                f"Mixed: scale={scenarios['mixed']['scale_range'][0]:.3f}–{scenarios['mixed']['scale_range'][1]:.3f}×，表面 duration 改善 {abs(scenarios['mixed']['duration_change_percent']):.2f}%，但 accepted=false。",
+            ],
+            "meaning": ["Near 保守减速和 Far 局部加速已由真实 LGG100 chunk 支持。", "Mixed 缺少 grasp phase 和 accelerate-then-slow coverage，因此不能声称完整 Adaptive 行为通过。"],
+            "missing": ["同一 chunk 中的 free_space→approach→grasp transition。", "observation 与执行 initial state 尚未绑定。"],
+            "next": ["等待完整任务 chunk 后重跑 mixed transition，不根据 25.44% 表面缩时宣称收益。"],
+            "evidence": ["results/lgg100_author32_t0_phase_speed_sweep_validation.json"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V8", "title": "Adaptive-OFF 闭环基线", "status": "blocked", "label": "未建立",
+            "done": ["闭环已连接 observation→LGG100→context→preflight→commit/hold，并支持 adaptive_retiming_enabled=false。", "记录 inference、preflight、commit age、action hash 和 abort reason。"],
+            "result": [f"completed_cycles={closed['completed_cycles']}，task_success={str(closed['task_success']).lower()}。", f"abort_reason={closed['abort_reason']}；cycle 0 没有执行动作。", f"complete commit age={commit_age:.2f} ms > {maximum_age:.0f} ms。"],
+            "meaning": ["Fail-closed refusal 正常。", "Adaptive-OFF 任务能力、fresh-action watchdog 和速度基线均未证明。"],
+            "missing": ["S4 完整 IK/swept-path Gate。", "稳定抓取/堆叠和 ≤100 ms commit。"],
+            "next": ["S4 通过且 L40S 可用后，先建立 Adaptive-OFF 多轮闭环基线。"],
+            "evidence": ["results/lgg100_author32_closed_loop_t0_offset008_baseline_realtime.json"],
+        },
+        {
+            "domain": "SPEED MODULE", "id": "V9", "title": "任务级 Adaptive-ON 资格", "status": "todo", "label": "禁止启用",
+            "done": ["定义同 action、同初态、同 seed 的 OFF/ON 配对原则。", "定义只有成功率和安全不下降且完整任务时间改善时才允许启用。"],
+            "result": ["controlled_phase_speed_behavior_passed=false。", "policy_task_quality_passed=false。", "production_adaptive_enabled=false。"],
+            "meaning": ["当前证据只支持局部速度决策，不支持任务级 speedup 或硬件启用。"],
+            "missing": ["Adaptive-OFF 稳定基线。", "Mixed transition coverage。", "多 seed 配对成功率、完成时间、碰撞/contact force 和 tail latency。", "官方硬件 limits、真实标定和 Shadow/HIL。"],
+            "next": ["完成 S4→S5→S6→S7；之后才运行 Adaptive-ON 配对实验。"],
+            "evidence": ["REAL_LGG100_ADAPTIVE_WORKFLOW.md", "results/lgg100_author32_t0_phase_speed_sweep_validation.json"],
+        },
+    ]
+
     simulation_rows = [row for row in rows if row["domain"] == "SIMULATION"]
     model_rows = [row for row in rows if row["domain"] == "MODEL RESEARCH"]
     hardware_rows = [row for row in rows if row["domain"] == "REAL ROBOT"]
@@ -562,7 +673,8 @@ def build() -> str:
 <nav class="tabs" role="tablist" aria-label="项目视图" aria-orientation="vertical">
   <div class="tab-label" role="presentation">PROJECT VIEWS</div>
   <button class="tab" id="tab-current" role="tab" aria-selected="true" aria-controls="panel-current" tabindex="0" data-tab="current">当前状态</button>
-  <button class="tab" id="tab-next" role="tab" aria-selected="false" aria-controls="panel-next" tabindex="-1" data-tab="next">下一步计划<span class="tab-count">10</span></button>
+  <button class="tab" id="tab-next" role="tab" aria-selected="false" aria-controls="panel-next" tabindex="-1" data-tab="next">下一步计划<span class="tab-count">{len(PRE_REAL_SIMULATION_PRIORITIES)}</span></button>
+  <button class="tab" id="tab-speed" role="tab" aria-selected="false" aria-controls="panel-speed" tabindex="-1" data-tab="speed">速度模块<span class="tab-count">{len(speed_rows)}</span></button>
   <button class="tab" id="tab-simulation" role="tab" aria-selected="false" aria-controls="panel-simulation" tabindex="-1" data-tab="simulation">Simulation<span class="tab-count">{len(simulation_rows) + len(model_rows)}</span></button>
   <button class="tab" id="tab-hardware" role="tab" aria-selected="false" aria-controls="panel-hardware" tabindex="-1" data-tab="hardware">真机阶段<span class="tab-count">{len(hardware_rows)}</span></button>
   <button class="tab" id="tab-updates" role="tab" aria-selected="false" aria-controls="panel-updates" tabindex="-1" data-tab="updates">开发更新<span class="tab-count">{len(updates)}</span></button>
@@ -585,6 +697,18 @@ def build() -> str:
   </div>
 </section>
 <section class="tab-panel" id="panel-next" role="tabpanel" aria-labelledby="tab-next" data-panel="next" hidden>{next_steps_panel()}</section>
+<section class="tab-panel" id="panel-speed" role="tabpanel" aria-labelledby="tab-speed" data-panel="speed" hidden>
+  <div class="section-heading"><div><span class="kicker">ADAPTIVE SPEED EVIDENCE</span><h2>速度模块验证明细</h2><p>表格区分已验证的局部机制、部分通过的 LGG100 evidence 和尚未建立的任务级收益。</p></div><span class="owner-chip">Adaptive-ON · BLOCKED</span></div>
+  <div class="metric-grid">
+    <article class="metric-card good"><small>Path invariant</small><b>Byte-identical</b><span>仅修改 timestamps</span></article>
+    <article class="metric-card good"><small>Near behavior</small><b>0.50×</b><span>32/32 approach samples</span></article>
+    <article class="metric-card good"><small>Far duration</small><b>−{abs(scenarios['far']['duration_change_percent']):.2f}%</b><span>single-chunk accepted</span></article>
+    <article class="metric-card warn"><small>Mixed transition</small><b>未通过</b><span>缺少 grasp phase</span></article>
+    <article class="metric-card bad"><small>Task-level speedup</small><b>未证明</b><span>Adaptive-OFF 0 cycles</span></article>
+  </div>
+  <div class="gate-strip"><b>速度模块当前结论：局部决策逻辑有效；完整任务提速和 Adaptive-ON 资格未建立</b><code>controlled_phase_speed_behavior_passed=false</code></div>
+  {stage_table(speed_rows, "速度模块详细验证表")}
+</section>
 <section class="tab-panel" id="panel-simulation" role="tabpanel" aria-labelledby="tab-simulation" data-panel="simulation" hidden>
   <div class="section-heading"><div><span class="kicker">SIMULATION & MODEL</span><h2>Simulation 详细进展</h2><p>S0–S7 与 GEN-1.5 研究项按完成、结果、缺口、后续动作和证据展开。</p></div><div class="legend"><span class="pass">通过</span><span class="partial">部分完成</span><span class="blocked">阻塞</span><span class="todo">未开始</span></div></div>
   {stage_table(simulation_rows + model_rows, "Simulation 与模型研究详细进展")}

@@ -38,11 +38,12 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
 
     def test_render_has_professional_tabbed_information_architecture(self):
         rendered = build()
-        self.assertEqual(rendered.count("<table"), 3)
-        self.assertEqual(rendered.count("</table>"), 3)
+        self.assertEqual(rendered.count("<table"), 4)
+        self.assertEqual(rendered.count("</table>"), 4)
         for tab, panel in (
             ("tab-current", "panel-current"),
             ("tab-next", "panel-next"),
+            ("tab-speed", "panel-speed"),
             ("tab-simulation", "panel-simulation"),
             ("tab-hardware", "panel-hardware"),
             ("tab-updates", "panel-updates"),
@@ -52,6 +53,7 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         for heading in (
             "当前状态",
             "下一步计划",
+            "速度模块验证明细",
             "Simulation 详细进展",
             "之后的真机阶段",
             "开发更新",
@@ -93,6 +95,29 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn("3–12 秒单次 demonstration", plain)
         self.assertIn("one-shot 平均成功率 59%±10%", plain)
         self.assertIn("目标模型准确识别为 Generalist AI GEN-1.5", plain)
+
+    def test_speed_module_table_separates_verified_and_missing_evidence(self):
+        report = build()
+        plain = html_lib.unescape(re.sub(r"<[^>]+>", "", report))
+        for expected in (
+            "模块边界与不变量",
+            "Fail-closed Hold 条件",
+            "阶段速度策略",
+            "MuJoCo 状态测量与 Context 性能",
+            "Deterministic far-to-near Coverage",
+            "真实 LGG100 单 Chunk Phase Sweep",
+            "Adaptive-OFF 闭环基线",
+            "任务级 Adaptive-ON 资格",
+            "Near behavior0.50×",
+            "Far duration−6.90%",
+            "Mixed transition未通过",
+            "Task-level speedup未证明",
+            "controlled_phase_speed_behavior_passed=false",
+        ):
+            self.assertIn(expected, plain)
+        next_panel = report.split('id="panel-next"', 1)[1].split('id="panel-speed"', 1)[0]
+        self.assertNotIn("GEN-1.5 式数据基础设施", next_panel)
+        self.assertNotIn("Physical-prompt recorder/replay 格式", next_panel)
 
     def test_language_is_objective_and_names_shihua_yu(self):
         report = build()
