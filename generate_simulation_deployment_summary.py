@@ -8,6 +8,7 @@ from datetime import datetime
 import html
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 
@@ -15,13 +16,101 @@ ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "results"
 OUTPUT = ROOT / "simulation_deployment_summary.html"
 
+TERM_INFO = {
+    "IK": ("Inverse Kinematics，逆运动学：根据双手目标位置/姿态求解各关节角。本项目用它把 LGG100 的 EEF action 转成 G1 双臂 14 关节目标；不收敛时必须 hold。", "https://en.wikipedia.org/wiki/Inverse_kinematics"),
+    "FK": ("Forward Kinematics，正运动学：由当前关节角计算末端执行器位置和姿态。本项目用真实 LowState 重建双手 EEF state，并验证 IK 结果。", "https://en.wikipedia.org/wiki/Forward_kinematics"),
+    "EEF": ("End Effector，末端执行器：机械臂最末端用于抓取的参考点/坐标系。本项目定义在左右 wrist yaw link 前方的特定 site，真机必须实测一致。", "https://en.wikipedia.org/wiki/Robot_end_effector"),
+    "VLA": ("Vision-Language-Action 模型：根据图像、语言指令和机器人状态预测动作。本项目的 VLA 是 LGG100；输出必须先经过 contract、IK 和安全预检。", "https://deepmind.google/discover/blog/rt-2-new-model-translates-vision-and-language-into-action/"),
+    "LGG100": ("本项目使用的高层 VLA policy/checkpoint。它输出 32×16 的双手 EEF action chunk，但输出 shape 正确不等于抓取任务或硬件执行已经安全。", "https://huggingface.co/LGG100/stack-cube-eef-24k"),
+    "MuJoCo": ("用于机器人动力学与接触仿真的物理引擎。本项目在 MuJoCo 中验证 observation、IK、碰撞和 retiming；仿真结果不能替代真机标定。", "https://mujoco.org/"),
+    "Quaternion": ("四元数：无奇异表示三维旋转的四个数。必须明确分量顺序并归一化；本项目 policy contract 使用 xyzw。", "https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation"),
+    "quaternion": ("四元数：无奇异表示三维旋转的四个数。必须明确分量顺序并归一化；本项目 policy contract 使用 xyzw。", "https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation"),
+    "xyzw": ("四元数分量顺序 x、y、z、w。顺序错误会产生完全错误的手腕姿态，因此属于 fail-closed contract 字段。", "https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.as_quat.html"),
+    "pelvis-frame": ("以机器人骨盆为参考的坐标系。LGG100 的双手位置/姿态都在该 frame 中表达，真机 FK、相机和 EEF 必须转换到同一 frame。", "https://en.wikipedia.org/wiki/Frame_of_reference"),
+    "29-DOF": ("G1 29 自由度配置：腿、腰和双臂共 29 个关节。当前 policy 只控制双臂索引 15–28，不控制腿和腰。", "https://github.com/unitreerobotics/unitree_sdk2"),
+    "DOF": ("Degrees of Freedom，自由度：机器人可独立运动的关节维度数量。", "https://en.wikipedia.org/wiki/Degrees_of_freedom_(mechanics)"),
+    "Dex1": ("Unitree Dex1 夹爪/手部执行器。本项目 state/action 各包含左右 Dex1 一个标量；零点、方向和范围必须在真机标定。", "https://github.com/unitreerobotics/dex1_1_service"),
+    "contract": ("版本化的数据与安全契约：规定输入/输出 shape、顺序、坐标系、单位、时间和 Gate。任何不匹配都应拒绝，而不是自动猜测。", "g1_policy_contract.yaml"),
+    "Observation": ("Policy 的一次观测输入：三路 RGB、16-D 机器人状态和语言指令。必须有同步时间戳并在最大 age 内提交。", "g1_policy_contract.yaml"),
+    "observation": ("Policy 的一次观测输入：三路 RGB、16-D 机器人状态和语言指令。必须有同步时间戳并在最大 age 内提交。", "g1_policy_contract.yaml"),
+    "resize_with_pad": ("保持宽高比缩放后用零填充到 224×224 的图像预处理。真机必须与训练/OpenPI 处理一致，不能改成 center crop。", "https://github.com/Physical-Intelligence/openpi"),
+    "action chunk": ("Policy 一次生成的未来动作序列。本项目 canonical shape 是 32×16；实际执行只允许经过审核的 committed prefix。", "g1_policy_contract.yaml"),
+    "Action horizon": ("一次 policy 输出中未来动作步数。本项目固定为 32；改变 horizon 会改变时序与动作语义。", "g1_policy_contract.yaml"),
+    "horizon": ("一次 policy 输出覆盖的未来动作步数。本项目 canonical action horizon 固定为 32。", "g1_policy_contract.yaml"),
+    "Adaptive-OFF": ("关闭自适应调速的基础闭环。必须先证明它能稳定抓取，之后才能与 Adaptive-ON 做公平配对。", "REAL_LGG100_ADAPTIVE_WORKFLOW.md"),
+    "Adaptive-ON": ("开启 phase/clearance-aware retiming 的实验组。只改变时间安排，不应改变 LGG100 action path。", "REAL_LGG100_ADAPTIVE_WORKFLOW.md"),
+    "Adaptive": ("根据距离、阶段、接触风险和 stale 状态动态改变动作 timing 的模块。远处可加速，接近抓取时应减速。", "adaptive_speed_context.py"),
+    "retiming": ("在不改变几何路径的前提下重新分配动作时间戳，从而加速自由空间段并减速接触段。", "adaptive_retimer.py"),
+    "Swept Path": ("Swept-path preflight：检查从当前关节状态连续移动到目标期间整个扫掠体，而不仅检查终点是否碰撞。", "swept_path_preflight.py"),
+    "swept-path": ("连续路径扫掠检查：验证中间插值状态的碰撞、关节限制和 IK，而不是只验证终点。", "swept_path_preflight.py"),
+    "collision": ("碰撞检查：检测机器人自身、桌面、方块或禁入几何之间的接触/穿透。任何 forbidden collision 都应拒绝执行。", "swept_path_preflight.py"),
+    "fail-closed": ("故障关闭原则：缺少证据、超时、异常或验证失败时默认 hold/拒绝，而不是继续执行。", "https://en.wikipedia.org/wiki/Fail-safe"),
+    "commit": ("动作提交：安全预检全部通过后，控制链接受某个新鲜 action prefix 的时刻。commit age 是 observation 采集到该时刻的完整延迟。", "lgg100_quarantined_closed_loop.py"),
+    "P50": ("第 50 百分位（中位数）延迟；一半样本更快、一半更慢。不能单独代表尾部实时风险。", "https://en.wikipedia.org/wiki/Percentile"),
+    "P95": ("第 95 百分位延迟；95% 样本不超过该值。用于观察尾部延迟。", "https://en.wikipedia.org/wiki/Percentile"),
+    "P99": ("第 99 百分位延迟；用于暴露少量但危险的长尾停顿。", "https://en.wikipedia.org/wiki/Percentile"),
+    "watchdog": ("看门狗：持续检查 observation/action freshness、控制周期和通信状态；超时必须触发 hold。无动作执行不能算验证通过。", "https://en.wikipedia.org/wiki/Watchdog_timer"),
+    "stale": ("数据过期：observation、feedback 或 action 的 age 超过注册阈值。stale 数据不能用于新动作提交。", "lgg100_quarantined_closed_loop.py"),
+    "LowState": ("Unitree SDK2 的低层只读状态消息，包含 mode、tick、IMU 和 motor_state。本项目只允许 subscriber-only 读取。", "https://github.com/unitreerobotics/unitree_sdk2_python"),
+    "SDK2": ("Unitree 第二代官方开发套件。项目固定官方 Python commit，并禁止直接运行含运动 Publisher 的示例。", "https://github.com/unitreerobotics/unitree_sdk2_python"),
+    "SDK": ("Software Development Kit，厂商提供的接口、消息定义和示例。示例可能包含真实运动，必须逐项审计。", "https://github.com/unitreerobotics/unitree_sdk2_python"),
+    "DDS": ("Data Distribution Service，Unitree 使用的实时发布/订阅通信中间件。读取 LowState 和发送 LowCmd 都通过 DDS，但权限和风险完全不同。", "https://www.omg.org/omg-dds-portal/"),
+    "CycloneDDS": ("Eclipse 的 DDS 实现，Unitree SDK2 Python 的底层依赖。网卡、domain 和版本必须与机器人环境匹配。", "https://cyclonedds.io/"),
+    "IDL": ("Interface Definition Language，定义 DDS 消息字段和类型。G1 使用 unitree_hg IDL。", "https://www.omg.org/spec/IDL/"),
+    "IMU": ("惯性测量单元：提供姿态、角速度和加速度。四元数顺序、坐标系和单位必须在真机确认。", "https://en.wikipedia.org/wiki/Inertial_measurement_unit"),
+    "ChannelSubscriber": ("Unitree SDK2 的 DDS 订阅端，只读取指定 topic。本项目只读 adapter 允许使用它。", "https://github.com/unitreerobotics/unitree_sdk2_python/blob/master/unitree_sdk2py/core/channel.py"),
+    "ChannelPublisher": ("Unitree SDK2 的 DDS 发布端，可向机器人 topic 写消息。当前项目硬件 Gate 未通过，禁止创建。", "https://github.com/unitreerobotics/unitree_sdk2_python/blob/master/unitree_sdk2py/core/channel.py"),
+    "LowCmd": ("Unitree 低层电机命令消息，可直接影响关节。当前没有获准的 command adapter，禁止发送。", "https://github.com/unitreerobotics/unitree_sdk2_python"),
+    "arm_sdk": ("Unitree G1 高层手臂控制 topic。官方示例会启用并发布手臂轨迹；当前项目禁止使用。", "https://github.com/unitreerobotics/unitree_sdk2_python/tree/master/example/g1"),
+    "Shadow": ("影子模式：真实传感器进入完整 pipeline，但建议动作只记录、不下发，用于验证 parity、时序和安全拒绝。", "https://en.wikipedia.org/wiki/Shadow_system"),
+    "HIL": ("Hardware-in-the-Loop，硬件在环：让真实硬件/控制器参与测试，但保持受控边界和可验证停止条件。", "https://en.wikipedia.org/wiki/Hardware-in-the-loop_simulation"),
+    "E-stop": ("Emergency Stop，独立急停装置。必须由现场操作员可立即触发，且软件 watchdog 不能替代它。", "https://en.wikipedia.org/wiki/Kill_switch"),
+    "Damping": ("Unitree 的阻尼安全模式：关节保持阻尼/柔顺而非执行任务轨迹。SSH 登录和只读检查不得改变该模式。", "https://support.unitree.com/"),
+    "ControlMaster": ("OpenSSH 连接复用：多个 SSH 会话共享一条主 TCP 连接，减少不稳定的重复握手。它不提供机器人动作安全。", "https://man.openbsd.org/ssh_config#ControlMaster"),
+    "tunnel": ("SSH 端口转发：本地 127.0.0.1:8000 映射到 L40S loopback。隧道存在不代表远端 policy server 正在监听。", "https://man.openbsd.org/ssh#L"),
+    "strict restore": ("严格 checkpoint 恢复：参数树、shape、revision 和 normalization 必须完全匹配；不允许静默忽略 missing/extra 参数。", "lgg100_candidate_server.py"),
+    "metadata/hash": ("元数据与哈希绑定：把 checkpoint、contract、norm、代码和证据文件固定到可复核标识，防止混用结果。", "lgg100_candidate_server.py"),
+    "task success": ("任务成功：完整抓取/放置达到预注册条件。输出有限、IK 通过或没有碰撞都不能单独等价为任务成功。", "REAL_LGG100_ADAPTIVE_WORKFLOW.md"),
+    "closed loop": ("闭环：每周期读取新反馈、重新推理/规划、执行并再次验证；与只播放预存动作的 open-loop 不同。", "https://en.wikipedia.org/wiki/Closed-loop_controller"),
+    "RTT": ("Round-Trip Time，网络往返延迟。高 RTT/jitter 会降低远程观测与控制的 freshness。", "https://en.wikipedia.org/wiki/Round-trip_delay"),
+    "GPU": ("图形处理器；L40S 用于 LGG100 推理。瞬时 utilization 低不等于显存和设备未被其他任务占用。", "https://www.nvidia.com/en-us/data-center/l40s/"),
+}
+_TERM_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_])(?:"
+    + "|".join(re.escape(term) for term in sorted(TERM_INFO, key=len, reverse=True))
+    + r")(?![A-Za-z0-9_])"
+)
+
+
+def linked_text(value: str) -> str:
+    """Escape text and wrap registered terminology in accessible hyperlinks."""
+    output: list[str] = []
+    cursor = 0
+    for match in _TERM_PATTERN.finditer(value):
+        output.append(html.escape(value[cursor:match.start()]))
+        term = match.group(0)
+        tip, url = TERM_INFO[term]
+        output.append(
+            '<a class="term" href="{}" target="_blank" rel="noopener noreferrer" '
+            'data-tip="{}" aria-label="{}：{}">{}</a>'.format(
+                html.escape(url, quote=True),
+                html.escape(tip, quote=True),
+                html.escape(term, quote=True),
+                html.escape(tip, quote=True),
+                html.escape(term),
+            )
+        )
+        cursor = match.end()
+    output.append(html.escape(value[cursor:]))
+    return "".join(output)
+
 
 def load(name: str) -> dict[str, Any]:
     return json.loads((RESULTS / name).read_text())
 
 
 def bullet_cell(items: list[str]) -> str:
-    return "<ul>" + "".join(f"<li>{html.escape(item)}</li>" for item in items) + "</ul>"
+    return "<ul>" + "".join(f"<li>{linked_text(item)}</li>" for item in items) + "</ul>"
 
 
 def status_pill(status: str, label: str) -> str:
@@ -31,7 +120,7 @@ def status_pill(status: str, label: str) -> str:
 def table_row(row: dict[str, Any]) -> str:
     return f"""
     <tr class="{html.escape(row['status'])}">
-      <td class="stage"><span class="domain">{html.escape(row['domain'])}</span><b>{html.escape(row['id'])}</b><strong>{html.escape(row['title'])}</strong></td>
+      <td class="stage"><span class="domain">{html.escape(row['domain'])}</span><b>{html.escape(row['id'])}</b><strong>{linked_text(row['title'])}</strong></td>
       <td class="state">{status_pill(row['status'], row['label'])}</td>
       <td>{bullet_cell(row['done'])}</td>
       <td>{bullet_cell(row['result'])}</td>
@@ -266,18 +355,48 @@ def build() -> str:
     ]
 
     css = """
-    :root{--bg:#070b14;--panel:#0e1727;--line:#ffffff17;--text:#eef5ff;--muted:#9aabc1;--cyan:#37d9e8;--green:#45dca1;--amber:#ffc75d;--red:#ff738d;--violet:#b69aff}*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(circle at 8% 0,#173d61 0,transparent 27%),radial-gradient(circle at 92% 0,#332268 0,transparent 25%),var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}.shell{width:min(1880px,calc(100% - 28px));margin:auto;padding:26px 0 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:28px;margin-bottom:16px;border:1px solid var(--line);border-radius:22px;background:#0e1727dd;box-shadow:0 28px 90px #0007;backdrop-filter:blur(18px)}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.16em}.hero h1{font-size:clamp(32px,4vw,58px);line-height:1;margin:10px 0 12px;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);max-width:1050px}.verdict{text-align:right;min-width:240px}.verdict b{display:block;color:var(--red);font-size:20px}.verdict small{color:var(--muted)}.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 18px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.legend .pass:before{background:var(--green)}.legend .partial:before{background:var(--amber)}.legend .blocked:before{background:var(--red)}.legend .todo:before{background:var(--violet)}.table-wrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid var(--line);border-radius:20px;background:#0b1220e8;box-shadow:0 28px 90px #0008}table{width:100%;min-width:1900px;border-collapse:separate;border-spacing:0;font-size:13px}caption{text-align:left;padding:15px 18px;color:var(--muted);border-bottom:1px solid var(--line)}thead{position:sticky;top:0;z-index:8;background:#131e31}th{text-align:left;padding:14px 15px;color:#b8c7db;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #ffffff24}th:nth-child(1){width:200px}th:nth-child(2){width:100px}th:nth-child(3),th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:270px}th:nth-child(8){width:230px}td{padding:16px 15px;vertical-align:top;border-bottom:1px solid #ffffff0d;border-right:1px solid #ffffff09;background:#0d1625aa}tr:hover td{background:#142138}tr.pass td:first-child{box-shadow:inset 4px 0 var(--green)}tr.partial td:first-child{box-shadow:inset 4px 0 var(--amber)}tr.blocked td:first-child{box-shadow:inset 4px 0 var(--red)}tr.todo td:first-child{box-shadow:inset 4px 0 var(--violet)}.stage{position:sticky;left:0;z-index:3;background:#101b2d!important}.stage .domain{display:block;color:var(--cyan);font-size:9px;font-weight:900;letter-spacing:.14em}.stage b{display:block;margin:6px 0;color:#7891af}.stage strong{display:block;font-size:16px}.state{position:sticky;left:200px;z-index:3;background:#101b2d!important}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;font-size:11px;font-weight:850;white-space:nowrap}.pill i{width:6px;height:6px;border-radius:50%}.pill.pass{color:var(--green);background:#45dca116}.pill.pass i{background:var(--green)}.pill.partial{color:var(--amber);background:#ffc75d16}.pill.partial i{background:var(--amber)}.pill.blocked{color:var(--red);background:#ff738d16}.pill.blocked i{background:var(--red)}.pill.todo{color:var(--violet);background:#b69aff16}.pill.todo i{background:var(--violet)}ul{margin:0;padding-left:17px;color:var(--muted)}li+li{margin-top:8px}.evidence li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#7890ae;overflow-wrap:anywhere}footer{text-align:center;color:#64758c;padding:22px;font-size:11px}@media(max-width:760px){.shell{width:calc(100% - 12px)}.hero{align-items:start;flex-direction:column;padding:20px}.verdict{text-align:left}.table-wrap{max-height:calc(100vh - 260px)}}
+    :root{--bg:#070b14;--panel:#0e1727;--line:#ffffff17;--text:#eef5ff;--muted:#9aabc1;--cyan:#37d9e8;--green:#45dca1;--amber:#ffc75d;--red:#ff738d;--violet:#b69aff}*{box-sizing:border-box}html{color-scheme:dark}body{margin:0;background:radial-gradient(circle at 8% 0,#173d61 0,transparent 27%),radial-gradient(circle at 92% 0,#332268 0,transparent 25%),var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}.shell{width:min(1880px,calc(100% - 28px));margin:auto;padding:26px 0 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:24px;padding:28px;margin-bottom:16px;border:1px solid var(--line);border-radius:22px;background:#0e1727dd;box-shadow:0 28px 90px #0007;backdrop-filter:blur(18px)}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.16em}.hero h1{font-size:clamp(32px,4vw,58px);line-height:1;margin:10px 0 12px;letter-spacing:-.045em}.hero p{margin:0;color:var(--muted);max-width:1050px}.verdict{text-align:right;min-width:240px}.verdict b{display:block;color:var(--red);font-size:20px}.verdict small{color:var(--muted)}.legend{display:flex;gap:13px;flex-wrap:wrap;padding:12px 18px;color:var(--muted);font-size:12px}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.legend .pass:before{background:var(--green)}.legend .partial:before{background:var(--amber)}.legend .blocked:before{background:var(--red)}.legend .todo:before{background:var(--violet)}.table-wrap{overflow:auto;max-height:calc(100vh - 210px);border:1px solid var(--line);border-radius:20px;background:#0b1220e8;box-shadow:0 28px 90px #0008}table{width:100%;min-width:1900px;border-collapse:separate;border-spacing:0;font-size:13px}caption{text-align:left;padding:15px 18px;color:var(--muted);border-bottom:1px solid var(--line)}thead{position:sticky;top:0;z-index:8;background:#131e31}th{text-align:left;padding:14px 15px;color:#b8c7db;font-size:11px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid #ffffff24}th:nth-child(1){width:200px}th:nth-child(2){width:100px}th:nth-child(3),th:nth-child(4),th:nth-child(5),th:nth-child(6),th:nth-child(7){width:270px}th:nth-child(8){width:230px}td{padding:16px 15px;vertical-align:top;border-bottom:1px solid #ffffff0d;border-right:1px solid #ffffff09;background:#0d1625aa}tr:hover td{background:#142138}tr.pass td:first-child{box-shadow:inset 4px 0 var(--green)}tr.partial td:first-child{box-shadow:inset 4px 0 var(--amber)}tr.blocked td:first-child{box-shadow:inset 4px 0 var(--red)}tr.todo td:first-child{box-shadow:inset 4px 0 var(--violet)}.stage{position:sticky;left:0;z-index:3;background:#101b2d!important}.stage .domain{display:block;color:var(--cyan);font-size:9px;font-weight:900;letter-spacing:.14em}.stage b{display:block;margin:6px 0;color:#7891af}.stage strong{display:block;font-size:16px}.state{position:sticky;left:200px;z-index:3;background:#101b2d!important}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:99px;font-size:11px;font-weight:850;white-space:nowrap}.pill i{width:6px;height:6px;border-radius:50%}.pill.pass{color:var(--green);background:#45dca116}.pill.pass i{background:var(--green)}.pill.partial{color:var(--amber);background:#ffc75d16}.pill.partial i{background:var(--amber)}.pill.blocked{color:var(--red);background:#ff738d16}.pill.blocked i{background:var(--red)}.pill.todo{color:var(--violet);background:#b69aff16}.pill.todo i{background:var(--violet)}ul{margin:0;padding-left:17px;color:var(--muted)}li+li{margin-top:8px}.evidence li{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:#7890ae;overflow-wrap:anywhere}a.term{color:#6fe6f0;text-decoration-line:underline;text-decoration-style:dotted;text-decoration-color:#6fe6f099;text-underline-offset:3px;font-weight:720;cursor:help}a.term:hover,a.term:focus-visible{color:#b6f8ff;background:#35d9e812;border-radius:4px;outline:none}.term-tooltip{position:fixed;z-index:9999;width:min(430px,calc(100vw - 28px));padding:13px 15px;border:1px solid #6fe6f055;border-radius:13px;background:#07101ff5;color:#dcecff;box-shadow:0 18px 60px #000b;font-size:12px;line-height:1.55;pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .12s ease,transform .12s ease}.term-tooltip.visible{opacity:1;transform:translateY(0)}footer{text-align:center;color:#64758c;padding:22px;font-size:11px}@media(max-width:760px){.shell{width:calc(100% - 12px)}.hero{align-items:start;flex-direction:column;padding:20px}.verdict{text-align:left}.table-wrap{max-height:calc(100vh - 260px)}}
     """
 
     return f"""<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>G1 VLA · Simulation 与真机闭环总表</title><style>{css}</style></head>
 <body><main class="shell">
-<header class="hero"><div><div class="eyebrow">LGG100 · UNITREE G1 EDU · EVIDENCE-BOUND SUMMARY</div><h1>Simulation 与真机闭环总表</h1><p>所有工作、结果、含义、缺口、下一步和证据集中在下方唯一表格。横向滚动查看全部八列，前两列固定。</p></div><div class="verdict"><b>当前不允许真机动作</b><small>只允许 read-only / subscriber-only / zero-motion</small></div></header>
+<header class="hero"><div><div class="eyebrow">LGG100 · UNITREE G1 EDU · EVIDENCE-BOUND SUMMARY</div><h1>Simulation 与真机闭环总表</h1><p>所有工作、结果、含义、缺口、下一步和证据集中在下方唯一表格。横向滚动查看全部八列，前两列固定；蓝色虚线术语可悬停查看详细解释，点击打开参考资料。</p></div><div class="verdict"><b>当前不允许真机动作</b><small>只允许 read-only / subscriber-only / zero-motion</small></div></header>
 <div class="legend"><span class="pass">通过</span><span class="partial">部分完成</span><span class="blocked">阻塞</span><span class="todo">未开始</span></div>
-<div class="table-wrap"><table><caption>Generated {html.escape(generated)} · Neural {inference['finite_shape_passes']}/{inference['samples']} · Closed-loop {closed['completed_cycles']} cycles · Commit {commit_age:.2f}/{maximum_age:.0f} ms · Tests {tests['passed']}/{tests['total']}</caption>
+<div class="table-wrap"><table><caption>Generated {html.escape(generated)} · Neural {inference['finite_shape_passes']}/{inference['samples']} · Closed-loop {closed['completed_cycles']} cycles · Commit {commit_age:.2f}/{maximum_age:.0f} ms · Tests {tests['passed']}/{tests['total']} · Glossary {len(TERM_INFO)} terms</caption>
 <thead><tr><th>阶段</th><th>状态</th><th>我们做了什么</th><th>当前结果 / 数据</th><th>这意味着什么</th><th>还差什么</th><th>下一步</th><th>证据</th></tr></thead>
 <tbody>{''.join(table_row(row) for row in rows)}</tbody></table></div>
+<div id="term-tooltip" class="term-tooltip" role="tooltip" aria-hidden="true"></div>
 <footer>G1 VLA single-table summary · g1_execution_enabled=false · no hardware action performed</footer>
+<script>
+const tooltip=document.getElementById('term-tooltip');
+let activeTerm=null;
+function placeTooltip(x,y){{
+  const pad=14;
+  const width=tooltip.offsetWidth;
+  const height=tooltip.offsetHeight;
+  let left=Math.max(pad,Math.min(x+15,window.innerWidth-width-pad));
+  let top=y+18;
+  if(top+height>window.innerHeight-pad) top=Math.max(pad,y-height-15);
+  tooltip.style.left=left+'px'; tooltip.style.top=top+'px';
+}}
+function showTooltip(term,x,y){{
+  activeTerm=term; tooltip.textContent=term.dataset.tip;
+  tooltip.classList.add('visible'); tooltip.setAttribute('aria-hidden','false');
+  placeTooltip(x,y);
+}}
+function hideTooltip(){{
+  activeTerm=null; tooltip.classList.remove('visible'); tooltip.setAttribute('aria-hidden','true');
+}}
+document.querySelectorAll('a.term').forEach(term=>{{
+  term.addEventListener('mouseenter',event=>showTooltip(term,event.clientX,event.clientY));
+  term.addEventListener('mousemove',event=>{{if(activeTerm===term) placeTooltip(event.clientX,event.clientY);}});
+  term.addEventListener('mouseleave',hideTooltip);
+  term.addEventListener('focus',()=>{{const r=term.getBoundingClientRect();showTooltip(term,r.left+r.width/2,r.bottom);}});
+  term.addEventListener('blur',hideTooltip);
+}});
+window.addEventListener('scroll',()=>{{if(activeTerm){{const r=activeTerm.getBoundingClientRect();placeTooltip(r.left+r.width/2,r.bottom);}}}},true);
+</script>
 </main></body></html>"""
 
 

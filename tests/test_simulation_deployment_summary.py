@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import re
 import sys
 import unittest
 
@@ -43,6 +44,18 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
             self.assertIn(heading, rendered)
         self.assertNotIn("flow-node", rendered)
         self.assertNotIn("stage-card", rendered)
+
+    def test_terminology_has_links_and_detailed_hover_tooltips(self):
+        rendered = build()
+        term_links = re.findall(r'<a class="term"[^>]+data-tip="([^"]+)"[^>]*>([^<]+)</a>', rendered)
+        self.assertGreater(len(term_links), 40)
+        linked_terms = {term for _, term in term_links}
+        for expected in ("IK", "FK", "EEF", "LowState", "DDS", "watchdog", "Adaptive-OFF"):
+            self.assertIn(expected, linked_terms)
+        self.assertTrue(all(len(tip) >= 20 for tip, _ in term_links))
+        self.assertIn('id="term-tooltip"', rendered)
+        self.assertIn("mouseenter", rendered)
+        self.assertIn("focus", rendered)
 
     def test_checked_report_keeps_hardware_gates_closed(self):
         report = REPORT.read_text()

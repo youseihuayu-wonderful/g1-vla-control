@@ -725,5 +725,43 @@
       "tests/test_simulation_deployment_summary.py",
       "81/81 local tests"
     ]
+  },
+  {
+    "time": "2026-08-20 09:59 EDT",
+    "title": "为 Summary 专业术语加入超链接与详细悬停解释",
+    "status": "pass",
+    "summary": "在唯一总表中为 IK、FK、EEF、LowState、DDS、watchdog、Adaptive-OFF 等 57 类术语自动生成可访问超链接；鼠标悬停或键盘聚焦时显示定义及其在本项目中的作用/风险。",
+    "done": [
+      "建立 57 项 terminology registry，每项包含详细中文解释和参考链接。",
+      "实现安全文本分段与 HTML escaping，避免在标签或属性内做字符串替换。",
+      "为术语生成 a.term、data-tip、aria-label、target/rel 安全属性。",
+      "新增浮动 tooltip 层和 hover、mousemove、focus、blur、scroll 定位逻辑，避免被宽表 overflow 裁剪。",
+      "当前页面生成 126 个术语链接，并保持 table 数量严格为 1。",
+      "新增术语链接、解释长度和键盘可访问性测试；完整本地测试 82/82。"
+    ],
+    "conclusions": [
+      "用户现在可以直接在表格中悬停术语查看定义和项目语境，无需离开当前行。",
+      "点击术语会打开官方资料、项目证据或权威说明；tooltip 不改变任何 Gate 结论。"
+    ],
+    "fixes": [
+      "采用 body-level fixed tooltip，修复普通 CSS tooltip 会被 table overflow 容器裁剪的问题。",
+      "同时支持鼠标和键盘 focus，并加入 aria-label。",
+      "保留单表布局，不新增独立 glossary 区块或第二张表。"
+    ],
+    "remaining": [
+      "术语解释属于辅助说明，最终硬件语义仍必须以官方版本化文档和真机测量为准。",
+      "新增术语时需加入 registry 和测试，避免无解释缩写重新出现。"
+    ],
+    "next": [
+      "重新生成并打开 simulation_deployment_summary.html。",
+      "后续更新保持单表结构，并为新出现的专业术语补充 hover 解释。"
+    ],
+    "evidence": [
+      "generate_simulation_deployment_summary.py TERM_INFO",
+      "simulation_deployment_summary.html",
+      "tests/test_simulation_deployment_summary.py",
+      "57 glossary terms / 126 rendered links",
+      "82/82 local tests"
+    ]
   }
 ]
