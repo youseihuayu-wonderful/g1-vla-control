@@ -163,9 +163,17 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         ):
             self.assertNotIn(forbidden, report)
         self.assertIn("PUBLIC SANITIZED", report)
-        self.assertIn("身份已脱敏", report)
+        self.assertIn("private LAN identities redacted", report)
         relative_links = re.findall(r'href="(?!https://|http://|#)([^"]+)"', report)
         self.assertEqual(relative_links, [])
+
+    def test_current_robot_and_gpu_status_does_not_reuse_historical_availability(self):
+        report = build()
+        plain = html_lib.unescape(re.sub(r"<[^>]+>", "", report))
+        self.assertIn("L40S target TCP connect timeout", plain)
+        self.assertIn("当前 GPU free memory=unknown", plain)
+        self.assertIn("robot_connection_available=false", plain)
+        self.assertIn("历史显存快照不得替代实时查询", plain)
 
     def test_checked_report_keeps_hardware_gates_closed(self):
         report = REPORT.read_text()

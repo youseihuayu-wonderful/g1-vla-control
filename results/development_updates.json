@@ -1047,8 +1047,47 @@
       "professor_research_brief.html",
       "generate_professor_research_brief.py",
       "tests/test_professor_research_brief.py",
-      "Markdown SHA-256 6af79bd63ecc65afde8bc50f071313faccbd78b86e29331630b624e9a3311f04",
+      "Markdown SHA-256 7d81b377afe47cdd742e3ea46ed0975753a2277ec9ffdb20c633109c693a5fba",
       "92/92 local tests"
+    ]
+  },
+  {
+    "time": "2026-08-22 11:38 EDT",
+    "title": "复查当前机器人连接与 L40S GPU 可用性",
+    "status": "blocked",
+    "summary": "执行只读网络和资源检查。Jump ControlMaster 可建立，但 L40S target 从 jump 连接超时；机器人现场 gateway 当前 host down，内部机器人 SSH 未确认可达。无法取得实时 nvidia-smi 数据，因此当前不能确认 GPU 显存，也不能开始远端 Simulation 或机器人阶段。",
+    "done": [
+      "检查 SSH ControlMaster、target TCP、local policy tunnel 和 nvidia-smi 查询资格。",
+      "从 jump 执行只读 target TCP probe，结果为 connect timeout。",
+      "检查机器人 operator gateway 与内部 SSH 路径，当前均未建立可用认证 session。",
+      "确认本地 8000 policy tunnel 未监听。",
+      "未创建 Publisher、未查询或修改机器人状态、未停止任何 GPU process。"
+    ],
+    "conclusions": [
+      "当前 L40S GPU free memory=unknown；任何历史显存快照都不能代表当前可用性。",
+      "LGG100 policy server 当前不可用，远端 Simulation 不能开始。",
+      "机器人当前没有可用只读连接，更不能开始真机运动。",
+      "即使网络恢复，S4–S7、标定、Shadow/HIL、watchdog 和 command adapter Gate 仍保持关闭。"
+    ],
+    "fixes": [
+      "新增不包含内网地址、SSH identity 或 hostname 的当前连接 preflight 记录。",
+      "Dashboard H0/H3 改为同时显示历史连接证据与 2026-08-22 当前不可达状态，避免把旧结果当成实时状态。"
+    ],
+    "remaining": [
+      "恢复 L40S target 网络可达性并运行只读 nvidia-smi。",
+      "恢复机器人现场网络或授权 gateway 后重新验证 read-only shell。",
+      "确认 GPU 完全空闲或由管理员明确分配。",
+      "全部 Simulation 和硬件安全 Gate 仍需按原顺序完成。"
+    ],
+    "next": [
+      "先检查 VPN/现场网络，不反复发送高频连接请求。",
+      "L40S 恢复后只读记录每卡 total/used/free/utilization 与 resident processes，不终止他人任务。",
+      "机器人恢复后只做阶段 A inventory；不发送运动命令。"
+    ],
+    "evidence": [
+      "results/current_robot_gpu_readonly_preflight_20260822.json",
+      "robot_command_sent=false",
+      "other_gpu_process_modified=false"
     ]
   }
 ]

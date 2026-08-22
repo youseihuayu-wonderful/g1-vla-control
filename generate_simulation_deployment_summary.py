@@ -323,6 +323,7 @@ def build() -> str:
     gen15 = load("gen_1_5_relevance_review_20260820.json")
     deterministic_speed = load("g1_adaptive_phase_validation.json")
     retiming_safety = load("retiming_safety_validation.json")
+    current_connectivity = load("current_robot_gpu_readonly_preflight_20260822.json")
     updates = load("development_updates.json")
 
     inference = author["inference"]
@@ -493,11 +494,11 @@ def build() -> str:
                 "Mac→开发机 192.168.1.13→机器人 192.168.123.164 登录成功。",
                 "建立独立 L40S ControlMaster、keeper 和 loopback tunnel。",
             ],
-            "result": ["Prompt: unitree@unitree-g1-nx。", "SSH shell 可用；没有执行机器人命令。", "开发机链路曾观察到较大 RTT jitter。"],
-            "meaning": ["已具备只读 inventory 入口。", "SSH 在线不代表实时链路或动作权限。"],
-            "missing": ["机器人内部实时 supervisor 架构。", "稳定有线延迟、断线与恢复测试。"],
-            "next": ["只执行阶段 A inventory；保持 Damping。"],
-            "evidence": ["results/g1_robot_ssh_connection_status_20260818.json", "CONNECTION_RUNBOOK.md"],
+            "result": ["历史上已取得机器人内部认证 shell；没有执行机器人命令。", "2026-08-22 当前复查：operator gateway host down，机器人内部 SSH 未确认可达。", f"robot_connection_available={str(current_connectivity['robot_route']['robot_connection_available']).lower()}。"],
+            "meaning": ["历史连接证据仍有效，但当前没有可用只读入口。", "保存的 Herdr pane label 不等于 SSH session 仍在线。"],
+            "missing": ["恢复现场网络或授权 gateway。", "机器人内部实时 supervisor 架构。", "稳定有线延迟、断线与恢复测试。"],
+            "next": ["先恢复网络并重复 read-only connectivity check；不得发送动作。"],
+            "evidence": ["results/current_robot_gpu_readonly_preflight_20260822.json", "results/g1_robot_ssh_connection_status_20260818.json", "CONNECTION_RUNBOOK.md"],
         },
         {
             "domain": "REAL ROBOT", "id": "H1", "title": "Unitree SDK / LowState", "status": "partial", "label": "本地完成",
@@ -525,13 +526,15 @@ def build() -> str:
             "domain": "REAL ROBOT", "id": "H3", "title": "L40S Policy 服务", "status": "blocked", "label": "无空卡",
             "done": ["建立 127.0.0.1:8000 loopback-only tunnel。", "只读监控 8 张 L40S 和 resident process。"],
             "result": [
-                "远端 port 8000 未监听，LGG100 server 未运行。",
-                f"最佳候选 GPU 仍只有约 {gpu['decision']['candidate_free_memory_mib']/1024:.1f} GiB 空闲且有其他 workload。",
+                "2026-08-22 当前复查：jump route 可认证，但 L40S target TCP connect timeout。",
+                f"nvidia-smi query succeeded={str(current_connectivity['l40s_route']['nvidia_smi_query_succeeded']).lower()}；当前 GPU free memory=unknown。",
+                "本地 policy tunnel 未监听，LGG100 server 不可用。",
+                f"最后一次成功查询的历史候选约 {gpu['decision']['candidate_free_memory_mib']/1024:.1f} GiB 空闲，但不能代表当前状态。",
             ],
-            "meaning": ["Tunnel listener 只证明网络路径，不证明 policy 可用。"],
-            "missing": ["完全空闲或管理员明确分配的 GPU。", "Strict restore peak memory 与 server metadata/hash Gate。"],
-            "next": ["等待现有任务正常结束；不停止或挤占其他任务。"],
-            "evidence": ["results/l40s_gpu_availability_20260819.json"],
+            "meaning": ["当前无法确认任何 GPU 可用，也不能启动远端 Simulation。", "历史显存快照不得替代实时查询。"],
+            "missing": ["恢复 L40S target 网络可达性。", "完全空闲或管理员明确分配的 GPU。", "Strict restore peak memory 与 server metadata/hash Gate。"],
+            "next": ["网络恢复后只读运行 nvidia-smi；不停止或挤占其他任务。"],
+            "evidence": ["results/current_robot_gpu_readonly_preflight_20260822.json", "results/l40s_gpu_availability_20260819.json"],
         },
         {
             "domain": "REAL ROBOT", "id": "H4", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",

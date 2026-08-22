@@ -1,0 +1,33 @@
+{
+  "schema_version": "current_robot_gpu_readonly_preflight_v1",
+  "timestamp": "2026-08-22T11:37:00-04:00",
+  "scope": "Read-only connectivity and GPU availability check; no robot command and no process interference.",
+  "l40s_route": {
+    "jump_control_master_running": true,
+    "target_tcp_reachable_from_jump": false,
+    "target_failure": "tcp_connect_timeout",
+    "ssh_target_session_available": false,
+    "nvidia_smi_query_succeeded": false,
+    "gpu_memory_available_mib": null,
+    "gpu_availability": "unknown",
+    "local_policy_tunnel_listening": false,
+    "policy_service_available": false
+  },
+  "robot_route": {
+    "operator_network_gateway_ssh_reachable": false,
+    "gateway_failure": "host_down",
+    "robot_internal_ssh_reachable": false,
+    "robot_authenticated_shell_confirmed_current": false,
+    "robot_connection_available": false
+  },
+  "execution_decision": {
+    "simulation_remote_run_can_start": false,
+    "robot_readonly_stage_can_start": false,
+    "robot_motion_can_start": false,
+    "reason": "Current L40S and robot routes are unavailable; independent simulation and hardware safety gates also remain closed.",
+    "g1_execution_enabled": false,
+    "hardware_execution_performed": false,
+    "robot_command_sent": false,
+    "other_gpu_process_modified": false
+  }
+}
