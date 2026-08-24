@@ -1,5 +1,5 @@
 {
-  "schema_version": "lgg100_slurm_q05_soak_public_status_v1",
+  "schema_version": "lgg100_slurm_q05_soak_public_status_v2",
   "timestamp": "2026-08-24T11:19:26-04:00",
   "state": "RUNNING",
   "scope": "One scheduler-allocated L40S; four-hour frozen LGG100 multi-scenario output-only endurance inference.",
@@ -31,8 +31,12 @@
     "elapsed_s": 93.42433847207576,
     "completed_calls": 301,
     "finite_shape_passes": 301,
-    "raw_contract_passes": 0,
-    "bounded_analysis_available": 301,
+    "raw_quaternion_exact_unit_passes": 0,
+    "official_consumer_postprocess_passes": 301,
+    "legacy_runner_field_migration": {
+      "raw_contract_passes": 0,
+      "bounded_analysis_available": 301
+    },
     "missed_rate_deadlines": 1,
     "allocated_gpu_memory_used_mib": 8665,
     "allocated_gpu_utilization_percent": 68
@@ -46,10 +50,11 @@
   ],
   "decision": {
     "soak_completed": false,
-    "g1_contract_verified": false,
+    "g1_contract_verified": true,
+    "quaternion_gap_blocks_adaptive_off": false,
     "g1_sim_eligible": false,
     "adaptive_off_authorized": false,
-    "reason": "The bounded four-hour output-only endurance job is currently running; no final conclusion is available."
+    "reason": "The pinned Yuhao consumer post-processing resolves the quaternion interpretation, but the four-hour job is still running and sequential IK, swept-path, latency, and closed-loop gates remain incomplete."
   },
   "other_gpu_process_modified": false,
   "robot_command_sent": false,

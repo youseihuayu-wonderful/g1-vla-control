@@ -49,7 +49,7 @@ None of those examples is part of this project's hardware preflight.
   G1 `LowState_` type;
 - fixes the topic to `rt/lowstate`;
 - requires an explicit validated network-interface name;
-- extracts the 14 arm joints in the frozen contract order;
+- extracts the 3 waist and 14 arm joints in their frozen FK/contract order;
 - validates finite motor and IMU fields;
 - records callback timing, tick range and safety evidence;
 - closes the reader on success, timeout or exception.
@@ -76,3 +76,21 @@ available.
    command path.
 
 Each stage requires a separate result and does not grant hardware execution.
+
+## Yuhao deployment repository is reference-only
+
+The pinned audit of <https://github.com/leihao100/g1-client> at commit
+`1422e8d6ef674aa047cfb2878bc7dae54b118fbe` recovers the trained EEF policy
+consumer, Pinocchio IK and receding-horizon scheduling reference. It is not a
+read-only client:
+
+- `g1_client/arm_controller.py` creates a `ChannelPublisher` for `rt/arm_sdk`
+  and writes `LowCmd_`;
+- it sets the arm-sdk handover slot, locks body joints, moves to a ready pose
+  and streams arm targets;
+- `g1_client/gripper_controller.py` publishes Dex1 commands;
+- its documented precondition is operator-selected `ai` mode, not Damping.
+
+Therefore `openpi/main_eef.py`, `openpi/main.py` and `openpi/replay.py` must not
+be copied to or run on the connected robot in the current read-only phase. Only
+static source audit and mock-sink/offline extraction are permitted.

@@ -54,7 +54,14 @@ class OutputOnlySoakTests(unittest.TestCase):
     def test_client_is_four_hour_multi_scenario_output_only(self):
         self.assertIn("default=14_400.0", self.client_source)
         self.assertIn('"scenario": scenario["name"]', self.client_source)
-        self.assertIn('"raw_contract_passed": audit.raw_contract_passed', self.client_source)
+        self.assertIn(
+            '"raw_quaternion_exact_unit_passed": audit.raw_quaternion_exact_unit_passed',
+            self.client_source,
+        )
+        self.assertIn(
+            '"official_consumer_postprocess_passed": audit.official_consumer_postprocess_passed',
+            self.client_source,
+        )
         self.assertIn('"mujoco_dynamics_executed": False', self.client_source)
         self.assertIn('"hardware_execution_performed": False', self.client_source)
         self.assertNotIn("adaptive_retimer", self.client_source)
@@ -62,6 +69,11 @@ class OutputOnlySoakTests(unittest.TestCase):
     def test_client_keeps_sparse_quarantined_samples_and_full_audit_records(self):
         self.assertIn("inference_records.jsonl.gz", self.client_source)
         self.assertIn("sampled_actions_quarantined.npz", self.client_source)
+        self.assertIn("raw_actions=np.stack(sample_raw_actions)", self.client_source)
+        self.assertIn(
+            "official_postprocessed_actions=np.stack(sample_official_actions)",
+            self.client_source,
+        )
         self.assertIn("quarantined=np.asarray(True)", self.client_source)
         self.assertIn("unique_raw_chunk_hashes", self.client_source)
 

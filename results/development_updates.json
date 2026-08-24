@@ -1256,5 +1256,47 @@
       "mujoco_dynamics_executed=false",
       "hardware_execution_performed=false"
     ]
+  },
+  {
+    "time": "2026-08-24 14:30 EDT",
+    "title": "固定 Yuhao G1 deployment code 并修正 quaternion contract",
+    "status": "pass",
+    "summary": "固定审计 leihao100/g1-client commit 1422e8d6… 后确认 pi05_g1_eef 是已经训练并部署的 EEF policy。作者训练 transform 与部署 IK 均明确要求 consumer 在 IK 前归一化预测 quaternion；因此 raw exact-unit=0/N 是诊断值，不是模型 contract failure。Q0 官方 consumer post-processing 为 30/30，quaternion gap 不再阻塞 Adaptive-OFF。",
+    "done": [
+      "固定 openpi/main_eef.py、eef_kinematics.py、OpenPI transport 和 robot publisher 的 commit 与文件 hashes。",
+      "确认 EEF-16 channel order、pelvis frame、wrist-yaw +X 0.05 m、warm-start IK 和 receding-horizon scheduling。",
+      "将 contract 升级到 1.3.0，显式区分 raw neural audit 与官方 quaternion-only consumer boundary。",
+      "保留 raw/canonical action 与独立 SHA-256，禁止修改 position/gripper channels。",
+      "修正 Q0/Q0.5 字段解释；不修改历史 raw inference artifact。"
+    ],
+    "conclusions": [
+      "checkpoint_is_trained=true；retraining_required=false。",
+      "g1_contract_verified=true；g1_sim_eligible=false。",
+      "Q0 raw_quaternion_exact_unit_passes=0/30，但 official_consumer_postprocess_passes=30/30。",
+      "Yuhao deployment code 提供 full-horizon prefetch/time-alignment/joint-space blend 参考。",
+      "作者 publisher 会创建 LowCmd、取得 arm_sdk authority 并移动 ready pose，当前机器人禁止运行。"
+    ],
+    "fixes": [
+      "移除将 bounded quaternion normalization 仅称为 quarantined analysis 的错误语义。",
+      "新增 fail-closed official consumer canonicalizer：只归一化左右 quaternion，过大偏差、零范数、NaN/Inf 或 gripper 越界均拒绝。",
+      "记录部署代码 control_hz 默认 15 与 help text 30 的冲突，要求 experiment manifest 显式选择。"
+    ],
+    "remaining": [
+      "用新 contract 重新生成/迁移 postprocessed artifacts 和 semantic attestation。",
+      "按 deployment scheduling reference 完成完整 multi-chunk IK/swept-path qualification。",
+      "修复作者参考中 IK warning 后仍 dispatch、缺 orientation threshold 和 collision preflight 的安全差距。",
+      "完成 latency 与 fresh-commit watchdog 后才能通过 Adaptive-OFF closed-loop。"
+    ],
+    "next": [
+      "让现有 Q0.5 继续使用已 staging 的旧 runner 自然完成；完成后无损迁移字段。",
+      "本地测试 contract v1.3 和 official consumer postprocessing。",
+      "冻结 15 Hz 与 30 Hz 两个明确 cadence manifest，再运行 G3。"
+    ],
+    "evidence": [
+      "YUHAO_G1_CLIENT_DEPLOYMENT_AUDIT_CN.md",
+      "results/yuhao_g1_client_deployment_audit_20260824.json",
+      "PI05_G1_EEF_FIVE_ITEM_AUDIT_CN.md",
+      "hardware_execution_performed=false"
+    ]
   }
 ]

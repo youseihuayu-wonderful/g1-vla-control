@@ -155,17 +155,18 @@ revision: cced7a7ff7b454fdcac555457a1a2a3dc262ac77
 
 不再切换到其他 VLA。Yuhao 已直接确认核心配置为 `pi05_g1_eef`、`action_horizon=32`、`discrete_state_input=False`。按该配置和公开代码中的 `resize_with_pad(224,224)` 重新验证后，50/50 输出为有限 `[32,16]`，语义识别和预注册的单次采样离线质量标准均通过。
 
-这仍然不是闭环抓取或堆叠成功证据。完整历史 TrainConfig、物理相机标定、horizon-32 MuJoCo artifacts、完整实时 watchdog 和 G1 底层控制合同尚未通过，因此继续严格标记：
+Yuhao 的 pinned `g1-client` deployment code 进一步确认：该 checkpoint 已训练，预测 quaternion 应由 consumer 在 IK 前归一化，并提供 full-horizon prefetch/time-alignment/joint-space blend 参考。这仍然不是本项目的闭环抓取或堆叠成功证据；完整 sequential IK/swept-path、明确 cadence、实时 watchdog 和硬件安全合同尚未通过，因此严格标记：
 
 ```text
 policy_task_quality_passed=false
-g1_contract_verified=false
+g1_contract_verified=true
 g1_sim_eligible=false
 g1_execution_enabled=false
 ```
 
 下一步是重新建立 Adaptive OFF 的 horizon-32 MuJoCo 基线；不能复用旧 horizon-50 artifacts，也不能因为离线误差较低就直接执行。
 
+- Yuhao deployment 审计：[`YUHAO_G1_CLIENT_DEPLOYMENT_AUDIT_CN.md`](YUHAO_G1_CLIENT_DEPLOYMENT_AUDIT_CN.md)
 - 最新 author-32 重验证：[`LGG100_AUTHOR32_REVALIDATION_CN.md`](LGG100_AUTHOR32_REVALIDATION_CN.md)
 - GPU 安装与真实权重命令：[`LGG100_REAL_VLA.md`](LGG100_REAL_VLA.md)
 - 真正 VLA + Adaptive Module 完整 Gate：[`REAL_LGG100_ADAPTIVE_WORKFLOW.md`](REAL_LGG100_ADAPTIVE_WORKFLOW.md)

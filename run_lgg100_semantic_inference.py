@@ -58,8 +58,8 @@ def main() -> None:
         args.checkpoint_dir.resolve(), ACTION_HORIZON, DEFAULT_PROMPT
     )
     raw_chunks: list[np.ndarray] = []
-    analysis_chunks: list[np.ndarray] = []
-    analysis_available: list[bool] = []
+    official_chunks: list[np.ndarray] = []
+    official_available: list[bool] = []
     records: list[dict] = []
     for index in range(count):
         observation = {
@@ -73,10 +73,10 @@ def main() -> None:
         actions = np.asarray(response["actions"], dtype=np.float64)
         audit = audit_neural_action_chunk(actions)
         raw_chunks.append(actions)
-        available = audit.canonicalized_actions_for_analysis is not None
-        analysis_available.append(available)
-        analysis_chunks.append(
-            audit.canonicalized_actions_for_analysis
+        available = audit.official_postprocessed_actions is not None
+        official_available.append(available)
+        official_chunks.append(
+            audit.official_postprocessed_actions
             if available else np.full_like(actions, np.nan)
         )
         record = {
@@ -86,17 +86,17 @@ def main() -> None:
             "latency_ms": latency_ms,
             "shape": list(actions.shape),
             "finite_shape_passed": audit.finite_shape_passed,
-            "raw_contract_passed": audit.raw_contract_passed,
-            "bounded_quaternion_normalization_passed": (
-                audit.bounded_quaternion_normalization_passed
+            "raw_quaternion_exact_unit_passed": audit.raw_quaternion_exact_unit_passed,
+            "official_consumer_postprocess_passed": (
+                audit.official_consumer_postprocess_passed
             ),
-            "normalization_applied_for_analysis": audit.normalization_applied,
+            "official_consumer_normalization_applied": audit.normalization_applied,
             "raw_max_quaternion_norm_error": audit.raw_max_quaternion_norm_error,
             "maximum_quaternion_component_adjustment": (
                 audit.maximum_quaternion_component_adjustment
             ),
             "raw_sha256": audit.raw_sha256,
-            "canonicalized_sha256": audit.canonicalized_sha256,
+            "official_postprocessed_sha256": audit.official_postprocessed_sha256,
             "reasons": list(audit.reasons),
             "policy_timing": response.get("policy_timing", {}),
         }
@@ -104,13 +104,15 @@ def main() -> None:
         print(json.dumps(record), flush=True)
 
     raw_array = np.stack(raw_chunks)
-    analysis_array = np.stack(analysis_chunks)
+    official_array = np.stack(official_chunks)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         args.output,
         raw_actions=raw_array,
-        canonicalized_actions_for_analysis=analysis_array,
-        canonicalized_available=np.asarray(analysis_available),
+        official_postprocessed_actions=official_array,
+        official_postprocess_available=np.asarray(official_available),
+        canonicalized_actions_for_analysis=official_array,
+        canonicalized_available=np.asarray(official_available),
         episode=episodes,
         frame=frames,
         checkpoint_revision=np.asarray(HF_REVISION),
@@ -121,7 +123,7 @@ def main() -> None:
     )
     latencies = np.asarray([record["latency_ms"] for record in records])
     report = {
-        "scope": "Real LGG100 inference on public episode observations; output-only and quarantined.",
+        "scope": "Real LGG100 inference on public episode observations; raw output plus pinned official consumer post-processing, no dynamics.",
         "checkpoint_revision": HF_REVISION,
         "openpi_commit": OPENPI_AUDITED_COMMIT,
         "dataset_revision": dataset_revision,
@@ -131,16 +133,18 @@ def main() -> None:
         "action_horizon": ACTION_HORIZON,
         "discrete_state_input": AUTHOR_DISCRETE_STATE_INPUT,
         "complete_author_train_config_available": False,
-        "g1_contract_verified": False,
+        "g1_contract_verified": bool(all(official_available)),
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,
         "execution_performed": False,
         "sample_count": count,
         "summary": {
             "finite_shape_passes": sum(r["finite_shape_passed"] for r in records),
-            "raw_contract_passes": sum(r["raw_contract_passed"] for r in records),
-            "bounded_normalization_passes": sum(
-                r["bounded_quaternion_normalization_passed"] for r in records
+            "raw_quaternion_exact_unit_passes": sum(
+                r["raw_quaternion_exact_unit_passed"] for r in records
+            ),
+            "official_consumer_postprocess_passes": sum(
+                r["official_consumer_postprocess_passed"] for r in records
             ),
             "latency_ms": {
                 "p50": float(np.quantile(latencies, 0.50)),

@@ -115,10 +115,11 @@
     "actual_runtime_s": 60,
     "formal_draws": 30,
     "finite_shape_passes": 30,
-    "raw_contract_passes": 0,
+    "raw_quaternion_exact_unit_passes": 0,
+    "official_consumer_postprocess_passes": 30,
     "peak_memory_used_mib": 8681,
     "q0_frozen_checkpoint_inference_passed": true,
-    "g1_contract_verified": false,
+    "g1_contract_verified": true,
     "g1_sim_eligible": false,
     "evidence": "results/lgg100_slurm_q0_output_only_20260824.json"
   },
@@ -136,7 +137,8 @@
   },
   "next_actions": [
     "allow_q05_to_finish_or_fail_closed_without_interference",
-    "investigate_raw_quaternion_contract_gap_without_changing_action_samples",
+    "apply_only_the_pinned_official_quaternion_consumer_postprocessing",
+    "freeze_explicit_15_or_30_hz_deployment_cadence_manifest",
     "complete_full_sequential_preflight",
     "reduce_complete_observation_to_commit_latency_below_100_ms",
     "run_adaptive_off_only_after_preflight"

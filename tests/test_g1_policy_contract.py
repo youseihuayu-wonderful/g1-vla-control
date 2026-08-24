@@ -14,8 +14,10 @@ from g1_dual_arm_ik import LEFT_JOINTS, RIGHT_JOINTS, G1DualArmIK
 from g1_mujoco_bridge import policy_action_to_mujoco_world, policy_state_from_mujoco
 from g1_policy_contract import (
     ACTION_HORIZON, CONTRACT_ID, CONTRACT_PATH, IMAGE_KEYS,
-    POLICY_RATE_HZ, contract_metadata, preprocess_rgb_image,
+    OFFICIAL_ACTION_POSTPROCESSING_SOURCE, POLICY_RATE_HZ,
+    canonicalize_policy_action_chunk, contract_metadata, preprocess_rgb_image,
     require_verified_contract, validate_action_chunk, validate_observation,
+    validate_raw_policy_action_chunk,
 )
 from stack_scene import CAMERA_NAMES, REFERENCE_EP0_STATE, build_model, reset_to_reference_pose
 
@@ -36,6 +38,10 @@ class G1PolicyContractTests(unittest.TestCase):
             "LGG100/stack-cube-eef-24k",
         )
         self.assertFalse(parsed["production_policy"]["simulation_execution_allowed"])
+        self.assertTrue(
+            parsed["production_policy"]["official_action_consumer_postprocessing_verified"]
+        )
+        self.assertIn("unitree_eef_policy.py", OFFICIAL_ACTION_POSTPROCESSING_SOURCE)
         self.assertFalse(parsed["robot"]["locomotion_controlled_by_policy"])
         self.assertFalse(parsed["robot"]["torso_controlled_by_policy"])
         with self.assertRaises(ValueError):
@@ -71,6 +77,42 @@ class G1PolicyContractTests(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             validate_action_chunk(np.zeros((10, 8)))
+
+    def test_official_consumer_normalizes_only_quaternions(self):
+        actions = np.zeros((ACTION_HORIZON, ACTION_DIM), dtype=np.float64)
+        actions[:, 0:3] = [0.2, 0.1, 0.7]
+        actions[:, 7:10] = [0.2, -0.1, 0.7]
+        actions[:, 6] = 0.993
+        actions[:, 13] = 1.007
+        actions[:, 14:16] = [5.0, 4.0]
+        raw = validate_raw_policy_action_chunk(
+            actions, expected_horizon=ACTION_HORIZON
+        )
+        with self.assertRaisesRegex(ValueError, "quaternion norm error"):
+            validate_action_chunk(raw, expected_horizon=ACTION_HORIZON)
+        canonical = canonicalize_policy_action_chunk(
+            raw, expected_horizon=ACTION_HORIZON
+        )
+        validate_action_chunk(canonical, expected_horizon=ACTION_HORIZON)
+        np.testing.assert_array_equal(canonical[:, 0:3], raw[:, 0:3])
+        np.testing.assert_array_equal(canonical[:, 7:10], raw[:, 7:10])
+        np.testing.assert_array_equal(canonical[:, 14:16], raw[:, 14:16])
+        np.testing.assert_allclose(
+            np.linalg.norm(canonical[:, 3:7], axis=1), 1.0, atol=1e-12
+        )
+        np.testing.assert_allclose(
+            np.linalg.norm(canonical[:, 10:14], axis=1), 1.0, atol=1e-12
+        )
+
+    def test_official_consumer_rejects_excessive_or_zero_quaternions(self):
+        actions = np.zeros((ACTION_HORIZON, ACTION_DIM), dtype=np.float64)
+        actions[:, 6] = 0.95
+        actions[:, 13] = 1.0
+        with self.assertRaisesRegex(ValueError, "exceeds official-consumer"):
+            canonicalize_policy_action_chunk(actions)
+        actions[:, 3:7] = 0.0
+        with self.assertRaisesRegex(ValueError, "zero or near zero"):
+            canonicalize_policy_action_chunk(actions)
 
     def test_observation_rejects_camera_or_state_contract_drift(self):
         source = np.full((480, 640, 3), 123, dtype=np.uint8)

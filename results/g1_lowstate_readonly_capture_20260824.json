@@ -1,0 +1,75 @@
+{
+  "schema_version": "g1_lowstate_readonly_capture_summary_v1",
+  "timestamp": "2026-08-24T13:57:00-04:00",
+  "scope": "Authenticated real G1 subscriber-only LowState capture under operator-confirmed Damping, support, and E-stop readiness.",
+  "physical_safety_attestation": {
+    "damping_confirmed_by_operator": true,
+    "support_confirmed_by_operator": true,
+    "estop_confirmed_by_operator": true
+  },
+  "environment": {
+    "architecture": "aarch64",
+    "os": "Ubuntu 22.04",
+    "python_version": "3.10.20",
+    "isolated_readonly_environment": true,
+    "official_sdk_commit": "65691c8a8bc53b98d3976dba4dbf9d5d20b2e7f5",
+    "adapter_sha256": "8bd5e3ef458e646c8c3278133aec83cb0410dea2d63d7a256e7333395f5eb7f2",
+    "cyclonedds_version": "0.10.2",
+    "subscriber_import_verified": true,
+    "lowstate_idl_import_verified": true
+  },
+  "capture": {
+    "topic": "rt/lowstate",
+    "requested_samples": 100,
+    "captured_samples": 100,
+    "success": true,
+    "callback_overflow": 0,
+    "reader_take_sample_error_observed": true,
+    "timing_gap_ms": {
+      "count": 99,
+      "min": 0.034753,
+      "median": 1.621353,
+      "max": 3.203889
+    },
+    "tick": {
+      "first": 2408359,
+      "last": 2408454,
+      "unique": 96,
+      "duplicate_sample_count": 4,
+      "decrease_count": 0
+    },
+    "mode_pr_values": [0],
+    "mode_machine_values": [5],
+    "imu_quaternion_norm": {
+      "min": 0.9999999623417536,
+      "max": 1.0000000998057375
+    },
+    "arm_state_summary": {
+      "q_min_rad": -0.12796755135059357,
+      "q_max_rad": 1.2921751737594604,
+      "max_abs_dq": 0.03988350182771683,
+      "max_abs_tau_est": 0.1875,
+      "max_temperature": 46
+    },
+    "raw_capture_sha256": "0e0d6e644e14f67c1c7e4d5e91c9f5889727a14257384d81ba49bc0551d7b53c"
+  },
+  "safety": {
+    "subscriber_only": true,
+    "send_channel_created": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "mujoco_dynamics_executed": false
+  },
+  "decision": {
+    "real_lowstate_capture_passed": true,
+    "dds_freshness_fully_qualified": false,
+    "g1_contract_verified": false,
+    "current_pose_fk_eligible": false,
+    "zero_motion_shadow_eligible": false,
+    "robot_motion_allowed": false,
+    "reason": "The subscriber-only capture succeeded, but one reader error, duplicate ticks, unverified mode/unit semantics, and missing waist-state capture must be resolved before pelvis-frame FK and zero-motion Shadow."
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

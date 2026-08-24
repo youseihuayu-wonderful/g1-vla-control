@@ -20,9 +20,11 @@ revision: cced7a7ff7b454fdcac555457a1a2a3dc262ac77
 
 It contains no README, OpenPI commit, TrainConfig, DataConfig, or custom
 joint↔EEF transform. Repository history contains only the initial commit and a
-single checkpoint upload. The public `openpi-fintune` repository plus direct
-author confirmation now establish the core config, but not the complete
-historical TrainConfig or exact OpenPI commit.
+single checkpoint upload. The public `openpi-fintune` repository, direct author confirmation, and the
+pinned `leihao100/g1-client` deployment repository now establish the EEF
+contract, official quaternion consumer boundary, and receding-horizon reference.
+They still do not provide the complete historical TrainConfig or resolve the
+15 Hz code-default versus 30 Hz help-text conflict.
 
 Confirmed/supported model fields:
 
@@ -42,17 +44,19 @@ model_config_name=pi05_g1_eef
 ```
 
 The server restores with `remove_extra_params=False`; missing or extra
-parameter leaves fail startup instead of being silently discarded. Even after
-a strict restore, server metadata deliberately remains:
+parameter leaves fail startup instead of being silently discarded. After the pinned author transform and deployment audit, strict server metadata
+may report:
 
 ```text
-g1_contract_verified: false
-g1_action_compatible: false
+g1_contract_verified: true
+g1_action_compatible: true
+official_consumer_quaternion_postprocessing_required: true
 safe_for_g1_hardware: false
 ```
 
-A 16-D shape is not proof of frame, units, channel order, absolute/delta
-semantics, EEF site, horizon, or normalization compatibility.
+The first two fields establish the EEF action boundary only. They do not prove
+sequential IK, swept collision, task success, physical calibration, or hardware
+safety.
 
 ## Gate L0 — actual Ubuntu NVIDIA host
 
@@ -235,15 +239,16 @@ restore and all calls return one stable finite `[T,16]` shape. It still records:
 ```text
 author_core_config_directly_confirmed: true
 complete_author_train_config_available: false
-g1_contract_verified: false
+g1_contract_verified: true
 g1_sim_eligible: false
 g1_execution_enabled: false
 adaptive_retimer_enabled: false
 ```
 
-## Gate L7 — blocked until G1 semantic proof exists
+## Gate L7 — author contract recovered; sequential preflight still required
 
-`lgg100_adaptive_ab.py` now requires all of the following in both JSON and NPZ:
+The pinned author sources establish quaternion-only post-processing before IK.
+`lgg100_adaptive_ab.py` still requires all of the following in both JSON and NPZ:
 
 ```text
 g1_policy_contract_id = g1_edu_dual_dex1_eef_v1
@@ -252,11 +257,12 @@ g1_contract_verified = true
 g1_sim_eligible = true
 ```
 
-The candidate server cannot set these values to true. L7 may only be unlocked
-after obtaining and validating the author's exact transform/config plus a
-golden observation/action sample, or after training our own checkpoint under
-the frozen contract. Contract/action fingerprints detect accidental mismatch;
-they are not signatures, so manually asserted metadata is not accepted evidence.
+The server may now set `g1_contract_verified=true` because the pinned author
+transform, deployment implementation, and behavioral semantic validation agree.
+It must keep `g1_sim_eligible=false` until complete multi-chunk sequential IK and
+swept-path qualification passes. Retraining is not required. Contract/action
+fingerprints continue to detect accidental mismatch and raw neural hashes remain
+unchanged.
 
 After genuine semantic verification, every target must pass finite checks,
 quaternion norm, IK reachability, joint limits, and phase-aware collision

@@ -2,8 +2,8 @@
 """Bounded multi-scenario endurance probe for a frozen LGG100 policy server.
 
 This tool is output-only: it never retimes, executes MuJoCo dynamics, or sends a
-hardware command. It records every inference audit and sparse quarantined action
-samples so long-run stability can be evaluated without claiming G1 eligibility.
+hardware command. It records raw neural output and Yuhao's documented bounded
+quaternion-only consumer post-processing without claiming simulation eligibility.
 """
 
 from __future__ import annotations
@@ -144,11 +144,12 @@ def main() -> None:
     deadline = started + args.duration_s
     next_call = started
     next_heartbeat = started
-    total = finite = raw_contract = bounded = missed_deadlines = 0
+    total = finite = raw_exact_unit = official_postprocessed = missed_deadlines = 0
     latencies: dict[str, list[float]] = {scenario["name"]: [] for scenario in scenarios}
     qerrors: list[float] = []
     unique_hashes: set[str] = set()
-    sample_actions: list[np.ndarray] = []
+    sample_raw_actions: list[np.ndarray] = []
+    sample_official_actions: list[np.ndarray] = []
     sample_scenarios: list[str] = []
     sample_iterations: list[int] = []
     failure_reason: str | None = None
@@ -164,8 +165,8 @@ def main() -> None:
                 audit = audit_neural_action_chunk(actions)
                 total += 1
                 finite += int(audit.finite_shape_passed)
-                raw_contract += int(audit.raw_contract_passed)
-                bounded += int(audit.canonicalized_actions_for_analysis is not None)
+                raw_exact_unit += int(audit.raw_quaternion_exact_unit_passed)
+                official_postprocessed += int(audit.official_consumer_postprocess_passed)
                 latencies[scenario["name"]].append(latency_ms)
                 if audit.raw_max_quaternion_norm_error is not None:
                     qerrors.append(audit.raw_max_quaternion_norm_error)
@@ -176,16 +177,22 @@ def main() -> None:
                     "scenario": scenario["name"],
                     "latency_ms": latency_ms,
                     "finite_shape_passed": audit.finite_shape_passed,
-                    "raw_contract_passed": audit.raw_contract_passed,
-                    "bounded_analysis_available": audit.canonicalized_actions_for_analysis is not None,
+                    "raw_quaternion_exact_unit_passed": audit.raw_quaternion_exact_unit_passed,
+                    "official_consumer_postprocess_passed": audit.official_consumer_postprocess_passed,
+                    "official_consumer_normalization_applied": audit.normalization_applied,
+                    "official_postprocessed_sha256": audit.official_postprocessed_sha256,
                     "raw_max_quaternion_norm_error": audit.raw_max_quaternion_norm_error,
                     "raw_sha256": audit.raw_sha256,
                     "reasons": list(audit.reasons),
                     "execution_performed": False,
                 }
                 records.write(json.dumps(record, separators=(",", ":")) + "\n")
+                if not audit.official_consumer_postprocess_passed:
+                    failure_reason = "official_consumer_postprocessing_rejected"
+                    break
                 if total == 1 or total % args.sample_every == 0 or total <= len(scenarios):
-                    sample_actions.append(actions.copy())
+                    sample_raw_actions.append(actions.copy())
+                    sample_official_actions.append(audit.official_postprocessed_actions.copy())
                     sample_scenarios.append(scenario["name"])
                     sample_iterations.append(total)
                 if not audit.finite_shape_passed:
@@ -203,14 +210,14 @@ def main() -> None:
                 now = time.monotonic()
                 if now >= next_heartbeat:
                     _atomic_json(status_path, {
-                        "schema_version": "lgg100_output_only_soak_status_v1",
+                        "schema_version": "lgg100_output_only_soak_status_v2",
                         "state": "RUNNING",
                         "elapsed_s": now - started,
                         "target_duration_s": args.duration_s,
                         "completed_calls": total,
                         "finite_shape_passes": finite,
-                        "raw_contract_passes": raw_contract,
-                        "bounded_analysis_available": bounded,
+                        "raw_quaternion_exact_unit_passes": raw_exact_unit,
+                        "official_consumer_postprocess_passes": official_postprocessed,
                         "missed_rate_deadlines": missed_deadlines,
                         "neural_training": False,
                         "mujoco_dynamics_executed": False,
@@ -224,10 +231,11 @@ def main() -> None:
         client.close()
         elapsed = time.monotonic() - started
         completed_duration = elapsed >= args.duration_s and not _STOP_REQUESTED and failure_reason is None
-        if sample_actions:
+        if sample_raw_actions:
             np.savez_compressed(
                 samples_path,
-                actions=np.stack(sample_actions),
+                raw_actions=np.stack(sample_raw_actions),
+                official_postprocessed_actions=np.stack(sample_official_actions),
                 scenarios=np.asarray(sample_scenarios),
                 iterations=np.asarray(sample_iterations, dtype=np.int64),
                 checkpoint_revision=np.asarray(HF_REVISION),
@@ -237,7 +245,7 @@ def main() -> None:
             )
         all_latency = [value for group in latencies.values() for value in group]
         summary = {
-            "schema_version": "lgg100_output_only_soak_summary_v1",
+            "schema_version": "lgg100_output_only_soak_summary_v2",
             "scope": "Frozen LGG100 multi-scenario output-only endurance inference.",
             "started_at_utc": started_wall.isoformat(),
             "target_duration_s": args.duration_s,
@@ -249,8 +257,11 @@ def main() -> None:
             "scenario_names": names,
             "completed_calls": total,
             "finite_shape_passes": finite,
-            "raw_contract_passes": raw_contract,
-            "bounded_analysis_available": bounded,
+            "raw_quaternion_exact_unit_passes": raw_exact_unit,
+            "official_consumer_postprocess_passes": official_postprocessed,
+            "official_consumer_postprocess_qualification_passed": bool(
+                total > 0 and official_postprocessed == total
+            ),
             "unique_raw_chunk_hashes": len(unique_hashes),
             "missed_rate_deadlines": missed_deadlines,
             "latency_ms": {
@@ -263,14 +274,16 @@ def main() -> None:
             "neural_training": False,
             "weights_modified": False,
             "mujoco_dynamics_executed": False,
-            "g1_contract_verified": False,
+            "g1_contract_verified": bool(
+                total > 0 and official_postprocessed == total
+            ),
             "g1_sim_eligible": False,
             "g1_execution_enabled": False,
             "hardware_execution_performed": False,
         }
         _atomic_json(summary_path, summary)
         _atomic_json(status_path, {
-            "schema_version": "lgg100_output_only_soak_status_v1",
+            "schema_version": "lgg100_output_only_soak_status_v2",
             "state": "COMPLETE" if completed_duration else "FAILED",
             "elapsed_s": elapsed,
             "completed_calls": total,

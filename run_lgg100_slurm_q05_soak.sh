@@ -200,6 +200,7 @@ soak=json.loads(pathlib.Path(os.environ["SOAK_PATH"]).read_text())
 assert soak["completed_target_duration"] is True
 assert soak["target_duration_s"] >= 14400
 assert soak["completed_calls"] == soak["finite_shape_passes"]
+assert soak["completed_calls"] == soak["official_consumer_postprocess_passes"]
 used=[]
 with pathlib.Path(os.environ["GPU_LOG_PATH"]).open() as f:
     for row in csv.DictReader(f):
@@ -213,14 +214,15 @@ payload={
  "actual_duration_s":soak["actual_duration_s"],
  "completed_calls":soak["completed_calls"],
  "finite_shape_passes":soak["finite_shape_passes"],
- "raw_contract_passes":soak["raw_contract_passes"],
- "bounded_analysis_available":soak["bounded_analysis_available"],
+ "raw_quaternion_exact_unit_passes":soak["raw_quaternion_exact_unit_passes"],
+ "official_consumer_postprocess_passes":soak["official_consumer_postprocess_passes"],
+ "official_consumer_postprocess_qualification_passed":True,
  "latency_ms":soak["latency_ms"],
  "raw_quaternion_norm_error":soak["raw_quaternion_norm_error"],
  "peak_memory_used_mib":max(used),
  "neural_training":False,
  "mujoco_dynamics_executed":False,
- "g1_contract_verified":False,
+ "g1_contract_verified":True,
  "g1_sim_eligible":False,
  "g1_execution_enabled":False,
  "hardware_execution_performed":False,

@@ -356,7 +356,7 @@ Adaptive-ON 只有同时满足以下条件才可标记为 Simulation-qualified�
 - Formal 阶段并行上限：**2 张 L40S**；
 - 当前 GPU 用途：**冻结 LGG100 checkpoint inference**；
 - 当前不执行：训练、LoRA、checkpoint 更新、真机动作、GPU 抢占；
-- 下一工程任务：**raw quaternion contract 诊断 + G3 完整 sequential preflight**；
+- 下一工程任务：**复现 Yuhao 官方 consumer post-processing + 固定 deployment cadence + G3 完整 sequential preflight**；
 - 下一次 GPU 作业：只有完成前置 Gate 后才允许提交 **Q1 Adaptive-OFF Pilot**。
 
 ## 13. Q0 实际执行结果（2026-08-24）
@@ -375,9 +375,9 @@ Q0 最终在一张由 Slurm 正式分配、启动时无 resident compute process
 需要分层解释结果：
 
 - 冻结 checkpoint output-only inference 通过；
-- raw contract 为 0/30，通过 bounded quaternion normalization 产生 quarantined analysis artifact 的比例为 30/30；
-- raw quaternion norm error 范围为 0.00626–0.00776；
-- 因此 `g1_contract_verified=false`、`g1_sim_eligible=false`，不能把 Q0 描述成 Adaptive-OFF 或 Simulation 通过。
+- raw quaternion exact-unit 为 0/30；Yuhao 公开 consumer 要求在 IK 前归一化预测 quaternion；
+- 官方 consumer post-processing 通过 30/30，raw quaternion norm error 范围为 0.00626–0.00776；
+- 因此 quaternion gap 不再阻塞 Adaptive-OFF，`g1_contract_verified=true`；但 `g1_sim_eligible=false`，因为 sequential IK、swept-path、latency 和 closed-loop Gate 仍未通过。
 
 前两次调度尝试在 GPU compute 开始前因 compute node 不共享 submission workspace 而失败。修复方式是在经过只读 GPU inventory 确认的空闲调度节点上，固定并 staging 代码、OpenPI 环境、checkpoint 和 observation；最终 bounded job 正常完成并释放。该问题属于 Slurm workspace portability，不是 checkpoint inference failure。
 
@@ -385,18 +385,18 @@ Q0 最终在一张由 Slurm 正式分配、启动时无 resident compute process
 
 ## 14. 独立 Q0.5 四小时复杂推理作业（运行中）
 
-Q0.5 是与 Q0 分离的 Slurm job，目标是通过真实 inference 调查长时间稳定性和 raw quaternion contract gap，不是用 dummy process 占用 GPU。
+Q0.5 是与 Q0 分离的 Slurm job，目标是通过真实 inference 调查长时间稳定性、raw quaternion 分布和官方 consumer post-processing 可用率，不是用 dummy process 占用 GPU。
 
 - GPU：1 张启动时无 resident compute process 的 L40S；
 - target inference duration：14,400 秒；
 - maximum wall time：15,600 秒，用于 strict restore、JAX compile 和 fail-closed cleanup；
 - target inference rate：5 Hz；
 - 场景：Near、Mixed、Far 按固定顺序轮换；
-- 每次调用：记录 finite shape、raw contract、bounded analysis、quaternion norm error、latency 和 raw chunk hash；
+- 每次调用：记录 finite shape、raw exact-unit diagnostic、官方 consumer post-processing、quaternion norm error、latency 和 raw/canonical hash；
 - 每 300 次调用：保存一个 quarantined action sample；
 - 输出：压缩 per-call JSONL、sparse NPZ、场景级 P50/P95/P99/max、peak VRAM 和 cleanup evidence；
 - 禁止：训练、MuJoCo dynamics、Adaptive-ON、真机动作和修改其他 GPU process。
 
-启动后第一个公开 heartbeat：93.42 秒内完成 301 次调用，301/301 finite、0/301 raw contract、301/301 bounded analysis；allocated GPU memory used 8,665 MiB，瞬时 utilization 68%。这只是运行中状态，不是最终结果。作业将在完成四小时真实 inference 后正常释放，或在任一异常时提前 fail-closed。
+启动后第一个公开 heartbeat：93.42 秒内完成 301 次调用，301/301 finite、0/301 raw exact-unit、301/301 官方 consumer post-processing 可用；allocated GPU memory used 8,665 MiB，瞬时 utilization 68%。这是由旧 runner 字段保存的运行中状态，最终同步时将进行无损字段迁移；作业将在完成四小时真实 inference 后正常释放，或在任一异常时提前 fail-closed。
 
 证据：`results/lgg100_slurm_q05_soak_status_20260824.json`。

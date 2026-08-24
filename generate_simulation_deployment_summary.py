@@ -325,6 +325,7 @@ def build() -> str:
     retiming_safety = load("retiming_safety_validation.json")
     current_connectivity = load("current_robot_gpu_readonly_preflight_20260822.json")
     current_robot = load("g1_robot_connection_live_status_20260824.json")
+    lowstate = load("g1_lowstate_readonly_capture_20260824.json")
     current_l40s = load("current_l40s_login_gpu_inventory_20260823.json")
     ab_gpu_plan = load("lgg100_adaptive_ab_gpu_experiment_plan.json")
     q0 = load("lgg100_slurm_q0_output_only_20260824.json")
@@ -499,11 +500,11 @@ def build() -> str:
                 "Mac→开发机 192.168.1.13→机器人 192.168.123.164 登录成功。",
                 "建立独立 L40S ControlMaster、keeper 和 loopback tunnel。",
             ],
-            "result": ["2026-08-24 当前复查：operator gateway 与机器人内部 authenticated nested shell 均已建立。", "只读 inventory：aarch64、Ubuntu 22.04、Tegra 5.15；2 个 active network interfaces。", "system Python 未发现 unitree_sdk2py；只观察到 C++ SDK2 tree，LowState 尚未订阅。", f"robot_connection_available={str(current_robot['decision']['robot_connection_available']).lower()}。"],
-            "meaning": ["当前具备真实机器人内部 read-only shell。", "连接成功不等于 DDS contract、LowState 或动作权限；g1_execution_enabled=false。"],
-            "missing": ["建立经过静态审计的 subscriber-only Python environment。", "固定样本 LowState→FK→current-pose IK→safety zero-motion evidence。", "机器人内部实时 supervisor 与稳定链路测试。"],
-            "next": ["先审计现有 C++ SDK 与 conda environments；随后只部署 subscriber-only adapter，不创建 Publisher。"],
-            "evidence": ["results/g1_robot_connection_live_status_20260824.json", "UNITREE_G1_SDK_READONLY.md", "CONNECTION_RUNBOOK.md"],
+            "result": ["2026-08-24 当前复查：operator gateway 与机器人内部 authenticated nested shell 均已建立。", "只读 inventory：aarch64、Ubuntu 22.04、Tegra 5.15；隔离 subscriber-only Python environment 已按 pinned SDK/adapter 建立。", f"真实 LowState 固定读取：{lowstate['capture']['captured_samples']}/{lowstate['capture']['requested_samples']} samples，Publisher/command=false。", f"robot_connection_available={str(current_robot['decision']['robot_connection_available']).lower()}。"],
+            "meaning": ["当前具备真实机器人内部 read-only shell 和真实反馈证据。", "连接与 LowState 成功仍不等于 pelvis-frame FK、zero-motion Shadow 或动作权限；g1_execution_enabled=false。"],
+            "missing": ["处理 reader take-sample error、duplicate ticks 与 mode/unit semantics。", "补充 waist state 后完成 LowState→FK→current-pose IK→safety zero-motion evidence。", "机器人内部实时 supervisor 与稳定链路测试。"],
+            "next": ["先扩展 subscriber-only capture contract，加入 waist state 并离线回归；不得创建 Publisher。"],
+            "evidence": ["results/g1_lowstate_readonly_capture_20260824.json", "results/g1_robot_connection_live_status_20260824.json", "UNITREE_G1_SDK_READONLY.md"],
         },
         {
             "domain": "REAL ROBOT", "id": "H1", "title": "Unitree SDK / LowState", "status": "partial", "label": "本地完成",
@@ -512,11 +513,11 @@ def build() -> str:
                 "确认 G1 使用 unitree_hg、rt/lowstate，双臂索引 15–28。",
                 "实现 subscriber-only adapter 和 AST 禁写测试。",
             ],
-            "result": ["本地 extraction/fail-closed 测试通过。", "SDK 未上传、未安装、未在机器人初始化 DDS。", "官方运动示例被明确禁止。"],
-            "meaning": ["有可审计的真实反馈读取代码。", "还没有任何真实 LowState 样本。"],
-            "missing": ["Python/CycloneDDS/SDK/网卡 inventory。", "29-DOF variant、单位、IMU 顺序、tick 和 freshness 真机验证。"],
-            "next": ["独立确认后执行只读 inventory，再决定是否运行固定样本 subscriber。"],
-            "evidence": ["UNITREE_G1_SDK_READONLY.md", "g1_unitree_lowstate.py", "results/unitree_g1_sdk2_readonly_audit_20260818.json"],
+            "result": [f"真实 rt/lowstate 读取 {lowstate['capture']['captured_samples']}/{lowstate['capture']['requested_samples']} samples；callback overflow={lowstate['capture']['callback_overflow']}。", f"接收 gap median/max={lowstate['capture']['timing_gap_ms']['median']:.3f}/{lowstate['capture']['timing_gap_ms']['max']:.3f} ms；duplicate ticks={lowstate['capture']['tick']['duplicate_sample_count']}。", "观察到一次 reader take-sample error；Publisher、mode change、robot command 均为 false。"],
+            "meaning": ["subscriber-only 真实反馈链已首次闭合。", "DDS freshness 和 state contract 仍是部分通过，不能升级 zero-motion 或动作权限。"],
+            "missing": ["官方 units、IMU quaternion order、mode semantics 的物理确认。", "waist motor state 与 pelvis-frame FK parity。", "重复批次、stale/断线 fault injection。"],
+            "next": ["先修改并本地测试 subscriber schema，加入 waist state；再进行第二个固定只读 capture。"],
+            "evidence": ["results/g1_lowstate_readonly_capture_20260824.json", "UNITREE_G1_SDK_READONLY.md", "g1_unitree_lowstate.py"],
         },
         {
             "domain": "REAL ROBOT", "id": "H2", "title": "相机、Dex1 与物理标定", "status": "blocked", "label": "缺数据",
@@ -537,14 +538,14 @@ def build() -> str:
                 "本地 8000 tunnel 已监听，但远端 policy port 8000 关闭，LGG100 server 不可用。",
                 f"Q0 已在 1 张 Slurm 分配的空闲 L40S 上完成：{q0['output_only_probe']['finite_shape_passes']}/{q0['output_only_probe']['formal_draws']} finite [32,16]，实际运行 {q0['scheduler']['actual_runtime_s']} 秒并提前释放。",
                 f"Q0 warm latency P50/P95={q0['output_only_probe']['latency_ms']['p50']:.2f}/{q0['output_only_probe']['latency_ms']['p95']:.2f} ms；peak VRAM={q0['output_only_probe']['peak_memory_used_mib']/1024:.2f} GiB。",
-                f"raw contract={q0['output_only_probe']['raw_contract_passes']}/{q0['output_only_probe']['formal_draws']}；bounded analysis={q0['output_only_probe']['bounded_analysis_available']}/{q0['output_only_probe']['formal_draws']}。",
+                f"raw quaternion exact-unit={q0['output_only_probe']['raw_quaternion_exact_unit_passes']}/{q0['output_only_probe']['formal_draws']}；官方 consumer post-processing={q0['output_only_probe']['official_consumer_postprocess_passes']}/{q0['output_only_probe']['formal_draws']}。",
                 f"独立 Q0.5 当前 RUNNING：1 张 L40S，Near/Mixed/Far，{q05['workload']['target_rate_hz']} Hz，目标真实 inference {q05['scheduler']['target_inference_duration_s']/3600:.0f} 小时。",
                 f"首个 heartbeat：{q05['latest_heartbeat']['completed_calls']} 次调用，{q05['latest_heartbeat']['finite_shape_passes']}/{q05['latest_heartbeat']['completed_calls']} finite，GPU utilization={q05['latest_heartbeat']['allocated_gpu_utilization_percent']}%。",
             ],
-            "meaning": ["冻结 checkpoint strict restore 与 Q0 output-only inference 通过。", "Q0.5 用真实多场景 inference 调查 endurance 和 raw quaternion gap，不是 dummy occupancy。", "运行中 heartbeat 不是最终结果；g1_contract_verified=false、g1_sim_eligible=false。"],
-            "missing": ["Q0.5 完成四小时或 fail-closed 后的最终汇总。", "解释 raw quaternion norm gap，不能静默修改 action samples。", "完整 32-step、多 chunk sequential IK、swept-path 和 commit latency ≤100 ms。"],
+            "meaning": ["冻结 checkpoint strict restore 与 Q0 output-only inference 通过。", "Yuhao pinned deployment code 明确在 IK 前归一化预测 quaternion；Q0 官方 consumer boundary 30/30 通过。", "Q0.5 用真实多场景 inference 调查 endurance，不是 dummy occupancy；运行中 heartbeat 不是最终结果，g1_sim_eligible=false。"],
+            "missing": ["Q0.5 完成四小时或 fail-closed 后的最终汇总。", "固定 deployment code 中 15 Hz 默认值与 30 Hz help text 冲突的实验 manifest。", "完整 32-step、多 chunk sequential IK、swept-path 和 commit latency ≤100 ms。"],
             "next": ["不干预正在运行的 bounded job；完成后冻结结果，再继续 G3，前置 Gate 通过后才申请 Q1。"],
-            "evidence": ["results/lgg100_slurm_q05_soak_status_20260824.json", "results/lgg100_slurm_q0_output_only_20260824.json", "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md"],
+            "evidence": ["results/yuhao_g1_client_deployment_audit_20260824.json", "results/lgg100_slurm_q05_soak_status_20260824.json", "results/lgg100_slurm_q0_output_only_20260824.json", "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md"],
         },
         {
             "domain": "REAL ROBOT", "id": "H4", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",

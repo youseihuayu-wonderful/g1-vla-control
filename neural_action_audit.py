@@ -1,8 +1,11 @@
-"""Explicit audit of raw neural 16-D chunks before semantic validation.
+"""Audit raw LGG100 actions and apply the documented consumer boundary.
 
-Bounded quaternion normalization is produced only as a quarantined analysis
-artifact. It does not prove channel order, frame, units, absolute/delta
-semantics, EEF site, timing, or simulation/hardware eligibility.
+Yuhao's pinned ``UnitreeG1EEFOutputs`` transform explicitly states that neural
+quaternions are not guaranteed to be unit norm and that consumers should
+normalize ``q[3:7]`` and ``q[10:14]`` before IK. This module preserves and
+hashes the raw chunk, performs only that bounded quaternion projection, and
+validates the resulting canonical action. It does not by itself qualify IK,
+collision, timing, simulation dynamics, or hardware execution.
 """
 
 from __future__ import annotations
@@ -15,8 +18,9 @@ import numpy as np
 from g1_policy_contract import (
     ACTION_DIM,
     ACTION_HORIZON,
-    GRIPPER_RANGE_RAD,
+    MAXIMUM_RAW_QUATERNION_NORM_ERROR,
     QUATERNION_NORM_TOLERANCE,
+    canonicalize_policy_action_chunk,
     validate_action_chunk,
 )
 
@@ -24,18 +28,36 @@ from g1_policy_contract import (
 @dataclass(frozen=True)
 class NeuralActionAudit:
     raw_actions: np.ndarray
-    canonicalized_actions_for_analysis: np.ndarray | None
+    official_postprocessed_actions: np.ndarray | None
     finite_shape_passed: bool
-    raw_contract_passed: bool
-    bounded_quaternion_normalization_passed: bool
+    raw_quaternion_exact_unit_passed: bool
+    official_consumer_postprocess_passed: bool
     normalization_applied: bool
     raw_max_quaternion_norm_error: float | None
     maximum_quaternion_component_adjustment: float | None
     raw_sha256: str | None
-    canonicalized_sha256: str | None
+    official_postprocessed_sha256: str | None
     reasons: tuple[str, ...]
     simulation_eligible: bool = False
     hardware_eligible: bool = False
+
+    # Compatibility aliases keep historical readers functional while making
+    # clear that these old names must not be interpreted as the model contract.
+    @property
+    def canonicalized_actions_for_analysis(self) -> np.ndarray | None:
+        return self.official_postprocessed_actions
+
+    @property
+    def raw_contract_passed(self) -> bool:
+        return self.raw_quaternion_exact_unit_passed
+
+    @property
+    def bounded_quaternion_normalization_passed(self) -> bool:
+        return self.official_consumer_postprocess_passed
+
+    @property
+    def canonicalized_sha256(self) -> str | None:
+        return self.official_postprocessed_sha256
 
 
 def _sha256(array: np.ndarray) -> str:
@@ -46,13 +68,14 @@ def audit_neural_action_chunk(
     actions,
     *,
     expected_horizon: int = ACTION_HORIZON,
-    permit_bounded_normalization_for_analysis: bool = True,
-    maximum_normalizable_norm_error: float = 0.01,
+    permit_official_consumer_postprocessing: bool = True,
+    maximum_normalizable_norm_error: float = MAXIMUM_RAW_QUATERNION_NORM_ERROR,
 ) -> NeuralActionAudit:
-    """Audit raw output and optionally create a quarantined normalized copy.
+    """Audit raw output and apply the pinned official consumer projection.
 
-    The returned canonicalized copy is for semantic comparison only. Both
-    simulation_eligible and hardware_eligible deliberately remain false.
+    A passing post-processing result establishes only the canonical action
+    boundary. ``simulation_eligible`` and ``hardware_eligible`` remain false
+    until their independent gates pass.
     """
     raw = np.asarray(actions, dtype=np.float64)
     reasons: list[str] = []
@@ -66,90 +89,81 @@ def audit_neural_action_chunk(
         if raw.size and not np.all(np.isfinite(raw)):
             reasons.append("non_finite_output")
         return NeuralActionAudit(
-            raw, None, False, False, False, False, None, None,
-            _sha256(raw) if raw.size else None, None, tuple(reasons),
+            raw_actions=raw,
+            official_postprocessed_actions=None,
+            finite_shape_passed=False,
+            raw_quaternion_exact_unit_passed=False,
+            official_consumer_postprocess_passed=False,
+            normalization_applied=False,
+            raw_max_quaternion_norm_error=None,
+            maximum_quaternion_component_adjustment=None,
+            raw_sha256=_sha256(raw) if raw.size else None,
+            official_postprocessed_sha256=None,
+            reasons=tuple(reasons),
         )
-
-    low, high = GRIPPER_RANGE_RAD
-    grippers_ok = bool(
-        np.all(raw[:, 14:16] >= low) and np.all(raw[:, 14:16] <= high)
-    )
-    if not grippers_ok:
-        reasons.append("gripper_outside_contract_range")
 
     norms = np.concatenate((
         np.linalg.norm(raw[:, 3:7], axis=1),
         np.linalg.norm(raw[:, 10:14], axis=1),
     ))
     maximum_error = float(np.max(np.abs(norms - 1.0)))
-    minimum_norm = float(np.min(norms))
-    raw_contract_passed = False
-    try:
-        validate_action_chunk(raw, expected_horizon=expected_horizon)
-        raw_contract_passed = True
-    except ValueError as exc:
-        reasons.append(f"raw_contract:{exc}")
+    raw_exact_unit = bool(maximum_error <= QUATERNION_NORM_TOLERANCE)
+    if not raw_exact_unit:
+        reasons.append("raw_quaternion_not_exactly_unit_before_required_postprocessing")
 
-    if raw_contract_passed:
-        canonical = raw.copy()
+    if not permit_official_consumer_postprocessing:
+        reasons.append("official_consumer_postprocessing_not_permitted")
         return NeuralActionAudit(
             raw_actions=raw,
-            canonicalized_actions_for_analysis=canonical,
+            official_postprocessed_actions=None,
             finite_shape_passed=True,
-            raw_contract_passed=True,
-            bounded_quaternion_normalization_passed=True,
+            raw_quaternion_exact_unit_passed=raw_exact_unit,
+            official_consumer_postprocess_passed=False,
             normalization_applied=False,
             raw_max_quaternion_norm_error=maximum_error,
-            maximum_quaternion_component_adjustment=0.0,
+            maximum_quaternion_component_adjustment=None,
             raw_sha256=_sha256(raw),
-            canonicalized_sha256=_sha256(canonical),
+            official_postprocessed_sha256=None,
             reasons=tuple(reasons),
         )
 
-    bounded = bool(
-        permit_bounded_normalization_for_analysis
-        and grippers_ok
-        and minimum_norm > 1e-6
-        and maximum_error <= maximum_normalizable_norm_error
-    )
-    if not bounded:
-        if not permit_bounded_normalization_for_analysis:
-            reasons.append("analysis_normalization_not_permitted")
-        elif minimum_norm <= 1e-6:
-            reasons.append("zero_or_near_zero_quaternion")
-        elif maximum_error > maximum_normalizable_norm_error:
-            reasons.append("quaternion_error_above_analysis_bound")
-        return NeuralActionAudit(
-            raw, None, True, False, False, False, maximum_error, None,
-            _sha256(raw), None, tuple(reasons),
-        )
-
-    canonical = raw.copy()
-    for quaternion_slice in (slice(3, 7), slice(10, 14)):
-        quaternion_norms = np.linalg.norm(
-            canonical[:, quaternion_slice], axis=1, keepdims=True
-        )
-        canonical[:, quaternion_slice] /= quaternion_norms
-    adjustment = float(np.max(np.abs(canonical - raw)))
     try:
+        canonical = canonicalize_policy_action_chunk(
+            raw,
+            expected_horizon=expected_horizon,
+            maximum_quaternion_norm_error=maximum_normalizable_norm_error,
+        )
         validate_action_chunk(canonical, expected_horizon=expected_horizon)
     except ValueError as exc:
-        reasons.append(f"canonicalized_contract:{exc}")
+        reasons.append(f"official_consumer_postprocessing_rejected:{exc}")
         return NeuralActionAudit(
-            raw, None, True, False, False, True, maximum_error, adjustment,
-            _sha256(raw), None, tuple(reasons),
+            raw_actions=raw,
+            official_postprocessed_actions=None,
+            finite_shape_passed=True,
+            raw_quaternion_exact_unit_passed=raw_exact_unit,
+            official_consumer_postprocess_passed=False,
+            normalization_applied=False,
+            raw_max_quaternion_norm_error=maximum_error,
+            maximum_quaternion_component_adjustment=None,
+            raw_sha256=_sha256(raw),
+            official_postprocessed_sha256=None,
+            reasons=tuple(reasons),
         )
-    reasons.append("quaternion_normalized_for_quarantined_analysis_only")
+
+    adjustment = float(np.max(np.abs(canonical - raw)))
+    normalization_applied = not np.array_equal(canonical, raw)
+    if normalization_applied:
+        reasons.append("official_consumer_quaternion_normalization_applied")
     return NeuralActionAudit(
         raw_actions=raw,
-        canonicalized_actions_for_analysis=canonical,
+        official_postprocessed_actions=canonical,
         finite_shape_passed=True,
-        raw_contract_passed=False,
-        bounded_quaternion_normalization_passed=True,
-        normalization_applied=True,
+        raw_quaternion_exact_unit_passed=raw_exact_unit,
+        official_consumer_postprocess_passed=True,
+        normalization_applied=normalization_applied,
         raw_max_quaternion_norm_error=maximum_error,
         maximum_quaternion_component_adjustment=adjustment,
         raw_sha256=_sha256(raw),
-        canonicalized_sha256=_sha256(canonical),
+        official_postprocessed_sha256=_sha256(canonical),
         reasons=tuple(reasons),
     )

@@ -118,24 +118,22 @@ def main() -> None:
             latencies.append(latency_ms)
             contract_valid = False
             contract_error = None
-            bounded_normalization_passed = False
+            raw_quaternion_exact_unit = False
             normalization_applied = False
             maximum_quaternion_adjustment = None
-            canonicalized_sha256 = None
+            official_postprocessed_sha256 = None
             if finite and shape_ok:
                 chunks.append(actions.copy())
                 audit = audit_neural_action_chunk(
                     actions, expected_horizon=ACTION_HORIZON
                 )
-                contract_valid = audit.raw_contract_passed
-                bounded_normalization_passed = (
-                    audit.bounded_quaternion_normalization_passed
-                )
+                raw_quaternion_exact_unit = audit.raw_quaternion_exact_unit_passed
+                contract_valid = audit.official_consumer_postprocess_passed
                 normalization_applied = audit.normalization_applied
                 maximum_quaternion_adjustment = (
                     audit.maximum_quaternion_component_adjustment
                 )
-                canonicalized_sha256 = audit.canonicalized_sha256
+                official_postprocessed_sha256 = audit.official_postprocessed_sha256
                 if not contract_valid:
                     contract_error = "; ".join(audit.reasons)
             left_norm = np.linalg.norm(actions[:, 3:7], axis=1) if shape_ok else np.array([])
@@ -148,10 +146,11 @@ def main() -> None:
                 "valid_16d_chunk": shape_ok,
                 "g1_action_contract_valid": contract_valid,
                 "g1_action_contract_error": contract_error,
-                "bounded_quaternion_normalization_for_analysis_passed": bounded_normalization_passed,
-                "quaternion_normalization_applied_for_analysis": normalization_applied,
+                "raw_quaternion_exact_unit_passed": raw_quaternion_exact_unit,
+                "official_consumer_postprocess_passed": contract_valid,
+                "official_consumer_normalization_applied": normalization_applied,
                 "maximum_quaternion_component_adjustment": maximum_quaternion_adjustment,
-                "canonicalized_action_sha256": canonicalized_sha256,
+                "official_postprocessed_action_sha256": official_postprocessed_sha256,
                 "action_min": float(actions.min()) if actions.size else None,
                 "action_max": float(actions.max()) if actions.size else None,
                 "left_quaternion_norm_range": [float(left_norm.min()), float(left_norm.max())] if left_norm.size else None,
@@ -181,8 +180,8 @@ def main() -> None:
     output_contract_valid_calls = sum(
         bool(record.get("g1_action_contract_valid")) for record in records
     )
-    bounded_normalization_calls = sum(
-        bool(record.get("bounded_quaternion_normalization_for_analysis_passed"))
+    raw_quaternion_exact_unit_calls = sum(
+        bool(record.get("raw_quaternion_exact_unit_passed"))
         for record in records
     )
     neural_output_passed = bool(
@@ -198,9 +197,10 @@ def main() -> None:
     g1_contract_verified = all(
         metadata.get(key) == value for key, value in expected_contract.items()
     )
-    g1_sim_eligible = bool(
+    ready_for_sequential_preflight = bool(
         structural_output_passed and g1_contract_verified
     )
+    g1_sim_eligible = False
     latency_array = np.asarray(latencies, dtype=np.float64)
     latency_summary = {
         "p50": float(np.quantile(latency_array, 0.50)),
@@ -217,6 +217,7 @@ def main() -> None:
         "g1_policy_contract_sha256": CONTRACT_SHA256,
         "g1_contract_verified": g1_contract_verified,
         "g1_sim_eligible": g1_sim_eligible,
+        "ready_for_sequential_preflight": ready_for_sequential_preflight,
         "g1_execution_enabled": False,
         "adaptive_retimer_enabled": False,
         "checkpoint": {"repo": HF_REPO, "revision": HF_REVISION},
@@ -227,22 +228,24 @@ def main() -> None:
             "neural_output_passed": neural_output_passed,
             "structural_output_passed": structural_output_passed,
             "g1_sim_eligible": g1_sim_eligible,
+            "ready_for_sequential_preflight": ready_for_sequential_preflight,
             "calls": args.calls,
             "valid_calls": valid_calls,
             "output_contract_valid_calls": output_contract_valid_calls,
-            "bounded_normalization_for_analysis_calls": bounded_normalization_calls,
+            "raw_quaternion_exact_unit_calls": raw_quaternion_exact_unit_calls,
+            "official_consumer_postprocess_calls": output_contract_valid_calls,
             "warmup_errors": warmup_errors,
             "unique_action_shapes": [list(shape) for shape in sorted(shapes)],
             "latency_ms": latency_summary,
         },
         "calls": records,
         "verdict": (
-            "Neural output passed, but strict structural validation failed. A quarantined raw/analysis artifact is saved; do not execute it."
+            "Neural output passed, but the documented official consumer boundary rejected the action. Do not execute it."
             if neural_output_passed and not structural_output_passed else
             "Neural and structural output passed, but semantics are not verified against the frozen G1 EDU contract. Keep output-only; simulation and hardware remain blocked."
-            if structural_output_passed and not g1_sim_eligible else
-            "Neural output and frozen G1 contract both passed; the artifact may proceed to G1 preflight, never directly to hardware."
-            if g1_sim_eligible else
+            if structural_output_passed and not ready_for_sequential_preflight else
+            "Neural output and the pinned G1 action contract passed; the artifact may proceed to sequential preflight, never directly to hardware."
+            if ready_for_sequential_preflight else
             "Restore/inference gate failed. Do not execute the chunk in simulation or hardware."
         ),
     }
@@ -270,9 +273,9 @@ def main() -> None:
             "quarantined": np.asarray(not g1_sim_eligible),
             "source_report": np.asarray(str(args.output)),
         }
-        if selected_audit.canonicalized_actions_for_analysis is not None:
-            payload["canonicalized_actions_for_analysis"] = (
-                selected_audit.canonicalized_actions_for_analysis
+        if selected_audit.official_postprocessed_actions is not None:
+            payload["official_postprocessed_actions"] = (
+                selected_audit.official_postprocessed_actions
             )
         args.chunk_output.parent.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(args.chunk_output, **payload)

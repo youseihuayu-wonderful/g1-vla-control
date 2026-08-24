@@ -1,0 +1,87 @@
+{
+  "schema_version": "yuhao_g1_client_deployment_audit_v1",
+  "timestamp": "2026-08-24T14:30:00-04:00",
+  "repository": "https://github.com/leihao100/g1-client",
+  "audited_commit": "1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+  "license_file_found_at_repository_root": false,
+  "files": {
+    "openpi/main_eef.py": "1a264d55c8c84bcad912c5d335787c2c24eb0a7513f3e2c369337df08b646bfd",
+    "openpi/eef_kinematics.py": "1653c374535505738755872c64899b42ae99c576be3838487f8dc222137980e2",
+    "openpi/openpi_policy.py": "0e4f2e7ee31fc799a8e2114d3f7e00d6b06cfd9a6ae8354c65750b2e42916ce3",
+    "g1_client/arm_controller.py": "33836a196eb1f67848276426aa2e56ee55d3a196e768ae8c166c0295745bebd9",
+    "g1_client/gripper_controller.py": "65bc74ab310a02b23df6d0610a64a86606517bb88958d8542606b8266d8f8375",
+    "README.md": "b44ae5b75bd12ce58969ff7661aca9aa1b47905f87d8004b8ae4e973ea729dbb"
+  },
+  "model_and_action_contract": {
+    "trained_eef_openpi_policy_explicitly_supported": true,
+    "model_config": "pi05_g1_eef",
+    "action_shape": [32, 16],
+    "action_semantics": "absolute pelvis-frame EEF",
+    "channel_order": "left_xyz_xyzw,right_xyz_xyzw,left_gripper,right_gripper",
+    "eef_offset_m": [0.05, 0.0, 0.0],
+    "raw_predicted_quaternion_guaranteed_unit_norm": false,
+    "consumer_normalizes_quaternion_before_ik": true,
+    "consumer_minimum_quaternion_norm": 0.000001
+  },
+  "deployment_loop": {
+    "type": "stateless receding horizon with one-chunk prefetch",
+    "exec_steps_code_default": 0,
+    "exec_steps_meaning": "full remaining horizon",
+    "prefetch_lead_steps_code_default": 5,
+    "blend_steps_code_default": 5,
+    "time_alignment_code_default": true,
+    "blend_space": "joint space after IK",
+    "control_hz_code_default": 15.0,
+    "control_hz_help_text_claim": 30.0,
+    "control_hz_resolved": false
+  },
+  "ik_reference": {
+    "library": "Pinocchio",
+    "reduced_dof": 14,
+    "waist_legs_fingers_locked": true,
+    "warm_started": true,
+    "maximum_iterations": 20,
+    "tolerance": 0.00001,
+    "damping": 1e-8,
+    "deployment_warning_position_residual_m": 0.02,
+    "warning_is_fail_closed": false,
+    "orientation_acceptance_threshold_present": false,
+    "swept_path_collision_preflight_present": false
+  },
+  "publisher_risk": {
+    "contains_channel_publisher": true,
+    "contains_lowcmd": true,
+    "takes_arm_sdk_authority": true,
+    "publishes_arm_targets": true,
+    "publishes_dex1_targets": true,
+    "moves_to_ready_pose_on_start": true,
+    "gripper_close_open_on_start": true,
+    "required_motion_mode": "ai",
+    "safe_to_run_in_current_damping_readonly_session": false,
+    "entrypoints_prohibited_on_connected_robot": [
+      "openpi/main_eef.py",
+      "openpi/main.py",
+      "openpi/replay.py"
+    ]
+  },
+  "contract_correction": {
+    "previous_raw_contract_label_accurate": false,
+    "correct_raw_metric": "raw_quaternion_exact_unit_passes",
+    "correct_consumer_metric": "official_consumer_postprocess_passes",
+    "quaternion_gap_blocks_adaptive_off": false,
+    "new_contract_version": "1.3.0",
+    "new_contract_sha256": "94fb9bd91f6efd3de74e39d2bad4bdd38523273a499448151622f607530ac0f3"
+  },
+  "decision": {
+    "checkpoint_is_trained": true,
+    "retraining_required": false,
+    "official_consumer_postprocessing_recovered": true,
+    "deployment_schedule_reference_recovered": true,
+    "adaptive_off_output_only_available": true,
+    "adaptive_off_closed_loop_passed": false,
+    "g1_sim_eligible": false,
+    "g1_execution_enabled": false,
+    "hardware_execution_performed": false,
+    "reason": "The trained checkpoint and deployment reference are established. The reference publisher is not fail-closed for project thresholds and must not be run on the connected robot; multi-chunk IK/swept-path, explicit cadence, latency, and watchdog gates remain."
+  }
+}

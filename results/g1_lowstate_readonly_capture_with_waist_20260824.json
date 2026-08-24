@@ -1,0 +1,88 @@
+{
+  "schema_version": "g1_lowstate_readonly_capture_with_waist_summary_v1",
+  "timestamp": "2026-08-24T13:56:00-04:00",
+  "scope": "Second real G1 subscriber-only LowState capture with waist and arm motor states; no command publication.",
+  "physical_safety_attestation": {
+    "damping_confirmed_by_operator": true,
+    "support_confirmed_by_operator": true,
+    "estop_confirmed_by_operator": true
+  },
+  "environment": {
+    "isolated_readonly_environment": true,
+    "python_version": "3.10.20",
+    "official_sdk_commit": "65691c8a8bc53b98d3976dba4dbf9d5d20b2e7f5",
+    "adapter_commit": "d62372a6b7d12f9bdb298dc2fc616262d806d1ae",
+    "adapter_sha256": "77ef92236aab603d9398240e195b9e9aa18758a01ef125ab1b5d77e9641edf70",
+    "cyclonedds_version": "0.10.2"
+  },
+  "capture": {
+    "schema_version": "g1_unitree_lowstate_readonly_v2",
+    "topic": "rt/lowstate",
+    "requested_samples": 100,
+    "captured_samples": 100,
+    "success": true,
+    "callback_overflow": 0,
+    "reader_take_sample_errors_observed": 7,
+    "timing_gap_ms": {
+      "count": 99,
+      "min": 0.020801,
+      "median": 1.724712,
+      "max": 3.98534
+    },
+    "tick": {
+      "unique": 96,
+      "duplicate_sample_count": 4,
+      "decrease_count": 0
+    },
+    "waist_joint_names": [
+      "waist_yaw_joint",
+      "waist_roll_joint",
+      "waist_pitch_joint"
+    ],
+    "waist_q_range_rad": [-0.11223391443490982, 0.0270841084420681],
+    "arm_q_range_rad": [-0.12796755135059357, 1.2921751737594604],
+    "last_sample": {
+      "tick": 2692982,
+      "waist_q": {
+        "waist_yaw_joint": -0.002852473873645067,
+        "waist_roll_joint": 0.026992905884981155,
+        "waist_pitch_joint": -0.11220797151327133
+      },
+      "arm_q": {
+        "left_shoulder_pitch_joint": 0.2419615089893341,
+        "left_shoulder_roll_joint": 0.06503839045763016,
+        "left_shoulder_yaw_joint": 0.013697969727218151,
+        "left_elbow_joint": 1.2152843475341797,
+        "left_wrist_roll_joint": 0.042520031332969666,
+        "left_wrist_pitch_joint": 0.13925670087337494,
+        "left_wrist_yaw_joint": -0.011181281879544258,
+        "right_shoulder_pitch_joint": 0.2566661536693573,
+        "right_shoulder_roll_joint": -0.0779334157705307,
+        "right_shoulder_yaw_joint": -0.0047217849642038345,
+        "right_elbow_joint": 1.2921391725540161,
+        "right_wrist_roll_joint": -0.12794359028339386,
+        "right_wrist_pitch_joint": 0.04772118479013443,
+        "right_wrist_yaw_joint": -0.010294449515640736
+      }
+    },
+    "raw_capture_sha256": "d3c94536b9c9d1b046f7d93fa6c4db751595d47b55414a651b380457f06e479d"
+  },
+  "safety": {
+    "subscriber_only": true,
+    "send_channel_created": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "decision": {
+    "waist_and_arm_capture_passed": true,
+    "offline_current_pose_fk_diagnostic_eligible": true,
+    "dds_freshness_fully_qualified": false,
+    "g1_contract_verified": false,
+    "zero_motion_shadow_eligible": false,
+    "robot_motion_allowed": false,
+    "reason": "Waist and arm states are now available for an offline numeric FK/IK diagnostic, but repeated reader errors, duplicate ticks, and unverified mode/unit/EEF semantics still block zero-motion Shadow and all action authority."
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

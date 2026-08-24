@@ -17,6 +17,7 @@
     "system_python_version": "3.14.6",
     "unitree_sdk2py_available_in_system_python": false,
     "unitree_sdk2_cpp_tree_present": true,
+    "isolated_subscriber_only_python_environment_ready": true,
     "conda_environments": ["base", "teleimager"]
   },
   "herdr_robot_readonly_pane": {
@@ -29,8 +30,10 @@
     "robot_connection_available": true,
     "readonly_inventory_completed": true,
     "lowstate_subscription_active": false,
+    "lowstate_fixed_capture_completed": true,
+    "lowstate_captured_samples": 100,
     "robot_motion_allowed": false,
-    "reason": "Authenticated robot shell and read-only inventory are available, but the audited Python subscriber environment is not installed and all motion gates remain closed."
+    "reason": "Authenticated shell, isolated subscriber environment, and a 100-sample LowState capture are available; mode/unit semantics, duplicate ticks, reader error, waist-state capture, FK, and all motion gates remain unresolved."
   },
   "robot_command_sent": false,
   "publisher_created": false,

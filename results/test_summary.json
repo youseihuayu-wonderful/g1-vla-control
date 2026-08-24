@@ -1,7 +1,7 @@
 {
-  "passed": 124,
+  "passed": 131,
   "failed": 0,
-  "total": 124,
+  "total": 131,
   "success": true,
-  "scope": "Local tests including the running four-hour multi-scenario Q0.5 output-only soak, completed Q0 evidence, fail-closed Slurm runners, frozen-checkpoint Adaptive A/B plan, public redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including pinned Yuhao training/deployment source attestation, official quaternion consumer post-processing, Q0/Q0.5 interpretation, fail-closed Slurm runners, public redaction, and hardware safety gates; GitHub Actions rerun pending."
 }

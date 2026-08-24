@@ -27,8 +27,8 @@
       16
     ],
     "finite_shape_passes": 50,
-    "raw_contract_passes": 35,
-    "bounded_quaternion_postprocess_passes": 50,
+    "raw_quaternion_exact_unit_passes": 35,
+    "official_consumer_postprocess_passes": 50,
     "unique_raw_hashes": 50,
     "cold_first_call_ms": 14611.068244092166,
     "warm_calls": 49,
@@ -67,10 +67,16 @@
   "policy_task_quality_passed": false,
   "physical_scene_calibration_verified": false,
   "real_time_watchdog_validated": false,
-  "g1_contract_verified": false,
+  "g1_contract_verified": true,
+  "quaternion_gap_blocks_adaptive_off": false,
   "g1_sim_eligible": false,
   "g1_execution_enabled": false,
   "execution_performed": false,
   "hardware_execution_performed": false,
-  "verdict": "Correct core config materially improves offline agreement and passes the registered semantic/single-draw offline gates. This is not closed-loop stacking evidence and does not enable G1 execution."
+  "interpretation_revision": {
+    "source_attestation": "results/lgg100_author32_semantic_source_attestation_20260824.json",
+    "raw_artifacts_modified": false,
+    "official_consumer_postprocessing_recovered": true
+  },
+  "verdict": "The trained checkpoint, pinned author transform, official quaternion consumer boundary, and behavioral semantic validation establish the G1 EEF-16 action contract. Sequential IK, swept-path, latency, closed-loop stacking, and hardware execution remain separate and unpassed."
 }

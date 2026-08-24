@@ -12,7 +12,7 @@ action_horizon: 32
 discrete_state_input: False
 ```
 
-公开 `openpi-fintune` 代码同时支持：
+公开 `openpi-fintune` 代码与 pinned `g1-client` deployment code 同时支持：
 
 - 三路 480×640 RGB 相机；
 - `resize_with_pad(224,224)`，而不是中心裁剪；
@@ -21,7 +21,7 @@ discrete_state_input: False
 - π0.5 quantile normalization；
 - 消费者在送入 IK 前归一化非零四元数。
 
-完整历史 TrainConfig 和精确 OpenPI commit 仍未公开。
+完整历史 TrainConfig 和精确 OpenPI commit 仍未公开；但训练 checkpoint、EEF transform、quaternion consumer boundary 和部署参考已经恢复。
 
 ## 2. 固定版本
 
@@ -39,8 +39,8 @@ discrete_state_input: False
 | 指标 | 结果 |
 |---|---:|
 | 输出形状和有限值 | 50/50，通过，均为 `[32,16]` |
-| 严格 raw quaternion contract | 35/50 |
-| 有界 quaternion 后处理可用 | 50/50 |
+| Raw quaternion exact-unit diagnostic | 35/50 |
+| 官方 consumer post-processing | 50/50 |
 | 唯一 raw output hash | 50/50 |
 | 冷启动首调用 | 14,611.1 ms |
 | 热调用 P50 | 80.52 ms |
@@ -50,7 +50,7 @@ discrete_state_input: False
 
 冷启动时间包含 JAX 编译，不能混入稳态延迟结论。热调用延迟只包含当前 output-only policy 调用，不包含完整的 render、网络、IK、swept preflight 和 command commit，因此不能据此声明实时 watchdog 已通过。
 
-35/50 raw 输出满足项目当前 `1e-3` quaternion norm tolerance。其余 15 个样本均满足固定的有界归一化分析条件；公开 `pi05_g1_eef` policy 明确要求消费者在 IK 前归一化四元数。原始输出与后处理输出分别保留 hash。该后处理不解锁真机执行。
+35/50 raw 输出满足项目当前 `1e-3` exact-unit diagnostic。其余 15 个样本通过有界官方 consumer boundary；公开 `pi05_g1_eef` training transform 与 deployment IK 都明确要求消费者在 IK 前归一化四元数。原始输出与 postprocessed 输出分别保留 hash。该结果验证 action contract，但不解锁 Simulation dynamics 或真机执行。
 
 ## 4. 语义与离线质量结果
 
@@ -104,6 +104,7 @@ center crop -> 224×224
 - 作者确认核心配置的严格参数恢复；
 - 50/50 `[32,16]` finite output；
 - 语义识别；
+- pinned official quaternion consumer post-processing；
 - 单次采样离线质量标准；
 - 59/59 自动化测试。
 
@@ -113,12 +114,12 @@ center crop -> 224×224
 policy_task_quality_passed=false
 physical_scene_calibration_verified=false
 real_time_watchdog_validated=false
-g1_contract_verified=false
+g1_contract_verified=true
 g1_sim_eligible=false
 g1_execution_enabled=false
 ```
 
-下一步应重新生成 horizon-32、new-contract-bound 的 MuJoCo observation、preflight 和 phase-speed artifacts，然后首先运行 Adaptive OFF 基础闭环。不能复用旧 horizon-50 的 canonical artifacts。
+下一步应按 contract v1.3 重新生成或无损迁移 horizon-32 artifacts，显式固定 deployment code 中存在歧义的 15/30 Hz cadence，再完成 full multi-chunk IK/swept-path；通过后首先运行 Adaptive-OFF 基础闭环。不能复用旧 horizon-50 artifacts。
 
 ## 7. 远端证据
 

@@ -1,6 +1,6 @@
 {
   "contract_id": "g1_edu_dual_dex1_eef_v1",
-  "contract_version": "1.2.0",
+  "contract_version": "1.3.0",
   "status": "project_frozen",
   "production_policy": {
     "model": "LGG100/stack-cube-eef-24k",
@@ -10,7 +10,13 @@
     "selection_status": "selected_by_user",
     "author_confirmation_provenance": "direct_communication_reported_by_project_owner",
     "complete_author_train_config_available": false,
-    "g1_semantic_verification": "core_model_config_author_confirmed_but_remaining_gates_blocked",
+    "g1_semantic_verification": "pinned_public_author_transform_and_behavioral_semantics_verified",
+    "official_action_consumer_postprocessing_verified": true,
+    "official_transform_repository": "https://github.com/leihao100/openpi-fintune",
+    "official_transform_commit": "29030046fd6a2810201db67b9804f243e0af3218",
+    "deployment_repository": "https://github.com/leihao100/g1-client",
+    "deployment_commit": "1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+    "deployment_entrypoint_reference_only": "openpi/main_eef.py",
     "simulation_execution_allowed": false,
     "hardware_execution_allowed": false
   },
@@ -29,7 +35,19 @@
     "action_horizon_author_confirmed": true,
     "experimental_comparison_action_horizon": 48,
     "public_offline_evaluator_action_index": 0,
-    "robot_replan_steps": "not_published",
+    "deployment_receding_horizon": {
+      "source": "openpi/main_eef.py@1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+      "exec_steps_code_default": 0,
+      "exec_steps_meaning": "execute_full_remaining_horizon",
+      "prefetch_lead_steps_code_default": 5,
+      "blend_steps_code_default": 5,
+      "time_alignment_code_default": true,
+      "blend_space": "joint_space_after_IK",
+      "control_hz_code_default": 15.0,
+      "control_hz_help_text_claim": 30.0,
+      "control_hz_status": "source_code_and_help_text_disagree_requires_explicit_experiment_manifest"
+    },
+    "robot_replan_steps": "deployment_code_is_configurable_and_defaults_to_full_remaining_horizon_with_prefetch",
     "maximum_observation_age_ms": 100.0,
     "maximum_policy_response_age_ms": 500.0,
     "simulation_timestep_s": 0.002,
@@ -85,7 +103,18 @@
     "gripper_range_rad": [0.0, 5.5],
     "gripper_direction": "0_closed_5.5_open",
     "quaternion_norm_tolerance": 0.001,
-    "quaternion_postprocessing": "normalize_each_nonzero_xyzw_before_IK_per_public_pi05_g1_eef_policy"
+    "raw_quaternion_exact_unit_required": false,
+    "maximum_raw_quaternion_norm_error_for_postprocessing": 0.01,
+    "minimum_raw_quaternion_norm_for_postprocessing": 0.000001,
+    "quaternion_postprocessing": "normalize_each_nonzero_xyzw_before_IK_per_public_pi05_g1_eef_policy",
+    "quaternion_postprocessing_source": "src/openpi/policies/unitree_eef_policy.py:L95-L103@29030046fd6a2810201db67b9804f243e0af3218; openpi/eef_kinematics.py:_xyzquat_to_se3@1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+    "postprocessing_invariants": [
+      "preserve_raw_action_and_sha256",
+      "only_quaternion_components_may_change",
+      "preserve_quaternion_sign",
+      "validate_canonical_action_before_IK",
+      "adaptive_retimer_receives_the_same_canonical_action_for_off_and_on"
+    ]
   },
   "eef_definition": {
     "left_parent_link": "left_wrist_yaw_link",

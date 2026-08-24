@@ -178,8 +178,9 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn("目标真实 inference 4 小时", plain)
         self.assertIn("不是 dummy occupancy", plain)
         self.assertIn("authenticated nested shell 均已建立", plain)
-        self.assertIn("system Python 未发现 unitree_sdk2py", plain)
-        self.assertIn("LowState 尚未订阅", plain)
+        self.assertIn("隔离 subscriber-only Python environment", plain)
+        self.assertIn("真实 LowState 固定读取：100/100 samples", plain)
+        self.assertIn("duplicate ticks=4", plain)
         self.assertIn("robot_connection_available=true", plain)
 
     def test_checked_report_keeps_hardware_gates_closed(self):

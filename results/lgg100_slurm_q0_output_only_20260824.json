@@ -1,5 +1,5 @@
 {
-  "schema_version": "lgg100_slurm_q0_output_only_v1",
+  "schema_version": "lgg100_slurm_q0_output_only_v2",
   "timestamp": "2026-08-24T07:57:12-07:00",
   "scope": "One scheduler-allocated L40S; frozen LGG100 checkpoint output-only qualification.",
   "scheduler": {
@@ -49,8 +49,14 @@
     "smoke_draws": 3,
     "formal_draws": 30,
     "finite_shape_passes": 30,
-    "raw_contract_passes": 0,
-    "bounded_analysis_available": 30,
+    "raw_quaternion_exact_unit_passes": 0,
+    "official_consumer_postprocess_passes": 30,
+    "official_consumer_postprocess_qualification_passed": true,
+    "legacy_metrics": {
+      "raw_contract_passes": 0,
+      "bounded_analysis_available": 30,
+      "note": "Deprecated labels retained only to preserve the original Q0 report interpretation."
+    },
     "raw_quaternion_norm_error_min": 0.006259601324303143,
     "raw_quaternion_norm_error_max": 0.0077575479813921655,
     "latency_ms": {
@@ -62,14 +68,25 @@
     "formal_report_sha256": "66ee070b4ccabf1aed57054c1a0bb0da326423b1cc84fcd568d12c639eef5265",
     "output_npz_sha256": "4f14b3fce849ade176693174c78c6f4ce022e417582c1561c7c6a47d6d1571db",
     "finite_shape_qualification_passed": true,
-    "raw_contract_qualification_passed": false
+    "raw_quaternion_exact_unit_qualification_passed": false,
+    "raw_exact_unit_required_by_official_consumer": false
   },
   "decision": {
     "q0_frozen_checkpoint_inference_passed": true,
-    "g1_contract_verified": false,
+    "g1_contract_verified": true,
     "g1_sim_eligible": false,
     "adaptive_off_closed_loop_authorized_by_this_result": false,
-    "reason": "Strict restore and 30/30 finite [32,16] inference passed, but raw chunks required bounded quaternion normalization for quarantined analysis; sequential IK, swept-path, latency, and closed-loop gates remain separate."
+    "quaternion_gap_blocks_adaptive_off": false,
+    "reason": "Strict restore, 30/30 finite [32,16], and 30/30 documented consumer quaternion post-processing passed. Exact-unit raw output is not required by Yuhao's pinned deployment transform. Sequential IK, swept-path, latency, and closed-loop gates remain separate."
+  },
+  "interpretation_revision": {
+    "timestamp": "2026-08-24T14:30:00-04:00",
+    "new_contract_version": "1.3.0",
+    "new_contract_sha256": "94fb9bd91f6efd3de74e39d2bad4bdd38523273a499448151622f607530ac0f3",
+    "author_transform_commit": "29030046fd6a2810201db67b9804f243e0af3218",
+    "deployment_commit": "1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+    "source": "results/yuhao_g1_client_deployment_audit_20260824.json",
+    "raw_artifact_bytes_modified": false
   },
   "cleanup": {
     "policy_server_stopped": true,

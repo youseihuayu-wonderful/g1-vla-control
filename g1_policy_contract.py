@@ -36,6 +36,15 @@ ACTION_DIM = int(CONTRACT["action"]["dimension"])
 POLICY_RATE_HZ = float(CONTRACT["timing"]["policy_rate_hz"])
 ACTION_HORIZON = int(CONTRACT["timing"]["action_horizon"])
 QUATERNION_NORM_TOLERANCE = float(CONTRACT["action"]["quaternion_norm_tolerance"])
+MAXIMUM_RAW_QUATERNION_NORM_ERROR = float(
+    CONTRACT["action"]["maximum_raw_quaternion_norm_error_for_postprocessing"]
+)
+MINIMUM_RAW_QUATERNION_NORM = float(
+    CONTRACT["action"]["minimum_raw_quaternion_norm_for_postprocessing"]
+)
+OFFICIAL_ACTION_POSTPROCESSING_SOURCE = str(
+    CONTRACT["action"]["quaternion_postprocessing_source"]
+)
 GRIPPER_RANGE_RAD = tuple(float(x) for x in CONTRACT["action"]["gripper_range_rad"])
 
 
@@ -106,6 +115,73 @@ def validate_observation(observation: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(prompt, str) or not prompt.strip():
         raise ValueError("G1 prompt must be a non-empty canonical instruction")
     return observation
+
+
+def validate_raw_policy_action_chunk(
+    actions: Any,
+    *,
+    expected_horizon: int | None = None,
+    maximum_quaternion_norm_error: float = MAXIMUM_RAW_QUATERNION_NORM_ERROR,
+) -> np.ndarray:
+    """Validate raw LGG100 output before the documented consumer projection.
+
+    Yuhao's pinned ``UnitreeG1EEFOutputs`` transform states that predicted
+    quaternions are not guaranteed to be unit norm and must be normalized by
+    the consumer before IK. Raw output must still be finite, correctly shaped,
+    nonzero, within the frozen safety bound, and preserve the Dex1 range.
+    """
+    actions = np.asarray(actions, dtype=np.float64)
+    if actions.ndim != 2 or actions.shape[1] != ACTION_DIM or len(actions) < 2:
+        raise ValueError(
+            f"Raw G1 policy actions must have shape (T,{ACTION_DIM}) with T>=2, got {actions.shape}"
+        )
+    if expected_horizon is not None and len(actions) != expected_horizon:
+        raise ValueError(
+            f"Raw G1 policy action horizon must be {expected_horizon}, got {len(actions)}"
+        )
+    if not np.all(np.isfinite(actions)):
+        raise ValueError("Raw G1 policy action chunk contains NaN/Inf")
+    low, high = GRIPPER_RANGE_RAD
+    if np.any(actions[:, 14:16] < low) or np.any(actions[:, 14:16] > high):
+        raise ValueError("Raw G1 policy Dex1 value is outside the contract range")
+    for quat_slice in (slice(3, 7), slice(10, 14)):
+        norms = np.linalg.norm(actions[:, quat_slice], axis=1)
+        if float(np.min(norms)) <= MINIMUM_RAW_QUATERNION_NORM:
+            raise ValueError("Raw G1 policy quaternion is zero or near zero")
+        maximum_error = float(np.max(np.abs(norms - 1.0)))
+        if maximum_error > maximum_quaternion_norm_error:
+            raise ValueError(
+                "Raw G1 policy quaternion norm error exceeds official-consumer "
+                f"safety bound: {maximum_error:.6f}"
+            )
+    return actions
+
+
+def canonicalize_policy_action_chunk(
+    actions: Any,
+    *,
+    expected_horizon: int | None = None,
+    maximum_quaternion_norm_error: float = MAXIMUM_RAW_QUATERNION_NORM_ERROR,
+) -> np.ndarray:
+    """Apply Yuhao's documented quaternion-only consumer post-processing."""
+    raw = validate_raw_policy_action_chunk(
+        actions,
+        expected_horizon=expected_horizon,
+        maximum_quaternion_norm_error=maximum_quaternion_norm_error,
+    )
+    canonical = raw.copy()
+    for quat_slice in (slice(3, 7), slice(10, 14)):
+        norms = np.linalg.norm(canonical[:, quat_slice], axis=1, keepdims=True)
+        canonical[:, quat_slice] /= norms
+    validate_action_chunk(canonical, expected_horizon=expected_horizon)
+    # The official consumer boundary is quaternion-only. Enforce that invariant
+    # independently of the implementation above so future edits fail closed.
+    non_quaternion = np.ones(ACTION_DIM, dtype=bool)
+    non_quaternion[3:7] = False
+    non_quaternion[10:14] = False
+    if not np.array_equal(canonical[:, non_quaternion], raw[:, non_quaternion]):
+        raise RuntimeError("Official consumer post-processing changed non-quaternion actions")
+    return canonical
 
 
 def validate_action_chunk(

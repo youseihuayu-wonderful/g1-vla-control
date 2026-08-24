@@ -234,7 +234,8 @@ def main() -> None:
         semantic.get("semantic_identification_supported") is not True
         or semantic.get("g1_policy_contract_id") != CONTRACT_ID
         or semantic.get("g1_policy_contract_sha256") != CONTRACT_SHA256
-        or semantic.get("g1_contract_verified") is not False
+        or semantic.get("g1_contract_verified") is not True
+        or semantic.get("g1_sim_eligible") is not False
     ):
         raise ValueError("semantic identification evidence is not suitable")
     phase_binding_matches = bool(
@@ -329,7 +330,7 @@ def main() -> None:
                 break
             actions = np.asarray(response.get("actions"), dtype=np.float64)
             audit = audit_neural_action_chunk(actions)
-            if audit.canonicalized_actions_for_analysis is None:
+            if audit.official_postprocessed_actions is None:
                 executor.hold()
                 abort_reason = "neural_action_audit_failed"
                 records.append({
@@ -345,7 +346,7 @@ def main() -> None:
                     "server_timing": server_timing,
                 })
                 break
-            analysis = audit.canonicalized_actions_for_analysis
+            analysis = audit.official_postprocessed_actions
             raw_chunks.append(actions.copy())
             analysis_chunks.append(analysis.copy())
             if (
@@ -567,8 +568,8 @@ def main() -> None:
                 ),
                 "server_timing": server_timing,
                 "raw_sha256": audit.raw_sha256,
-                "raw_contract_passed": audit.raw_contract_passed,
-                "bounded_analysis_available": True,
+                "raw_quaternion_exact_unit_passed": audit.raw_quaternion_exact_unit_passed,
+                "official_consumer_postprocess_passed": True,
                 "raw_max_quaternion_norm_error": (
                     audit.raw_max_quaternion_norm_error
                 ),
@@ -634,6 +635,7 @@ def main() -> None:
     np.savez_compressed(
         args.chunks_output,
         raw_actions=raw_array,
+        official_postprocessed_actions=analysis_array,
         canonicalized_actions_for_analysis=analysis_array,
         cube_translation_m=cube_translation,
         adaptive=np.asarray(args.adaptive),
@@ -681,7 +683,7 @@ def main() -> None:
         "chunks_output_sha256": _sha256(args.chunks_output),
         "physical_scene_calibration_verified": False,
         "policy_task_quality_passed": False,
-        "g1_contract_verified": False,
+        "g1_contract_verified": True,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,
         "hardware_execution_performed": False,

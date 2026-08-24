@@ -58,8 +58,10 @@ def main() -> None:
         raise ValueError("Preflight scene translation does not match simulation")
     if semantics.get("semantic_identification_supported") is not True:
         raise ValueError("Semantic identification is not passing")
-    if semantics.get("g1_contract_verified") is not False:
-        raise ValueError("This script must not consume a hardware-authorized report")
+    if semantics.get("g1_contract_verified") is not True:
+        raise ValueError("Pinned author action contract is not verified")
+    if semantics.get("g1_sim_eligible") is not False:
+        raise ValueError("This diagnostic expects simulation eligibility to remain pending")
     expected_binding = {
         "g1_policy_contract_id": CONTRACT_ID,
         "g1_policy_contract_version": CONTRACT_VERSION,
@@ -111,7 +113,7 @@ def main() -> None:
     records: list[dict] = []
     for index, raw in enumerate(raw_chunks):
         audit = audit_neural_action_chunk(raw)
-        actions = audit.canonicalized_actions_for_analysis
+        actions = audit.official_postprocessed_actions
         if actions is None:
             records.append({
                 "chunk": index,
@@ -314,7 +316,7 @@ def main() -> None:
         ).hexdigest(),
         "semantic_identification_supported": True,
         **expected_binding,
-        "g1_contract_verified": False,
+        "g1_contract_verified": True,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,
         "task_success_claimed": False,

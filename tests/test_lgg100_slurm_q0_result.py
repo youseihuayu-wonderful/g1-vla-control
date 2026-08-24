@@ -38,12 +38,15 @@ class SlurmQ0ResultTests(unittest.TestCase):
         self.assertFalse(self.result["checkpoint"]["weights_modified"])
         self.assertFalse(self.result["checkpoint"]["neural_training"])
 
-    def test_raw_contract_gap_remains_explicit(self):
+    def test_official_consumer_contract_is_distinct_from_raw_exact_unit_metric(self):
         probe = self.result["output_only_probe"]
-        self.assertEqual(probe["raw_contract_passes"], 0)
-        self.assertEqual(probe["bounded_analysis_available"], 30)
-        self.assertFalse(probe["raw_contract_qualification_passed"])
-        self.assertFalse(self.result["decision"]["g1_contract_verified"])
+        self.assertEqual(probe["raw_quaternion_exact_unit_passes"], 0)
+        self.assertEqual(probe["official_consumer_postprocess_passes"], 30)
+        self.assertTrue(probe["official_consumer_postprocess_qualification_passed"])
+        self.assertFalse(probe["raw_quaternion_exact_unit_qualification_passed"])
+        self.assertFalse(probe["raw_exact_unit_required_by_official_consumer"])
+        self.assertTrue(self.result["decision"]["g1_contract_verified"])
+        self.assertFalse(self.result["decision"]["quaternion_gap_blocks_adaptive_off"])
         self.assertFalse(self.result["decision"]["g1_sim_eligible"])
         self.assertFalse(self.result["decision"]["adaptive_off_closed_loop_authorized_by_this_result"])
 

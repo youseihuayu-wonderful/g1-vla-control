@@ -102,8 +102,10 @@ def main() -> None:
     semantics = json.loads(args.semantic_report.read_text())
     if semantics.get("semantic_identification_supported") is not True:
         raise ValueError("Semantic identification report is not passing")
-    if semantics.get("g1_contract_verified") is not False:
-        raise ValueError("This diagnostic expects the contract to remain unverified")
+    if semantics.get("g1_contract_verified") is not True:
+        raise ValueError("Pinned author action contract is not verified")
+    if semantics.get("g1_sim_eligible") is not False:
+        raise ValueError("This preflight expects simulation eligibility to remain pending")
     if (
         semantics.get("g1_policy_contract_id") != CONTRACT_ID
         or semantics.get("g1_policy_contract_sha256") != CONTRACT_SHA256
@@ -169,12 +171,12 @@ def main() -> None:
     chunk_records: list[dict] = []
     for chunk_index, raw in enumerate(raw_chunks):
         audit = audit_neural_action_chunk(raw)
-        analysis = audit.canonicalized_actions_for_analysis
+        analysis = audit.official_postprocessed_actions
         record = {
             "chunk": chunk_index,
             "raw_sha256": audit.raw_sha256,
-            "bounded_analysis_available": analysis is not None,
-            "normalization_applied_for_analysis": audit.normalization_applied,
+            "official_consumer_postprocess_passed": analysis is not None,
+            "official_consumer_normalization_applied": audit.normalization_applied,
             "raw_max_quaternion_norm_error": audit.raw_max_quaternion_norm_error,
             "motion": None,
             "phase_views": {},
@@ -298,15 +300,18 @@ def main() -> None:
         "g1_policy_contract_version": CONTRACT_VERSION,
         "g1_policy_contract_sha256": CONTRACT_SHA256,
         "action_horizon": ACTION_HORIZON,
-        "g1_contract_verified": False,
+        "g1_contract_verified": True,
         "g1_sim_eligible": False,
         "g1_execution_enabled": False,
         "execution_performed": False,
         "chunks": chunk_records,
         "summary": {
             "chunks": len(chunk_records),
+            "official_consumer_postprocessed_chunks": sum(
+                record["official_consumer_postprocess_passed"] for record in chunk_records
+            ),
             "bounded_analysis_chunks": sum(
-                record["bounded_analysis_available"] for record in chunk_records
+                record["official_consumer_postprocess_passed"] for record in chunk_records
             ),
             "all_targets_accepted_by_phase": {
                 phase: sum(

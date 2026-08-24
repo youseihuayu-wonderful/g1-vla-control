@@ -30,7 +30,7 @@ Yuhao 同时表示 horizon 48 可以试验，但 32 应作为严格复现的 can
 - 输出为 16-D absolute quaternion EEF action；
 - π0.5 使用 quantile normalization；
 - 四元数在送入 IK 前由消费者归一化；
-- 真实 G1 的 chunk 执行长度/replanning 策略仍未公开。
+- `g1-client` 已公开 full-remaining-horizon execution、prefetch、time-alignment 和 joint-space blend 参考；但代码默认 15 Hz 与 help text 30 Hz 冲突。
 
 ## 五项信息状态
 
@@ -40,7 +40,7 @@ Yuhao 同时表示 horizon 48 可以试验，但 32 应作为严格复现的 can
 | 2. 相机输入和图像处理 | 3 个 RGB 相机；480×640；high/left wrist/right wrist；`resize_with_pad(224,224)` | 基本完成 | 相机内外参、畸变、时间同步和真实安装标定 |
 | 3. 16 维 state 定义 | 左/右 EEF xyz+xyzw、左右夹爪；pelvis frame；EEF 为 wrist-yaw 沿 +X 50 mm | 基本完成 | 夹爪真机标定仍需正式验证 |
 | 4. 16 维 action 定义 | 16-D absolute quaternion EEF；canonical horizon 32 | 基本完成 | 真机 controller 合同和 action timing |
-| 5. normalization/post-processing/replanning | checkpoint quantile norm；输出前 16 维；IK 前归一化四元数 | 部分完成 | G1 实际每次执行多少点及 replanning/control frequency |
+| 5. normalization/post-processing/replanning | checkpoint quantile norm；IK 前归一化；full-horizon + prefetch/time-alignment/blend reference | 基本完成 | 15/30 Hz 冲突需显式实验或作者确认；项目安全 Gate 仍需补齐 |
 
 ## 公开代码证据
 
@@ -123,8 +123,8 @@ resize_with_pad -> 224×224
 ## 仍未解决
 
 1. 精确 OpenPI commit 和完整历史 TrainConfig；
-2. G1 实际部署时每个 32-step chunk 执行多少点；
-3. 真机控制频率和 replanning 频率；
+2. `g1-client` 的 `control_hz=15` 代码默认值与“default 30”help text 冲突；
+3. 部署参考对 IK residual 只 warning 后继续 dispatch，缺少本项目的 orientation/swept collision Gate；
 4. 三相机正式标定和时间同步；
 5. Dex1 真机数值映射；
 6. G1 controller、watchdog 和 E-stop 合同。
@@ -133,8 +133,8 @@ resize_with_pad -> 224×224
 
 1. 以 horizon 32、continuous state、`resize_with_pad` 重建样本；
 2. 重新运行真实 checkpoint output-only inference；
-3. 保留原始输出，并按公开 policy 对非零四元数做有界、可审计归一化；
-4. 重新运行公开 episode 语义和任务质量验证；
-5. 再运行 Adaptive OFF 的 quarantined MuJoCo 基线；
+3. 保留原始输出，并按公开 policy 与 deployment IK 对非零四元数做有界、可审计归一化；
+4. 使用 source attestation 将 `g1_contract_verified` 与 `g1_sim_eligible` 分离；
+5. 固定 15/30 Hz cadence manifest 后完成 multi-chunk IK/swept-path，再运行 Adaptive-OFF MuJoCo 基线；
 6. horizon 48 仅进行固定 observation/seed 的对照；
 7. 所有真机 gate 继续保持关闭。
