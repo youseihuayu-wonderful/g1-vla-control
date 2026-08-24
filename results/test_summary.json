@@ -1,7 +1,7 @@
 {
-  "passed": 93,
+  "passed": 100,
   "failed": 0,
-  "total": 93,
+  "total": 100,
   "success": true,
-  "scope": "Local tests including current robot/L40S connectivity freshness, professor-ready research brief, Adaptive speed evidence cards, responsive navigation, objective language, Shihua Yu attribution, Vercel redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including the frozen-checkpoint Adaptive A/B GPU plan contract, current L40S connectivity freshness, professor-ready research brief, responsive evidence dashboard, Vercel redaction, and hardware safety gates; GitHub Actions rerun pending."
 }

@@ -325,6 +325,7 @@ def build() -> str:
     retiming_safety = load("retiming_safety_validation.json")
     current_connectivity = load("current_robot_gpu_readonly_preflight_20260822.json")
     current_l40s = load("current_l40s_login_gpu_inventory_20260823.json")
+    ab_gpu_plan = load("lgg100_adaptive_ab_gpu_experiment_plan.json")
     updates = load("development_updates.json")
 
     inference = author["inference"]
@@ -531,11 +532,12 @@ def build() -> str:
                 f"8 张 L40S 均为 46,068 MiB total；实时 free range={current_l40s['summary']['minimum_free_memory_mib']/1024:.1f}–{current_l40s['summary']['maximum_free_memory_mib']/1024:.1f} GiB。",
                 "每卡各有 1 个既有 compute process，约占 34.2 GiB；瞬时 utilization=0% 不等于空闲。",
                 "本地 8000 tunnel 已监听，但远端 policy port 8000 关闭，LGG100 server 不可用。",
+                f"正式计划：Q0/Q1 各使用 {ab_gpu_plan['gpu_plan']['qualification']['gpu_count']} 张 L40S；Formal 最多并行 {ab_gpu_plan['gpu_plan']['formal']['maximum_parallel_gpu_count']} 张，每个 shard 仍为 1 张。",
             ],
-            "meaning": ["SSH 与实时 GPU inventory 已恢复。", "fully_idle_gpu_count=0；当前仍无资格启动新的 LGG100 workload。"],
-            "missing": ["完全空闲或管理员明确分配的 GPU。", "Strict restore peak memory 与 server metadata/hash Gate。"],
-            "next": ["保持 shell；等待现有任务正常结束或取得明确分配，不停止或挤占任何 process。"],
-            "evidence": ["results/current_l40s_login_gpu_inventory_20260823.json", "results/current_robot_gpu_readonly_preflight_20260822.json"],
+            "meaning": ["SSH 与实时 GPU inventory 已恢复。", "fully_idle_gpu_count=0；当前仍无资格启动新的 LGG100 workload。", "GPU 只做冻结 checkpoint inference，不训练、不占卡。"],
+            "missing": ["完全空闲或 Slurm 正式分配的 GPU。", "Slurm-portable orchestration。", "Strict restore peak memory 与 server metadata/hash Gate。"],
+            "next": ["完成 G0 可移植化与 G3 sequential preflight，再提交 1-GPU Q0；不停止或挤占任何 process。"],
+            "evidence": ["LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md", "results/lgg100_adaptive_ab_gpu_experiment_plan.json", "results/current_l40s_login_gpu_inventory_20260823.json"],
         },
         {
             "domain": "REAL ROBOT", "id": "H4", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",

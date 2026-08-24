@@ -1129,5 +1129,48 @@
       "other_gpu_process_modified=false",
       "robot_command_sent=false"
     ]
+  },
+  {
+    "time": "2026-08-23 20:54 EDT",
+    "title": "冻结 LGG100 checkpoint 的 Adaptive A/B GPU 正式执行计划",
+    "status": "partial",
+    "summary": "正式冻结 Simulation-only A/B 计划：GPU 仅执行现成 LGG100 checkpoint strict restore 与 inference，不训练模型。Q0/Q1 各申请 1 张 L40S；Pilot 通过后 Formal 最多并行 2 张，每个 Slurm shard 仍只使用 1 张。计划定义 G0–G7 fail-closed Gate、paired seed matrix、统计边界、结果数据契约和最终 React + TypeScript 静态结果应用。尚未提交 GPU 作业。",
+    "done": [
+      "明确 Adaptive-OFF 为冻结 VLA + 默认均匀 timestamps，Adaptive-ON 为同一冻结 VLA + timestamp-only retiming。",
+      "明确 single-chunk action byte identity 与 full closed-loop observation divergence 的因果边界。",
+      "定义 Q0 1-GPU/1-hour qualification、Q1 1-GPU/4-hour pilot 和 Q2 maximum 2-GPU formal shards。",
+      "定义 G0–G7 permission ladder、stop conditions、主要 endpoint 和 trial/result JSON contract。",
+      "定义最终 React app 的九个 section、响应式和公开脱敏要求。",
+      "新增 7 项自动化 plan contract tests。"
+    ],
+    "conclusions": [
+      "当前只需要 1 张正式 Slurm 分配的完整 L40S，而不是多卡并行或共享剩余显存。",
+      "Formal A/B 在 Pilot 通过后最多使用 2 张 L40S，以 paired independent seed shards 提高吞吐。",
+      "wall time 是最大上限，完成或失败必须提前释放；禁止 dummy occupancy 和 cron 抢卡。",
+      "下一次允许提交的是 Q0 output-only qualification，不是 Adaptive-ON，也不是真机动作。"
+    ],
+    "fixes": [
+      "将此前含混的 training/occupancy 表述替换为冻结 checkpoint inference A/B。",
+      "Dashboard GPU section 增加正式资源计划、Slurm portability 和 G3 preflight 前置条件。"
+    ],
+    "remaining": [
+      "将现有 gate script 改为不硬编码 hostname/GPU index 的 Slurm-portable job。",
+      "完成完整 32-step、多 chunk sequential IK 与 swept-path preflight。",
+      "实现 allocation status JSON 和 Herdr/macOS start notification watcher。",
+      "Q0/Q1/Q2 运行后构建并部署 React results app；当前只冻结 app contract。"
+    ],
+    "next": [
+      "实现 G0 Slurm-portable orchestration。",
+      "本地完成 G3 sequential preflight。",
+      "随后只提交 1-GPU Q0 strict restore + 30-call output-only inference。"
+    ],
+    "evidence": [
+      "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md",
+      "results/lgg100_adaptive_ab_gpu_experiment_plan.json",
+      "plan Markdown SHA-256 c7e39a8a7daa02bbb89f0d3342fb1235311f56aceeee499c226359c659160cce",
+      "plan JSON SHA-256 2e4e14aa41537995e3da90a0e8cc2f16641e0f76e69b6e939b17985ad653c923",
+      "neural_training=false",
+      "g1_execution_enabled=false"
+    ]
   }
 ]

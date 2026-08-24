@@ -1,0 +1,119 @@
+{
+  "schema_version": "lgg100_adaptive_ab_gpu_experiment_plan_v1",
+  "plan_version": "1.0",
+  "author": "Shihua Yu",
+  "status": "planned_not_submitted",
+  "scope": "Frozen LGG100 checkpoint inference and Simulation-only Adaptive-OFF/ON A/B evaluation.",
+  "neural_training": false,
+  "checkpoint_weights_frozen": true,
+  "robot_command_allowed": false,
+  "hardware_execution_performed": false,
+  "adaptive_contract": {
+    "off": "Frozen VLA action samples with default uniform timestamps.",
+    "on": "Same frozen VLA contract; retimer may modify timestamps only.",
+    "retimer_may_modify_action_samples": false,
+    "single_chunk_byte_identity_required": true,
+    "closed_loop_identity_boundary": "Later A/B observations and VLA chunks may diverge as simulated states diverge; per-chunk retiming must still preserve samples."
+  },
+  "compute_split": {
+    "gpu": [
+      "strict_checkpoint_restore",
+      "jax_compile",
+      "output_only_vla_inference",
+      "peak_vram_and_inference_timing"
+    ],
+    "local": [
+      "mujoco_observation_and_dynamics",
+      "ssh_tunnel_client",
+      "adaptive_timestamp_retiming",
+      "sequential_ik_and_swept_path",
+      "watchdog_and_metrics",
+      "visualization_and_reporting"
+    ]
+  },
+  "gpu_plan": {
+    "qualification": {
+      "gpu_type": "L40S",
+      "gpu_count": 1,
+      "maximum_wall_time_hours": 1,
+      "purpose": "Strict restore and 30-call output-only qualification"
+    },
+    "pilot": {
+      "gpu_type": "L40S",
+      "gpu_count": 1,
+      "maximum_wall_time_hours": 4,
+      "purpose": "Adaptive-OFF baseline and paired A/B pilot"
+    },
+    "formal": {
+      "gpu_type": "L40S",
+      "maximum_parallel_gpu_count": 2,
+      "gpu_per_array_task": 1,
+      "maximum_wall_time_hours_per_task": 6,
+      "purpose": "Balanced independent seed shards after pilot qualification"
+    },
+    "dummy_gpu_occupancy_allowed": false,
+    "scheduler_required": true,
+    "release_early_on_completion_or_failure": true
+  },
+  "stages": [
+    {"id": "G0", "name": "Slurm-portable orchestration", "permission_after_pass": "submit_Q0", "fail_closed": true},
+    {"id": "G1", "name": "GPU and strict checkpoint qualification", "permission_after_pass": "output_only", "fail_closed": true},
+    {"id": "G2", "name": "30-call output-only inference", "permission_after_pass": "local_preflight", "fail_closed": true},
+    {"id": "G3", "name": "Full sequential IK and swept-path preflight", "permission_after_pass": "adaptive_off_mujoco", "fail_closed": true},
+    {"id": "G4", "name": "Adaptive-OFF closed-loop baseline", "permission_after_pass": "single_chunk_paired_test", "fail_closed": true},
+    {"id": "G5", "name": "Single-chunk paired causal test", "permission_after_pass": "adaptive_on_pilot", "fail_closed": true},
+    {"id": "G6", "name": "Adaptive-ON paired closed-loop pilot", "permission_after_pass": "formal_ab", "fail_closed": true},
+    {"id": "G7", "name": "Formal paired A/B", "permission_after_pass": "simulation_result_only", "fail_closed": true}
+  ],
+  "pilot_matrix": {
+    "scenarios": ["near", "far", "mixed"],
+    "paired_seeds_per_scenario": 5,
+    "order_balancing": ["AB", "BA"]
+  },
+  "formal_matrix": {
+    "scenarios": ["near", "far", "mixed"],
+    "minimum_paired_seeds_per_scenario": 30,
+    "order_balancing_required": true,
+    "all_failures_retained": true
+  },
+  "primary_endpoints": [
+    "task_success_rate_noninferiority",
+    "complete_task_duration",
+    "safety_failure_noninferiority",
+    "observation_to_commit_latency_le_100_ms"
+  ],
+  "known_blockers": [
+    "full_32_step_multichunk_sequential_preflight_not_qualified",
+    "swept_path_preflight_failed",
+    "completed_cycles_zero",
+    "task_success_false",
+    "mixed_transition_coverage_failed",
+    "commit_age_119_94_ms_above_100_ms"
+  ],
+  "result_app": {
+    "framework": "React_TypeScript_static_build",
+    "data_source": "versioned_sanitized_json",
+    "sections": [
+      "executive_status",
+      "workflow",
+      "gpu_allocations",
+      "experiment_matrix",
+      "ab_results",
+      "latency",
+      "safety",
+      "trial_explorer",
+      "evidence"
+    ],
+    "responsive_no_horizontal_wide_tables": true,
+    "public_redaction_required": true,
+    "direct_internal_api_access": false
+  },
+  "next_actions": [
+    "freeze_plan_hash",
+    "make_gpu_gate_slurm_portable",
+    "add_allocation_status_and_notification_watcher",
+    "complete_full_sequential_preflight",
+    "submit_one_gpu_Q0_only_after_G0"
+  ],
+  "g1_execution_enabled": false
+}
