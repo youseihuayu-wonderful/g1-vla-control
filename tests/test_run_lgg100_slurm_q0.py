@@ -35,6 +35,10 @@ class SlurmQ0Tests(unittest.TestCase):
         self.assertIn("allocated_gpu_not_fully_available", self.source)
         self.assertIn("GPU_FREE_MIB >= 40000", self.source)
 
+    def test_q0_uses_the_pinned_openpi_environment(self):
+        self.assertIn('PY="${G1_PYTHON:-$OPENPI/.venv/bin/python}"', self.source)
+        self.assertIn('"$UV" run --frozen python', self.source)
+
     def test_q0_is_output_only_and_loopback_bound(self):
         self.assertIn("--host 127.0.0.1", self.source)
         self.assertIn("--draws 30", self.source)

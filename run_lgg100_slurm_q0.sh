@@ -25,7 +25,7 @@ REPO="${SLURM_SUBMIT_DIR:?SLURM_SUBMIT_DIR is required}"
 }
 ROOT="${SHIHUA_ROOT:-$(cd "$REPO/../.." && pwd)}"
 OPENPI="$ROOT/projects/openpi"
-PY="$ROOT/.venvs/g1-sim/bin/python"
+PY="${G1_PYTHON:-$OPENPI/.venv/bin/python}"
 UV="${UV_BIN:-$HOME/.local/bin/uv}"
 CHECKPOINT="$ROOT/models/stack-cube-eef-24k"
 OBSERVATION="$ROOT/results/lgg100_author32_t0_offset_008_observation.npz"
