@@ -2,7 +2,7 @@
   "schema_version": "lgg100_adaptive_ab_gpu_experiment_plan_v1",
   "plan_version": "1.0",
   "author": "Shihua Yu",
-  "status": "planned_not_submitted",
+  "status": "q0_completed_output_only_contract_partial",
   "scope": "Frozen LGG100 checkpoint inference and Simulation-only Adaptive-OFF/ON A/B evaluation.",
   "neural_training": false,
   "checkpoint_weights_frozen": true,
@@ -108,12 +108,25 @@
     "public_redaction_required": true,
     "direct_internal_api_access": false
   },
+  "latest_execution": {
+    "stage": "Q0",
+    "scheduler_final_state": "COMPLETED",
+    "allocated_gpu_count": 1,
+    "actual_runtime_s": 60,
+    "formal_draws": 30,
+    "finite_shape_passes": 30,
+    "raw_contract_passes": 0,
+    "peak_memory_used_mib": 8681,
+    "q0_frozen_checkpoint_inference_passed": true,
+    "g1_contract_verified": false,
+    "g1_sim_eligible": false,
+    "evidence": "results/lgg100_slurm_q0_output_only_20260824.json"
+  },
   "next_actions": [
-    "freeze_plan_hash",
-    "make_gpu_gate_slurm_portable",
-    "add_allocation_status_and_notification_watcher",
+    "investigate_raw_quaternion_contract_gap_without_changing_action_samples",
     "complete_full_sequential_preflight",
-    "submit_one_gpu_Q0_only_after_G0"
+    "reduce_complete_observation_to_commit_latency_below_100_ms",
+    "run_adaptive_off_only_after_preflight"
   ],
   "g1_execution_enabled": false
 }

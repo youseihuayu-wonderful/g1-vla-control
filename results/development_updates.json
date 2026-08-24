@@ -1167,10 +1167,55 @@
     "evidence": [
       "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md",
       "results/lgg100_adaptive_ab_gpu_experiment_plan.json",
-      "plan Markdown SHA-256 c7e39a8a7daa02bbb89f0d3342fb1235311f56aceeee499c226359c659160cce",
-      "plan JSON SHA-256 2e4e14aa41537995e3da90a0e8cc2f16641e0f76e69b6e939b17985ad653c923",
+      "plan Markdown SHA-256 29d1c7bc4a2fe563d0475133b2b88e3b5bf8a4e4102cfe825e168da9250f33ab",
+      "plan JSON SHA-256 eeee1c888ff985397c2975b1068954d00e7a0e8eb4d61a4db492cf54c34cb428",
       "neural_training=false",
       "g1_execution_enabled=false"
+    ]
+  },
+  {
+    "time": "2026-08-24 10:57 EDT",
+    "title": "完成单 L40S Slurm Q0 冻结 checkpoint inference",
+    "status": "partial",
+    "summary": "一个正式 Slurm 分配的 L40S Q0 作业已完成并提前释放：实际运行 60 秒，3-call smoke 和 30-call formal output-only inference 均完成，30/30 输出为 finite [32,16]。Warm latency P50/P95/max 为 80.78/81.87/82.48 ms，peak VRAM 为 8,681 MiB。raw contract 为 0/30，但 30/30 可生成 bounded quaternion-normalized quarantined analysis artifact，因此冻结 checkpoint inference 通过，G1 contract 与 Simulation 资格继续关闭。",
+    "done": [
+      "通过只读 inventory 找到无 resident compute process、约 45,458 MiB free 的 scheduler-visible L40S。",
+      "在不共享 workspace 的 compute node 上 staging pinned control repo、OpenPI commit、checkpoint 和 observation。",
+      "提交一个 1-GPU、1-hour maximum、fail-closed Q0 job。",
+      "strict restore server 进入 READY，完成 3-call smoke 与 30-call formal probe。",
+      "作业在 60 秒后 ExitCode=0 完成，policy server 停止，GPU allocation 自动释放。",
+      "未修改其他 GPU process，未运行 MuJoCo dynamics，未发送机器人命令。"
+    ],
+    "conclusions": [
+      "q0_frozen_checkpoint_inference_passed=true。",
+      "30/30 finite [32,16]，steady inference P95=81.87 ms。",
+      "peak VRAM=8,681 MiB；该数字是 output-only 实测，不代表完整 closed-loop memory。",
+      "raw_contract_passes=0/30，quaternion norm error 范围 0.00626–0.00776。",
+      "g1_contract_verified=false、g1_sim_eligible=false，Q0 不等于 Adaptive-OFF 或 Simulation 通过。"
+    ],
+    "fixes": [
+      "确认 Slurm compute nodes 不共享 submission workspace；前两次作业在 GPU compute 开始前失败。",
+      "改为先在经过 inventory 的空闲调度节点 staging 固定代码、环境和 artifact，再提交 bounded node-targeted Q0。",
+      "Q0 runner 使用 pinned OpenPI environment，不依赖不可移植的原节点 venv interpreter。",
+      "结果报告显式区分 finite-shape qualification 与 raw-contract qualification，避免过度结论。"
+    ],
+    "remaining": [
+      "诊断 raw quaternion contract gap，不能静默修改 action samples。",
+      "完成 32-step、多 chunk sequential IK 与 swept-path preflight。",
+      "把完整 observation-to-commit latency 降至 100 ms 内。",
+      "前置 Gate 通过后才能提交 Q1 Adaptive-OFF Pilot。"
+    ],
+    "next": [
+      "分析 30 个 raw chunk 的 quaternion norm deviation 与 frozen contract tolerance。",
+      "使用保存的 fingerprinted NPZ 完成 G3 sequential preflight，不需要立即再次占用 GPU。",
+      "G3 通过后设计本机 MuJoCo ↔ allocated policy server tunnel，再申请单卡 Q1。"
+    ],
+    "evidence": [
+      "results/lgg100_slurm_q0_output_only_20260824.json",
+      "Q0 result SHA-256 308375ea7b8e8e9ba8edb73f4ba8def84542bdaacdd81eac8b8c0b6056a30b8e",
+      "formal report SHA-256 66ee070b4ccabf1aed57054c1a0bb0da326423b1cc84fcd568d12c639eef5265",
+      "output NPZ SHA-256 4f14b3fce849ade176693174c78c6f4ce022e417582c1561c7c6a47d6d1571db",
+      "hardware_execution_performed=false"
     ]
   }
 ]

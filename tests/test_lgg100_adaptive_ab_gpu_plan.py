@@ -64,7 +64,7 @@ class AdaptiveABGPUPlanTests(unittest.TestCase):
         self.assertIn("这不是神经网络训练任务", self.markdown)
         self.assertIn("不使用 cron 抢卡", self.markdown)
         self.assertIn("不训练或更新 VLA 权重", self.markdown)
-        self.assertIn("下一次允许提交的作业：**Q0 output-only qualification**", self.markdown)
+        self.assertIn("下一次 GPU 作业：只有完成前置 Gate 后才允许提交 **Q1 Adaptive-OFF Pilot**", self.markdown)
 
 
 if __name__ == "__main__":

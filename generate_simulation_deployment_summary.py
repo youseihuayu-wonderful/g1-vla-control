@@ -326,6 +326,7 @@ def build() -> str:
     current_connectivity = load("current_robot_gpu_readonly_preflight_20260822.json")
     current_l40s = load("current_l40s_login_gpu_inventory_20260823.json")
     ab_gpu_plan = load("lgg100_adaptive_ab_gpu_experiment_plan.json")
+    q0 = load("lgg100_slurm_q0_output_only_20260824.json")
     updates = load("development_updates.json")
 
     inference = author["inference"]
@@ -532,12 +533,15 @@ def build() -> str:
                 f"8 张 L40S 均为 46,068 MiB total；实时 free range={current_l40s['summary']['minimum_free_memory_mib']/1024:.1f}–{current_l40s['summary']['maximum_free_memory_mib']/1024:.1f} GiB。",
                 "每卡各有 1 个既有 compute process，约占 34.2 GiB；瞬时 utilization=0% 不等于空闲。",
                 "本地 8000 tunnel 已监听，但远端 policy port 8000 关闭，LGG100 server 不可用。",
-                f"正式计划：Q0/Q1 各使用 {ab_gpu_plan['gpu_plan']['qualification']['gpu_count']} 张 L40S；Formal 最多并行 {ab_gpu_plan['gpu_plan']['formal']['maximum_parallel_gpu_count']} 张，每个 shard 仍为 1 张。",
+                f"Q0 已在 1 张 Slurm 分配的空闲 L40S 上完成：{q0['output_only_probe']['finite_shape_passes']}/{q0['output_only_probe']['formal_draws']} finite [32,16]，实际运行 {q0['scheduler']['actual_runtime_s']} 秒并提前释放。",
+                f"Q0 warm latency P50/P95={q0['output_only_probe']['latency_ms']['p50']:.2f}/{q0['output_only_probe']['latency_ms']['p95']:.2f} ms；peak VRAM={q0['output_only_probe']['peak_memory_used_mib']/1024:.2f} GiB。",
+                f"raw contract={q0['output_only_probe']['raw_contract_passes']}/{q0['output_only_probe']['formal_draws']}；bounded analysis={q0['output_only_probe']['bounded_analysis_available']}/{q0['output_only_probe']['formal_draws']}。",
+                f"正式计划：Q1 使用 {ab_gpu_plan['gpu_plan']['pilot']['gpu_count']} 张 L40S；Formal 最多并行 {ab_gpu_plan['gpu_plan']['formal']['maximum_parallel_gpu_count']} 张，每个 shard 仍为 1 张。",
             ],
-            "meaning": ["SSH 与实时 GPU inventory 已恢复。", "fully_idle_gpu_count=0；当前仍无资格启动新的 LGG100 workload。", "GPU 只做冻结 checkpoint inference，不训练、不占卡。"],
-            "missing": ["完全空闲或 Slurm 正式分配的 GPU。", "Slurm-portable orchestration。", "Strict restore peak memory 与 server metadata/hash Gate。"],
-            "next": ["完成 G0 可移植化与 G3 sequential preflight，再提交 1-GPU Q0；不停止或挤占任何 process。"],
-            "evidence": ["LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md", "results/lgg100_adaptive_ab_gpu_experiment_plan.json", "results/current_l40s_login_gpu_inventory_20260823.json"],
+            "meaning": ["冻结 checkpoint strict restore 与 output-only inference 通过。", "raw quaternion contract 尚未通过，因此 g1_contract_verified=false、g1_sim_eligible=false。", "GPU 只做冻结 checkpoint inference，不训练、不占卡。"],
+            "missing": ["解释 raw quaternion norm gap，不能静默修改 action samples。", "完整 32-step、多 chunk sequential IK 与 swept-path。", "完整 commit latency ≤100 ms 与 Adaptive-OFF closed-loop。"],
+            "next": ["先完成 raw contract 诊断与 G3 sequential preflight；前置 Gate 通过后再申请 1-GPU Q1。"],
+            "evidence": ["results/lgg100_slurm_q0_output_only_20260824.json", "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md", "results/lgg100_adaptive_ab_gpu_experiment_plan.json"],
         },
         {
             "domain": "REAL ROBOT", "id": "H4", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",

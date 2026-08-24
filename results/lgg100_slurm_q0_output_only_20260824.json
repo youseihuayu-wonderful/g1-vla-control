@@ -1,0 +1,83 @@
+{
+  "schema_version": "lgg100_slurm_q0_output_only_v1",
+  "timestamp": "2026-08-24T07:57:12-07:00",
+  "scope": "One scheduler-allocated L40S; frozen LGG100 checkpoint output-only qualification.",
+  "scheduler": {
+    "requested_gpu_type": "L40S",
+    "requested_gpu_count": 1,
+    "maximum_wall_time_s": 3600,
+    "actual_runtime_s": 60,
+    "released_early": true,
+    "final_state": "COMPLETED",
+    "exit_code": 0,
+    "initial_portability_attempts": [
+      {
+        "result": "failed_before_gpu_compute",
+        "reason": "scheduler_compute_node_did_not_share_the_submission_workspace"
+      },
+      {
+        "result": "diagnostic_failed_before_gpu_compute",
+        "reason": "confirmed_non_shared_workspace"
+      }
+    ],
+    "resolution": "The non_shared_workspace constraint was handled by staging pinned code, the OpenPI environment, checkpoint, and observation on a scheduler-visible fully idle node before the final bounded job was submitted."
+  },
+  "gpu_preflight": {
+    "model": "NVIDIA L40S",
+    "memory_total_mib": 46068,
+    "memory_used_mib": 0,
+    "memory_free_mib": 45458,
+    "utilization_gpu_percent": 0,
+    "preexisting_compute_process_count": 0,
+    "slurm_allocation_verified": true
+  },
+  "checkpoint": {
+    "model_config": "pi05_g1_eef",
+    "revision": "cced7a7ff7b454fdcac555457a1a2a3dc262ac77",
+    "strict_restore_server_ready": true,
+    "weights_modified": false,
+    "neural_training": false
+  },
+  "contract": {
+    "id": "g1_edu_dual_dex1_eef_v1",
+    "version": "1.2.0",
+    "sha256": "18ff122309a050e137dcefe6361f8b325c7af32295f8f5ae374b04717ca31012",
+    "action_horizon": 32,
+    "action_dim": 16
+  },
+  "output_only_probe": {
+    "smoke_draws": 3,
+    "formal_draws": 30,
+    "finite_shape_passes": 30,
+    "raw_contract_passes": 0,
+    "bounded_analysis_available": 30,
+    "raw_quaternion_norm_error_min": 0.006259601324303143,
+    "raw_quaternion_norm_error_max": 0.0077575479813921655,
+    "latency_ms": {
+      "p50": 80.77534503536299,
+      "p95": 81.86658403719775,
+      "max": 82.48442702461034
+    },
+    "peak_memory_used_mib": 8681,
+    "formal_report_sha256": "66ee070b4ccabf1aed57054c1a0bb0da326423b1cc84fcd568d12c639eef5265",
+    "output_npz_sha256": "4f14b3fce849ade176693174c78c6f4ce022e417582c1561c7c6a47d6d1571db",
+    "finite_shape_qualification_passed": true,
+    "raw_contract_qualification_passed": false
+  },
+  "decision": {
+    "q0_frozen_checkpoint_inference_passed": true,
+    "g1_contract_verified": false,
+    "g1_sim_eligible": false,
+    "adaptive_off_closed_loop_authorized_by_this_result": false,
+    "reason": "Strict restore and 30/30 finite [32,16] inference passed, but raw chunks required bounded quaternion normalization for quarantined analysis; sequential IK, swept-path, latency, and closed-loop gates remain separate."
+  },
+  "cleanup": {
+    "policy_server_stopped": true,
+    "allocation_released": true,
+    "other_gpu_process_modified": false
+  },
+  "mujoco_dynamics_executed": false,
+  "robot_command_sent": false,
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

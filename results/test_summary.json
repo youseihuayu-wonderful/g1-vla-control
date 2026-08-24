@@ -1,7 +1,7 @@
 {
-  "passed": 107,
+  "passed": 114,
   "failed": 0,
-  "total": 107,
+  "total": 114,
   "success": true,
-  "scope": "Local tests including the fail-closed one-L40S Slurm Q0 output-only job, frozen-checkpoint Adaptive A/B GPU plan, current connectivity freshness, public redaction, and hardware safety gates; remote Slurm execution and GitHub Actions rerun pending."
+  "scope": "Local tests including the completed one-L40S Slurm Q0 output-only evidence, fail-closed scheduler runner, frozen-checkpoint Adaptive A/B plan, public redaction, and hardware safety gates; GitHub Actions rerun pending."
 }

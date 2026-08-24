@@ -4,7 +4,7 @@
 
 **作者：** Shihua Yu
 
-**状态：** 正式计划；尚未提交 GPU 作业
+**状态：** Q0 已完成；冻结 checkpoint inference 通过，raw contract 仍阻塞 Simulation 资格
 
 **范围：** 仅 Simulation / output-only inference；不训练 VLA、不发送机器人动作
 
@@ -352,9 +352,33 @@ Adaptive-ON 只有同时满足以下条件才可标记为 Simulation-qualified�
 
 ## 12. 当前正式决策
 
-- 当前需要的 GPU 数量：**1 张完整 L40S**；
+- Q0 已使用 **1 张完整、Slurm 分配的 L40S** 并在 60 秒后正常释放；
 - Formal 阶段并行上限：**2 张 L40S**；
 - 当前 GPU 用途：**冻结 LGG100 checkpoint inference**；
 - 当前不执行：训练、LoRA、checkpoint 更新、真机动作、GPU 抢占；
-- 下一工程任务：**G0 Slurm 可移植化 + G3 完整 sequential preflight**；
-- 下一次允许提交的作业：**Q0 output-only qualification**。
+- 下一工程任务：**raw quaternion contract 诊断 + G3 完整 sequential preflight**；
+- 下一次 GPU 作业：只有完成前置 Gate 后才允许提交 **Q1 Adaptive-OFF Pilot**。
+
+## 13. Q0 实际执行结果（2026-08-24）
+
+Q0 最终在一张由 Slurm 正式分配、启动时无 resident compute process 的 L40S 上完成：
+
+- 最大 wall time：1 小时；实际运行：60 秒并提前释放；
+- GPU preflight：46,068 MiB total、45,458 MiB free；
+- strict restore server：成功进入 ready；
+- 3-call smoke：完成；
+- 30-call formal：30/30 finite `[32,16]`；
+- warm latency：P50 80.78 ms、P95 81.87 ms、max 82.48 ms；
+- peak memory used：8,681 MiB；
+- training、MuJoCo dynamics 和硬件动作：均未执行。
+
+需要分层解释结果：
+
+- 冻结 checkpoint output-only inference 通过；
+- raw contract 为 0/30，通过 bounded quaternion normalization 产生 quarantined analysis artifact 的比例为 30/30；
+- raw quaternion norm error 范围为 0.00626–0.00776；
+- 因此 `g1_contract_verified=false`、`g1_sim_eligible=false`，不能把 Q0 描述成 Adaptive-OFF 或 Simulation 通过。
+
+前两次调度尝试在 GPU compute 开始前因 compute node 不共享 submission workspace 而失败。修复方式是在经过只读 GPU inventory 确认的空闲调度节点上，固定并 staging 代码、OpenPI 环境、checkpoint 和 observation；最终 bounded job 正常完成并释放。该问题属于 Slurm workspace portability，不是 checkpoint inference failure。
+
+证据：`results/lgg100_slurm_q0_output_only_20260824.json`。
