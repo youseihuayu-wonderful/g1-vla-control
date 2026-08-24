@@ -1,7 +1,7 @@
 {
-  "passed": 100,
+  "passed": 107,
   "failed": 0,
-  "total": 100,
+  "total": 107,
   "success": true,
-  "scope": "Local tests including the frozen-checkpoint Adaptive A/B GPU plan contract, current L40S connectivity freshness, professor-ready research brief, responsive evidence dashboard, Vercel redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including the fail-closed one-L40S Slurm Q0 output-only job, frozen-checkpoint Adaptive A/B GPU plan, current connectivity freshness, public redaction, and hardware safety gates; remote Slurm execution and GitHub Actions rerun pending."
 }
