@@ -174,6 +174,9 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn("实时 free range=11.0–11.0 GiB", plain)
         self.assertIn("fully_idle_gpu_count=0", plain)
         self.assertIn("瞬时 utilization=0% 不等于空闲", plain)
+        self.assertIn("独立 Q0.5 当前 RUNNING", plain)
+        self.assertIn("目标真实 inference 4 小时", plain)
+        self.assertIn("不是 dummy occupancy", plain)
         self.assertIn("robot_connection_available=false", plain)
 
     def test_checked_report_keeps_hardware_gates_closed(self):

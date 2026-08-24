@@ -1167,8 +1167,8 @@
     "evidence": [
       "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md",
       "results/lgg100_adaptive_ab_gpu_experiment_plan.json",
-      "plan Markdown SHA-256 29d1c7bc4a2fe563d0475133b2b88e3b5bf8a4e4102cfe825e168da9250f33ab",
-      "plan JSON SHA-256 eeee1c888ff985397c2975b1068954d00e7a0e8eb4d61a4db492cf54c34cb428",
+      "plan Markdown SHA-256 4c76d4b761b33a0fe232971e46b42335693d62b65c9791c565b11d39879b29d8",
+      "plan JSON SHA-256 38c51537bcf82eebeae82ee810d22ec95b77b793a7b2d4c066e128a28113ef90",
       "neural_training=false",
       "g1_execution_enabled=false"
     ]
@@ -1215,6 +1215,45 @@
       "Q0 result SHA-256 308375ea7b8e8e9ba8edb73f4ba8def84542bdaacdd81eac8b8c0b6056a30b8e",
       "formal report SHA-256 66ee070b4ccabf1aed57054c1a0bb0da326423b1cc84fcd568d12c639eef5265",
       "output NPZ SHA-256 4f14b3fce849ade176693174c78c6f4ce022e417582c1561c7c6a47d6d1571db",
+      "hardware_execution_performed=false"
+    ]
+  },
+  {
+    "time": "2026-08-24 11:19 EDT",
+    "title": "启动独立四小时多场景 LGG100 output-only endurance job",
+    "status": "partial",
+    "summary": "已提交并启动一个与 Q0 分离的单 L40S Slurm Q0.5 作业。它将执行 14,400 秒真实冻结 checkpoint inference，最大 wall time 15,600 秒用于 restore/compile/cleanup；以 5 Hz 轮换 Near、Mixed、Far，不训练、不执行 MuJoCo、不使用 dummy occupancy。首个稳定 heartbeat 在 93.42 秒记录 301 次调用，301/301 finite、0/301 raw contract、301/301 bounded analysis。最终结论等待作业完成或 fail-closed。",
+    "done": [
+      "新增 multi-scenario output-only soak client：完整压缩 audit records、sparse quarantined NPZ、场景级 latency 与 quaternion statistics。",
+      "新增 fail-closed Q0.5 Slurm runner：1 GPU、4h real inference target、4h20m maximum wall time。",
+      "在 scheduler-visible compute node staging pinned repos、OpenPI environment、checkpoint 和三组 observations。",
+      "提交独立 job；Slurm state=RUNNING，strict restore server 已 READY。",
+      "发送本地 macOS start notification，并启动只读 completion monitor。"
+    ],
+    "conclusions": [
+      "该 job 的四小时由真实 5 Hz inference 构成，不是 sleep、dummy VRAM allocation 或资源占位。",
+      "启动 GPU 无 preexisting compute process，约 45,458 MiB free。",
+      "首个 heartbeat finite_shape_passes=301/301，raw_contract_passes=0/301，已复现 Q0 raw quaternion gap。",
+      "运行中数据不能用于最终 endurance、A/B 或 Simulation 结论。"
+    ],
+    "fixes": [
+      "将长任务与 Q1 Adaptive-OFF 解耦，命名为 Q0.5 output-only contract/endurance diagnostic，避免越过 G3/G4。",
+      "加入每次 inference audit、60 秒 heartbeat、5 秒 GPU telemetry、foreign-process detection、verified process-group cleanup。"
+    ],
+    "remaining": [
+      "等待 14,400 秒目标完成；任何 non-finite、foreign process、server failure 或 signal 将提前 fail-closed。",
+      "完成后冻结 per-scenario P50/P95/P99/max、quaternion distribution、unique chunk hashes、peak VRAM 和 cleanup evidence。",
+      "Q0.5 不会自动授权 Adaptive-OFF；G3 sequential preflight 仍为后续独立 Gate。"
+    ],
+    "next": [
+      "不干预当前作业；由本地 monitor 在 COMPLETE/FAILED 时通知。",
+      "完成后同步脱敏结果并更新 React results contract。"
+    ],
+    "evidence": [
+      "results/lgg100_slurm_q05_soak_status_20260824.json",
+      "running status SHA-256 554ef8a2e160cbdd1bdb5239446000108007443a829a075347ebbd7fc3db74d5",
+      "neural_training=false",
+      "mujoco_dynamics_executed=false",
       "hardware_execution_performed=false"
     ]
   }

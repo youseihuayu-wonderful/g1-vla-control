@@ -2,7 +2,7 @@
   "schema_version": "lgg100_adaptive_ab_gpu_experiment_plan_v1",
   "plan_version": "1.0",
   "author": "Shihua Yu",
-  "status": "q0_completed_output_only_contract_partial",
+  "status": "q05_four_hour_output_only_soak_running",
   "scope": "Frozen LGG100 checkpoint inference and Simulation-only Adaptive-OFF/ON A/B evaluation.",
   "neural_training": false,
   "checkpoint_weights_frozen": true,
@@ -122,7 +122,20 @@
     "g1_sim_eligible": false,
     "evidence": "results/lgg100_slurm_q0_output_only_20260824.json"
   },
+  "active_execution": {
+    "stage": "Q0.5",
+    "state": "RUNNING",
+    "allocated_gpu_count": 1,
+    "target_duration_s": 14400,
+    "maximum_wall_time_s": 15600,
+    "target_rate_hz": 5,
+    "scenarios": ["near", "mixed", "far"],
+    "neural_training": false,
+    "mujoco_dynamics_executed": false,
+    "evidence": "results/lgg100_slurm_q05_soak_status_20260824.json"
+  },
   "next_actions": [
+    "allow_q05_to_finish_or_fail_closed_without_interference",
     "investigate_raw_quaternion_contract_gap_without_changing_action_samples",
     "complete_full_sequential_preflight",
     "reduce_complete_observation_to_commit_latency_below_100_ms",

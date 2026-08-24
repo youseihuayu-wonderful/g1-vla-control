@@ -327,6 +327,7 @@ def build() -> str:
     current_l40s = load("current_l40s_login_gpu_inventory_20260823.json")
     ab_gpu_plan = load("lgg100_adaptive_ab_gpu_experiment_plan.json")
     q0 = load("lgg100_slurm_q0_output_only_20260824.json")
+    q05 = load("lgg100_slurm_q05_soak_status_20260824.json")
     updates = load("development_updates.json")
 
     inference = author["inference"]
@@ -536,12 +537,13 @@ def build() -> str:
                 f"Q0 已在 1 张 Slurm 分配的空闲 L40S 上完成：{q0['output_only_probe']['finite_shape_passes']}/{q0['output_only_probe']['formal_draws']} finite [32,16]，实际运行 {q0['scheduler']['actual_runtime_s']} 秒并提前释放。",
                 f"Q0 warm latency P50/P95={q0['output_only_probe']['latency_ms']['p50']:.2f}/{q0['output_only_probe']['latency_ms']['p95']:.2f} ms；peak VRAM={q0['output_only_probe']['peak_memory_used_mib']/1024:.2f} GiB。",
                 f"raw contract={q0['output_only_probe']['raw_contract_passes']}/{q0['output_only_probe']['formal_draws']}；bounded analysis={q0['output_only_probe']['bounded_analysis_available']}/{q0['output_only_probe']['formal_draws']}。",
-                f"正式计划：Q1 使用 {ab_gpu_plan['gpu_plan']['pilot']['gpu_count']} 张 L40S；Formal 最多并行 {ab_gpu_plan['gpu_plan']['formal']['maximum_parallel_gpu_count']} 张，每个 shard 仍为 1 张。",
+                f"独立 Q0.5 当前 RUNNING：1 张 L40S，Near/Mixed/Far，{q05['workload']['target_rate_hz']} Hz，目标真实 inference {q05['scheduler']['target_inference_duration_s']/3600:.0f} 小时。",
+                f"首个 heartbeat：{q05['latest_heartbeat']['completed_calls']} 次调用，{q05['latest_heartbeat']['finite_shape_passes']}/{q05['latest_heartbeat']['completed_calls']} finite，GPU utilization={q05['latest_heartbeat']['allocated_gpu_utilization_percent']}%。",
             ],
-            "meaning": ["冻结 checkpoint strict restore 与 output-only inference 通过。", "raw quaternion contract 尚未通过，因此 g1_contract_verified=false、g1_sim_eligible=false。", "GPU 只做冻结 checkpoint inference，不训练、不占卡。"],
-            "missing": ["解释 raw quaternion norm gap，不能静默修改 action samples。", "完整 32-step、多 chunk sequential IK 与 swept-path。", "完整 commit latency ≤100 ms 与 Adaptive-OFF closed-loop。"],
-            "next": ["先完成 raw contract 诊断与 G3 sequential preflight；前置 Gate 通过后再申请 1-GPU Q1。"],
-            "evidence": ["results/lgg100_slurm_q0_output_only_20260824.json", "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md", "results/lgg100_adaptive_ab_gpu_experiment_plan.json"],
+            "meaning": ["冻结 checkpoint strict restore 与 Q0 output-only inference 通过。", "Q0.5 用真实多场景 inference 调查 endurance 和 raw quaternion gap，不是 dummy occupancy。", "运行中 heartbeat 不是最终结果；g1_contract_verified=false、g1_sim_eligible=false。"],
+            "missing": ["Q0.5 完成四小时或 fail-closed 后的最终汇总。", "解释 raw quaternion norm gap，不能静默修改 action samples。", "完整 32-step、多 chunk sequential IK、swept-path 和 commit latency ≤100 ms。"],
+            "next": ["不干预正在运行的 bounded job；完成后冻结结果，再继续 G3，前置 Gate 通过后才申请 Q1。"],
+            "evidence": ["results/lgg100_slurm_q05_soak_status_20260824.json", "results/lgg100_slurm_q0_output_only_20260824.json", "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md"],
         },
         {
             "domain": "REAL ROBOT", "id": "H4", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",

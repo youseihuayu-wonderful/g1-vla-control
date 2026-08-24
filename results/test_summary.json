@@ -1,7 +1,7 @@
 {
-  "passed": 114,
+  "passed": 124,
   "failed": 0,
-  "total": 114,
+  "total": 124,
   "success": true,
-  "scope": "Local tests including the completed one-L40S Slurm Q0 output-only evidence, fail-closed scheduler runner, frozen-checkpoint Adaptive A/B plan, public redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including the running four-hour multi-scenario Q0.5 output-only soak, completed Q0 evidence, fail-closed Slurm runners, frozen-checkpoint Adaptive A/B plan, public redaction, and hardware safety gates; GitHub Actions rerun pending."
 }
