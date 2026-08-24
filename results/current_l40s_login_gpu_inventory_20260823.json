@@ -1,0 +1,41 @@
+{
+  "schema_version": "current_l40s_login_gpu_inventory_v1",
+  "timestamp": "2026-08-23T19:57:00-04:00",
+  "scope": "Read-only L40S login, GPU inventory, resident compute-process inventory, and policy-port check.",
+  "ssh": {
+    "jump_control_master_running": true,
+    "target_control_master_running": true,
+    "interactive_shell_active": true,
+    "herdr_pane": "w1:p3",
+    "authenticated_login_succeeded": true
+  },
+  "gpus": [
+    {"index": 0, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34208, "memory_free_mib": 11251, "utilization_gpu_percent": 0, "resident_compute_processes": 1},
+    {"index": 1, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34168, "memory_free_mib": 11291, "utilization_gpu_percent": 0, "resident_compute_processes": 1},
+    {"index": 2, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34226, "memory_free_mib": 11233, "utilization_gpu_percent": 0, "resident_compute_processes": 1},
+    {"index": 3, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34206, "memory_free_mib": 11253, "utilization_gpu_percent": 0, "resident_compute_processes": 1},
+    {"index": 4, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34186, "memory_free_mib": 11273, "utilization_gpu_percent": 0, "resident_compute_processes": 1},
+    {"index": 5, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34210, "memory_free_mib": 11249, "utilization_gpu_percent": 0, "resident_compute_processes": 1},
+    {"index": 6, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34186, "memory_free_mib": 11273, "utilization_gpu_percent": 0, "resident_compute_processes": 1},
+    {"index": 7, "model": "NVIDIA L40S", "memory_total_mib": 46068, "memory_used_mib": 34227, "memory_free_mib": 11231, "utilization_gpu_percent": 0, "resident_compute_processes": 1}
+  ],
+  "summary": {
+    "gpu_count": 8,
+    "minimum_free_memory_mib": 11231,
+    "maximum_free_memory_mib": 11291,
+    "fully_idle_gpu_count": 0,
+    "resident_compute_process_count": 8,
+    "snapshot_utilization_percent_per_gpu": 0,
+    "local_tunnel_8000_listening": true,
+    "remote_policy_port_8000_listening": false,
+    "policy_service_available": false
+  },
+  "decision": {
+    "l40s_login_available": true,
+    "gpu_inventory_available": true,
+    "gpu_launch_authorized": false,
+    "reason": "Every GPU has an existing resident compute workload using about 34.2 GiB; no GPU is fully idle or documented as exclusively allocated.",
+    "other_gpu_process_modified": false,
+    "robot_command_sent": false
+  }
+}

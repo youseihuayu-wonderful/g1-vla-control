@@ -167,13 +167,14 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         relative_links = re.findall(r'href="(?!https://|http://|#)([^"]+)"', report)
         self.assertEqual(relative_links, [])
 
-    def test_current_robot_and_gpu_status_does_not_reuse_historical_availability(self):
+    def test_current_robot_and_gpu_status_uses_fresh_login_inventory(self):
         report = build()
         plain = html_lib.unescape(re.sub(r"<[^>]+>", "", report))
-        self.assertIn("L40S target TCP connect timeout", plain)
-        self.assertIn("当前 GPU free memory=unknown", plain)
+        self.assertIn("L40S 认证 shell 已在 Herdr w1:p3 建立", plain)
+        self.assertIn("实时 free range=11.0–11.0 GiB", plain)
+        self.assertIn("fully_idle_gpu_count=0", plain)
+        self.assertIn("瞬时 utilization=0% 不等于空闲", plain)
         self.assertIn("robot_connection_available=false", plain)
-        self.assertIn("历史显存快照不得替代实时查询", plain)
 
     def test_checked_report_keeps_hardware_gates_closed(self):
         report = REPORT.read_text()

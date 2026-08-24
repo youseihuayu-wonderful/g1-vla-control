@@ -208,7 +208,7 @@ Adaptive-ON 不得增加：
 2. **S5 Adaptive-OFF**：cycle 0 被 preflight 拒绝，没有形成稳定任务基线；
 3. **S6 实时性**：119.94 ms 超过 100 ms Gate；
 4. **S7 随机化与故障注入**：尚未完成多 seed robustness suite；
-5. **L40S 资源**：2026-08-22 当前目标不可达，实时显存未知；网络恢复后仍需完全空闲或明确分配的 GPU；
+5. **L40S 资源**：2026-08-23 已恢复认证 shell；8 张卡每卡约有 11.0 GiB free，但均有约 34.2 GiB resident workload，仍需完全空闲或明确分配的 GPU；
 6. **物理标定**：真实三相机、EEF、Dex1、桌面和方块尚未同步标定；
 7. **硬件安全链**：官方 limits、watchdog、E-stop、balance/stance 与 command adapter 未完成。
 

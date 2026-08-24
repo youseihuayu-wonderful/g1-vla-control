@@ -324,6 +324,7 @@ def build() -> str:
     deterministic_speed = load("g1_adaptive_phase_validation.json")
     retiming_safety = load("retiming_safety_validation.json")
     current_connectivity = load("current_robot_gpu_readonly_preflight_20260822.json")
+    current_l40s = load("current_l40s_login_gpu_inventory_20260823.json")
     updates = load("development_updates.json")
 
     inference = author["inference"]
@@ -526,15 +527,15 @@ def build() -> str:
             "domain": "REAL ROBOT", "id": "H3", "title": "L40S Policy 服务", "status": "blocked", "label": "无空卡",
             "done": ["建立 127.0.0.1:8000 loopback-only tunnel。", "只读监控 8 张 L40S 和 resident process。"],
             "result": [
-                "2026-08-22 当前复查：jump route 可认证，但 L40S target TCP connect timeout。",
-                f"nvidia-smi query succeeded={str(current_connectivity['l40s_route']['nvidia_smi_query_succeeded']).lower()}；当前 GPU free memory=unknown。",
-                "本地 policy tunnel 未监听，LGG100 server 不可用。",
-                f"最后一次成功查询的历史候选约 {gpu['decision']['candidate_free_memory_mib']/1024:.1f} GiB 空闲，但不能代表当前状态。",
+                "2026-08-23 当前复查：L40S 认证 shell 已在 Herdr w1:p3 建立并保持活动。",
+                f"8 张 L40S 均为 46,068 MiB total；实时 free range={current_l40s['summary']['minimum_free_memory_mib']/1024:.1f}–{current_l40s['summary']['maximum_free_memory_mib']/1024:.1f} GiB。",
+                "每卡各有 1 个既有 compute process，约占 34.2 GiB；瞬时 utilization=0% 不等于空闲。",
+                "本地 8000 tunnel 已监听，但远端 policy port 8000 关闭，LGG100 server 不可用。",
             ],
-            "meaning": ["当前无法确认任何 GPU 可用，也不能启动远端 Simulation。", "历史显存快照不得替代实时查询。"],
-            "missing": ["恢复 L40S target 网络可达性。", "完全空闲或管理员明确分配的 GPU。", "Strict restore peak memory 与 server metadata/hash Gate。"],
-            "next": ["网络恢复后只读运行 nvidia-smi；不停止或挤占其他任务。"],
-            "evidence": ["results/current_robot_gpu_readonly_preflight_20260822.json", "results/l40s_gpu_availability_20260819.json"],
+            "meaning": ["SSH 与实时 GPU inventory 已恢复。", "fully_idle_gpu_count=0；当前仍无资格启动新的 LGG100 workload。"],
+            "missing": ["完全空闲或管理员明确分配的 GPU。", "Strict restore peak memory 与 server metadata/hash Gate。"],
+            "next": ["保持 shell；等待现有任务正常结束或取得明确分配，不停止或挤占任何 process。"],
+            "evidence": ["results/current_l40s_login_gpu_inventory_20260823.json", "results/current_robot_gpu_readonly_preflight_20260822.json"],
         },
         {
             "domain": "REAL ROBOT", "id": "H4", "title": "Zero-motion Shadow / HIL", "status": "todo", "label": "首个允许测试",

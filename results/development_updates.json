@@ -1047,7 +1047,7 @@
       "professor_research_brief.html",
       "generate_professor_research_brief.py",
       "tests/test_professor_research_brief.py",
-      "Markdown SHA-256 7d81b377afe47cdd742e3ea46ed0975753a2277ec9ffdb20c633109c693a5fba",
+      "Markdown SHA-256 3a1c696b4b6a5f834d5d78c56462fb497bad8d18e3d4f3262fbeab56143759c5",
       "92/92 local tests"
     ]
   },
@@ -1088,6 +1088,46 @@
       "results/current_robot_gpu_readonly_preflight_20260822.json",
       "robot_command_sent=false",
       "other_gpu_process_modified=false"
+    ]
+  },
+  {
+    "time": "2026-08-23 19:58 EDT",
+    "title": "恢复 L40S 登录并读取实时 GPU inventory",
+    "status": "partial",
+    "summary": "已在 Herdr w1:p3 建立并保持 L40S 认证 shell。只读 nvidia-smi 显示 8 张 L40S 每卡 46,068 MiB total、约 11.0 GiB free；每卡均有 1 个既有 compute process，占用约 34.2 GiB。远端 policy port 8000 关闭。登录成功，但没有完全空闲或明确分配的 GPU，未启动 LGG100 workload。",
+    "done": [
+      "通过既有 jump route 成功建立 L40S interactive SSH shell。",
+      "建立 target ControlMaster 和本地 8000 tunnel listener。",
+      "只读采集 8 张 GPU 的 total/used/free/utilization。",
+      "只读确认每卡存在 resident compute process。",
+      "只读确认远端 policy port 8000 未监听。"
+    ],
+    "conclusions": [
+      "l40s_login_available=true。",
+      "GPU free memory range 为 11,231–11,291 MiB。",
+      "瞬时 utilization=0% 不代表 GPU 空闲；fully_idle_gpu_count=0。",
+      "当前仍不能在不干扰既有 workload 的前提下启动 LGG100 server。",
+      "机器人连接和全部真机动作 Gate 不因 L40S 登录而改变。"
+    ],
+    "fixes": [
+      "Dashboard H3 从 target unreachable 更新为当前认证 shell、实时 GPU memory 和 resident-process 状态。",
+      "新增脱敏的实时 L40S login/GPU inventory 证据。"
+    ],
+    "remaining": [
+      "等待现有任务正常结束或获取管理员明确 GPU 分配。",
+      "执行 strict restore peak-memory qualification。",
+      "启动后验证 server metadata、checkpoint hash 和远端 policy port。"
+    ],
+    "next": [
+      "保持 Herdr L40S shell 活动。",
+      "不得停止、暂停或挤占当前 8 个 resident process。",
+      "仅在 GPU 完全空闲或明确分配后启动 output-only/Simulation policy。"
+    ],
+    "evidence": [
+      "results/current_l40s_login_gpu_inventory_20260823.json",
+      "authenticated_login_succeeded=true",
+      "other_gpu_process_modified=false",
+      "robot_command_sent=false"
     ]
   }
 ]
