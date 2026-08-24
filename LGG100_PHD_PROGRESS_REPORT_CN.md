@@ -62,11 +62,13 @@
 - 右手末端位置与姿态：7 维；
 - 左右夹爪命令：2 维。
 
-原始动作频率按 30 Hz 进行分析，因此相邻动作点的标称时间间隔约为：
+正式 deployment cadence 已确认为 15 Hz，因此相邻动作点的标称时间间隔为：
 
 \[
-\Delta t = \frac{1}{30} \approx 0.033\;\text{s}
+\Delta t = \frac{1}{15} \approx 0.067\;\text{s}
 \]
+
+早期 30 Hz 图表仅保留为历史分析，不能作为 formal Adaptive-OFF/ON timing evidence。
 
 当前公开数据实验支持以下动作解释：
 

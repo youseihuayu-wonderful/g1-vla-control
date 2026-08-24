@@ -1,6 +1,6 @@
 {
   "schema_version": "lgg100_adaptive_ab_gpu_experiment_plan_v1",
-  "plan_version": "1.0",
+  "plan_version": "1.1",
   "author": "Shihua Yu",
   "status": "q05_four_hour_output_only_soak_running",
   "scope": "Frozen LGG100 checkpoint inference and Simulation-only Adaptive-OFF/ON A/B evaluation.",
@@ -8,8 +8,19 @@
   "checkpoint_weights_frozen": true,
   "robot_command_allowed": false,
   "hardware_execution_performed": false,
+  "deployment_cadence": {
+    "control_hz": 15.0,
+    "confirmed": true,
+    "confirmation_provenance": "project_owner_confirmation_2026-08-24",
+    "exec_steps": 0,
+    "prefetch_lead_steps": 5,
+    "blend_steps": 5,
+    "time_alignment": true,
+    "must_be_explicit_in_every_trial_manifest": true,
+    "thirty_hz_help_text_treated_as_stale": true
+  },
   "adaptive_contract": {
-    "off": "Frozen VLA action samples with default uniform timestamps.",
+    "off": "Frozen VLA action samples with confirmed 15 Hz uniform timestamps.",
     "on": "Same frozen VLA contract; retimer may modify timestamps only.",
     "retimer_may_modify_action_samples": false,
     "single_chunk_byte_identity_required": true,
@@ -138,8 +149,8 @@
   "next_actions": [
     "allow_q05_to_finish_or_fail_closed_without_interference",
     "apply_only_the_pinned_official_quaternion_consumer_postprocessing",
-    "freeze_explicit_15_or_30_hz_deployment_cadence_manifest",
-    "complete_full_sequential_preflight",
+    "use_explicit_confirmed_15_hz_deployment_cadence_in_every_manifest",
+    "complete_full_sequential_preflight_at_15_hz",
     "reduce_complete_observation_to_commit_latency_below_100_ms",
     "run_adaptive_off_only_after_preflight"
   ],

@@ -134,7 +134,7 @@ Adaptive-ON 不得增加：
 
 | 模块 | 功能 | 当前状态 |
 |---|---|---|
-| G1 Policy Contract | 冻结三相机、EEF-16、pelvis frame、xyzw、30 Hz、horizon 32 | 已完成 |
+| G1 Policy Contract | 冻结三相机、EEF-16、pelvis frame、xyzw、已确认 15 Hz、horizon 32 | 已完成 |
 | MuJoCo Observation Bridge | 生成三路 RGB 与 FK-based EEF state | 已完成 |
 | LGG100 Policy | 真实 checkpoint output-only 推理 | 离线通过 |
 | Semantic Validator | 判断 absolute/delta、四元数顺序和左右手顺序 | 离线通过 |

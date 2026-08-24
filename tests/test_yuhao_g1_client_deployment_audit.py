@@ -6,6 +6,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 AUDIT = ROOT / "results" / "yuhao_g1_client_deployment_audit_20260824.json"
 ATTESTATION = ROOT / "results" / "lgg100_author32_semantic_source_attestation_20260824.json"
+CADENCE = ROOT / "results" / "lgg100_deployment_cadence_attestation_20260824.json"
 CONTRACT = ROOT / "g1_policy_contract.yaml"
 DOC = ROOT / "YUHAO_G1_CLIENT_DEPLOYMENT_AUDIT_CN.md"
 Q0 = ROOT / "results" / "lgg100_slurm_q0_output_only_20260824.json"
@@ -16,6 +17,7 @@ class YuhaoG1ClientDeploymentAuditTests(unittest.TestCase):
     def setUpClass(cls):
         cls.audit = json.loads(AUDIT.read_text())
         cls.attestation = json.loads(ATTESTATION.read_text())
+        cls.cadence = json.loads(CADENCE.read_text())
         cls.contract = json.loads(CONTRACT.read_text())
         cls.doc = DOC.read_text()
         cls.q0 = json.loads(Q0.read_text())
@@ -25,7 +27,7 @@ class YuhaoG1ClientDeploymentAuditTests(unittest.TestCase):
             self.audit["audited_commit"],
             "1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
         )
-        self.assertEqual(self.contract["contract_version"], "1.3.0")
+        self.assertEqual(self.contract["contract_version"], "1.3.1")
         policy = self.contract["production_policy"]
         self.assertEqual(policy["deployment_commit"], self.audit["audited_commit"])
         self.assertTrue(policy["official_action_consumer_postprocessing_verified"])
@@ -62,7 +64,18 @@ class YuhaoG1ClientDeploymentAuditTests(unittest.TestCase):
         loop = self.audit["deployment_loop"]
         self.assertEqual(loop["control_hz_code_default"], 15.0)
         self.assertEqual(loop["control_hz_help_text_claim"], 30.0)
-        self.assertFalse(loop["control_hz_resolved"])
+        self.assertTrue(loop["control_hz_resolved"])
+        self.assertEqual(loop["resolved_control_hz"], 15.0)
+        self.assertIn("project_owner_confirmation", loop["resolution_provenance"])
+        cadence = self.cadence
+        self.assertEqual(cadence["policy_rate_hz"], 15.0)
+        self.assertTrue(cadence["formal_manifest"]["all_fields_must_be_explicit"])
+        self.assertAlmostEqual(
+            cadence["derived_timing"]["nominal_chunk_span_s"], 31 / 15
+        )
+        self.assertTrue(cadence["decision"]["cadence_gate_passed"])
+        self.assertFalse(cadence["decision"]["g1_sim_eligible"])
+        self.assertFalse(cadence["decision"]["g1_execution_enabled"])
         ik = self.audit["ik_reference"]
         self.assertFalse(ik["warning_is_fail_closed"])
         self.assertFalse(ik["orientation_acceptance_threshold_present"])

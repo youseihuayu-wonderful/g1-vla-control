@@ -346,7 +346,7 @@ def build() -> str:
             "domain": "SIMULATION", "id": "S0", "title": "G1 数据契约", "status": "pass", "label": "通过",
             "done": [
                 "冻结 pelvis-frame state/action[16] 和 xyzw 四元数。",
-                "冻结双臂 14 关节、双 Dex1、30 Hz 和 horizon 32。",
+                "冻结双臂 14 关节、双 Dex1、已确认 15 Hz 和 horizon 32。",
                 "实现 contract metadata/hash 与 fail-closed validator。",
             ],
             "result": [
@@ -543,7 +543,7 @@ def build() -> str:
                 f"首个 heartbeat：{q05['latest_heartbeat']['completed_calls']} 次调用，{q05['latest_heartbeat']['finite_shape_passes']}/{q05['latest_heartbeat']['completed_calls']} finite，GPU utilization={q05['latest_heartbeat']['allocated_gpu_utilization_percent']}%。",
             ],
             "meaning": ["冻结 checkpoint strict restore 与 Q0 output-only inference 通过。", "Yuhao pinned deployment code 明确在 IK 前归一化预测 quaternion；Q0 官方 consumer boundary 30/30 通过。", "Q0.5 用真实多场景 inference 调查 endurance，不是 dummy occupancy；运行中 heartbeat 不是最终结果，g1_sim_eligible=false。"],
-            "missing": ["Q0.5 完成四小时或 fail-closed 后的最终汇总。", "固定 deployment code 中 15 Hz 默认值与 30 Hz help text 冲突的实验 manifest。", "完整 32-step、多 chunk sequential IK、swept-path 和 commit latency ≤100 ms。"],
+            "missing": ["Q0.5 完成四小时或 fail-closed 后的最终汇总。", "在每个正式 trial manifest 中显式写入已确认的 15 Hz cadence。", "完整 32-step、多 chunk sequential IK、swept-path 和 commit latency ≤100 ms。"],
             "next": ["不干预正在运行的 bounded job；完成后冻结结果，再继续 G3，前置 Gate 通过后才申请 Q1。"],
             "evidence": ["results/yuhao_g1_client_deployment_audit_20260824.json", "results/lgg100_slurm_q05_soak_status_20260824.json", "results/lgg100_slurm_q0_output_only_20260824.json", "LGG100_ADAPTIVE_AB_GPU_EXECUTION_PLAN_CN.md"],
         },

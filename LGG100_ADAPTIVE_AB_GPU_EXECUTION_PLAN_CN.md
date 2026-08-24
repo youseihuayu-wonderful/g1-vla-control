@@ -1,6 +1,6 @@
 # LGG100 冻结 Checkpoint × Adaptive Speed A/B GPU 执行计划
 
-**版本：** 1.0
+**版本：** 1.1
 
 **作者：** Shihua Yu
 
@@ -26,7 +26,7 @@
 
 - checkpoint、revision、模型参数和 normalization 全部冻结；
 - VLA 输出 `[32,16]` action samples；
-- 使用默认 30 Hz 均匀 timestamps；
+- 使用已确认且在 manifest 中显式冻结的 15 Hz 均匀 timestamps（相邻 sample `1/15 s`）；
 - Adaptive Retimer 不修改 timestamps；
 - contract、IK、swept-path、limits、watchdog 和 hold Gate 始终启用。
 
@@ -39,6 +39,8 @@
 - Adaptive Retimer 不得绕过任何安全 Gate。
 
 ### 重要因果边界
+
+正式 cadence 已由项目负责人确认为 15 Hz。每个 OFF/ON trial manifest 都必须保存 `control_hz=15.0`、`exec_steps=0`、`prefetch_lead_steps=5`、`blend_steps=5` 和 `time_alignment=true`，不得依赖 CLI help text 或隐式 default。
 
 在 single-chunk 测试中，A/B 必须消费同一个保存 chunk，并证明 action samples byte-identical。
 
@@ -280,6 +282,11 @@ Adaptive-ON 只有同时满足以下条件才可标记为 Simulation-qualified�
   "seed": 0,
   "checkpoint_revision": "pinned",
   "contract_sha256": "pinned",
+  "control_hz": 15.0,
+  "exec_steps": 0,
+  "prefetch_lead_steps": 5,
+  "blend_steps": 5,
+  "time_alignment": true,
   "initial_state_sha256": "...",
   "observations": [],
   "chunk_fingerprints": [],
@@ -356,7 +363,8 @@ Adaptive-ON 只有同时满足以下条件才可标记为 Simulation-qualified�
 - Formal 阶段并行上限：**2 张 L40S**；
 - 当前 GPU 用途：**冻结 LGG100 checkpoint inference**；
 - 当前不执行：训练、LoRA、checkpoint 更新、真机动作、GPU 抢占；
-- 下一工程任务：**复现 Yuhao 官方 consumer post-processing + 固定 deployment cadence + G3 完整 sequential preflight**；
+- 正式 deployment cadence 已固定为 **15 Hz**；
+- 下一工程任务：**在 15 Hz manifest 下完成 G3 完整 sequential preflight**；
 - 下一次 GPU 作业：只有完成前置 Gate 后才允许提交 **Q1 Adaptive-OFF Pilot**。
 
 ## 13. Q0 实际执行结果（2026-08-24）

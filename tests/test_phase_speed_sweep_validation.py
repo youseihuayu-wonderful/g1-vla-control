@@ -113,7 +113,7 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
     def test_expected_near_mixed_and_far_behaviors_pass(self):
         near = self.scenario(
             "near", 0.08, 0.05, {"approach": 20, "grasp": 12},
-            [0.5, 0.5], 2.0,
+            [0.5, 0.5], NOMINAL_CHUNK_DURATION_S + 0.01,
         )
         mixed = self.scenario(
             "mixed", 0.16, 0.12, {"free_space": 24, "grasp": 8},
@@ -130,7 +130,7 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
     def test_missing_observation_binding_fails_closed(self):
         record = self.scenario(
             "near", 0.08, 0.05, {"approach": ACTION_HORIZON},
-            [0.5, 0.5], 2.0,
+            [0.5, 0.5], NOMINAL_CHUNK_DURATION_S + 0.01,
         )
         self.assertTrue(record["accepted"])
         preflight_path = self.root / "near-preflight.json"
@@ -161,7 +161,7 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
     def test_scene_mismatch_fails_closed(self):
         record = self.scenario(
             "near", 0.09, 0.05, {"approach": ACTION_HORIZON},
-            [0.5, 0.5], 2.0,
+            [0.5, 0.5], NOMINAL_CHUNK_DURATION_S + 0.01,
         )
         self.assertTrue(record["accepted"])
         ensemble_path = self.root / "near-ensemble.json"
@@ -177,7 +177,7 @@ class PhaseSpeedSweepValidationTests(unittest.TestCase):
     def test_contract_hash_mismatch_fails_closed(self):
         record = self.scenario(
             "near", 0.08, 0.05, {"approach": ACTION_HORIZON},
-            [0.5, 0.5], 2.0,
+            [0.5, 0.5], NOMINAL_CHUNK_DURATION_S + 0.01,
         )
         self.assertTrue(record["accepted"])
         ensemble_path = self.root / "near-ensemble.json"

@@ -119,7 +119,7 @@ g1_sim_eligible=false
 g1_execution_enabled=false
 ```
 
-下一步应按 contract v1.3 重新生成或无损迁移 horizon-32 artifacts，显式固定 deployment code 中存在歧义的 15/30 Hz cadence，再完成 full multi-chunk IK/swept-path；通过后首先运行 Adaptive-OFF 基础闭环。不能复用旧 horizon-50 artifacts。
+下一步应按 contract v1.3.1 重新生成或无损迁移 horizon-32 artifacts，使用项目负责人已确认的 15 Hz deployment cadence 完成 full multi-chunk IK/swept-path；通过后首先运行 Adaptive-OFF 基础闭环。不能复用旧 horizon-50 artifacts。
 
 ## 7. 远端证据
 

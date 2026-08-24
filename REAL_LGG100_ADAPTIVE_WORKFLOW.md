@@ -44,7 +44,7 @@ Adaptive 只有在成功率和安全不下降、完成时间改善时才能启�
 
 | 文件 | 作用 | 当前状态 |
 |---|---|---|
-| `g1_policy_contract.yaml` | G1 三相机、16-D state/action、30 Hz、50 horizon | 已冻结 v1.1 |
+| `g1_policy_contract.yaml` | G1 三相机、16-D state/action、15 Hz、32 horizon | v1.3.1 已冻结；旧 v1.1 的 30 Hz/50 horizon 已废止 |
 | `lgg100_candidate_server.py` | CUDA 上严格加载真实 Orbax 权重 | 代码完成，未在 GPU 运行 |
 | `lgg100_sim_smoke.py` | G1 MuJoCo observation → 真实 VLA output-only | 代码完成，真实调用 0 |
 | `lgg100_adaptive_ab.py` | 同一真实 chunk 的 Baseline/Adaptive 配对 | 代码完成，被 semantic gate 阻塞 |
@@ -280,7 +280,7 @@ candidate FK 后的 16-D pelvis EEF
 - quaternion `xyzw` vs `wxyz`；
 - absolute target vs delta；
 - delta 左乘/右乘和所在 frame；
-- 30 Hz 与 author-confirmed canonical horizon 32；
+- project-owner-confirmed 15 Hz 与 author-confirmed canonical horizon 32；
 - q01/q99 normalization；
 - 左右手顺序和 Dex1 方向；
 - action 与 future state 的时序 lag。

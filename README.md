@@ -53,7 +53,7 @@ git submodule update --init --recursive
 ```text
 contract_id: g1_edu_dual_dex1_eef_v1
 camera preprocessing: 640×480 RGB → aspect-preserving resize with zero padding → 224×224
-policy rate: 30 Hz
+policy/deployment rate: 15 Hz (confirmed; explicit in formal manifests)
 action horizon: 32 (author-confirmed canonical; 48 is experimental only)
 action semantics: absolute target
 action frame: pelvis
@@ -155,7 +155,7 @@ revision: cced7a7ff7b454fdcac555457a1a2a3dc262ac77
 
 不再切换到其他 VLA。Yuhao 已直接确认核心配置为 `pi05_g1_eef`、`action_horizon=32`、`discrete_state_input=False`。按该配置和公开代码中的 `resize_with_pad(224,224)` 重新验证后，50/50 输出为有限 `[32,16]`，语义识别和预注册的单次采样离线质量标准均通过。
 
-Yuhao 的 pinned `g1-client` deployment code 进一步确认：该 checkpoint 已训练，预测 quaternion 应由 consumer 在 IK 前归一化，并提供 full-horizon prefetch/time-alignment/joint-space blend 参考。这仍然不是本项目的闭环抓取或堆叠成功证据；完整 sequential IK/swept-path、明确 cadence、实时 watchdog 和硬件安全合同尚未通过，因此严格标记：
+Yuhao 的 pinned `g1-client` deployment code 进一步确认：该 checkpoint 已训练，预测 quaternion 应由 consumer 在 IK 前归一化，并提供 full-horizon prefetch/time-alignment/joint-space blend 参考。项目负责人已确认正式 deployment cadence 为代码默认的 15 Hz；30 Hz help text 视为过期文档。这仍然不是本项目的闭环抓取或堆叠成功证据；完整 sequential IK/swept-path、15 Hz 调度延迟、实时 watchdog 和硬件安全合同尚未通过，因此严格标记：
 
 ```text
 policy_task_quality_passed=false

@@ -1,0 +1,62 @@
+{
+  "schema_version": "lgg100_deployment_cadence_attestation_v1",
+  "timestamp": "2026-08-24T15:43:20-04:00",
+  "status": "confirmed",
+  "policy_rate_hz": 15.0,
+  "confirmation_provenance": "project_owner_confirmation_2026-08-24",
+  "pinned_deployment_source": {
+    "repository": "https://github.com/leihao100/g1-client",
+    "commit": "1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+    "entrypoint": "openpi/main_eef.py",
+    "code_default_hz": 15.0,
+    "help_text_claim_hz": 30.0,
+    "resolution": "The confirmed 15 Hz code default is authoritative; the 30 Hz help text is retained only as stale-documentation provenance."
+  },
+  "formal_manifest": {
+    "control_hz": 15.0,
+    "exec_steps": 0,
+    "prefetch_lead_steps": 5,
+    "blend_steps": 5,
+    "time_alignment": true,
+    "all_fields_must_be_explicit": true
+  },
+  "derived_timing": {
+    "sample_interval_s": 0.06666666666666667,
+    "horizon_samples": 32,
+    "horizon_intervals": 31,
+    "nominal_chunk_span_s": 2.066666666666667,
+    "prefetch_lead_window_s": 0.3333333333333333,
+    "five_step_blend_span_s": 0.3333333333333333
+  },
+  "contract_migration": {
+    "previous_version": "1.3.0",
+    "previous_sha256": "94fb9bd91f6efd3de74e39d2bad4bdd38523273a499448151622f607530ac0f3",
+    "new_version": "1.3.1",
+    "new_sha256": "839e2a3576b3fbb7b09aa457838b4187e53b100f91fa5f48dc74458b21163374",
+    "raw_neural_outputs_modified": false,
+    "official_quaternion_postprocessing_modified": false,
+    "historical_inference_and_semantic_result_payloads_rewritten": false
+  },
+  "evidence_interpretation": {
+    "output_only_inference_affected": false,
+    "cadence_independent_semantic_hypothesis_ranking_affected": false,
+    "historical_30_hz_timing_results_are_formal_evidence": false,
+    "adaptive_off_and_on_must_use_15_hz_nominal_timestamps": true,
+    "single_chunk_off_on_action_identity_requirement_unchanged": true
+  },
+  "decision": {
+    "cadence_gate_passed": true,
+    "g1_contract_verified": true,
+    "g1_sim_eligible": false,
+    "adaptive_off_closed_loop_passed": false,
+    "g1_execution_enabled": false,
+    "hardware_execution_performed": false,
+    "remaining_gates": [
+      "full_multi_chunk_sequential_ik_at_15_hz",
+      "swept_path_collision_preflight",
+      "complete_latency_and_boundary_stall_validation_at_15_hz",
+      "fresh_commit_watchdog",
+      "adaptive_off_task_baseline"
+    ]
+  }
+}

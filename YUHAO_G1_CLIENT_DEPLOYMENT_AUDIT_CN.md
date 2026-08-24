@@ -61,7 +61,7 @@ EEF          = wrist_yaw + local X 0.05 m
 - `blend_steps=5`，在 IK 后的 joint space 做 cross-fade；
 - IK 从上一时刻 joint solution warm-start，保持冗余肘关节分支连续。
 
-代码参数默认 `control_hz=15.0`，但 help text 写“default 30”。该冲突不能静默选择，Simulation manifest 必须显式指定并分别报告 15/30 Hz；canonical training rate 仍需由数据 metadata 或作者确认约束。
+代码参数默认 `control_hz=15.0`，但 help text 写“default 30”。项目负责人已于 2026-08-24 确认正式部署 cadence 为 **15 Hz**；因此 formal Simulation manifest 必须显式写入 `control_hz=15.0`，30 Hz help text 作为过期文档记录保留，不再作为实验分支。32-step chunk 的标称跨度为 `31/15 ≈ 2.067 s`，prefetch lead 5 的调度窗口为 `5/15 ≈ 333 ms`。
 
 ## IK 实现差异
 
@@ -126,4 +126,4 @@ raw_quaternion_exact_unit_passes=0/N
 official_consumer_postprocess_passes=N/N
 ```
 
-这不再是 Adaptive-OFF 的 quaternion blocker。剩余 Simulation blocker 是完整 multi-chunk IK/swept-path、明确的 chunk execution manifest、完整延迟和 fresh-commit watchdog。
+这不再是 Adaptive-OFF 的 quaternion blocker，15 Hz cadence 也已固定。剩余 Simulation blocker 是完整 multi-chunk IK/swept-path、15 Hz 下的完整调度/延迟验证和 fresh-commit watchdog。

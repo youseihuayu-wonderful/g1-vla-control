@@ -33,7 +33,10 @@
     "blend_space": "joint space after IK",
     "control_hz_code_default": 15.0,
     "control_hz_help_text_claim": 30.0,
-    "control_hz_resolved": false
+    "control_hz_resolved": true,
+    "resolved_control_hz": 15.0,
+    "resolution_provenance": "project_owner_confirmation_2026-08-24",
+    "resolution_note": "The code default is authoritative for formal experiment manifests; the 30 Hz help text is treated as stale documentation."
   },
   "ik_reference": {
     "library": "Pinocchio",
@@ -69,8 +72,8 @@
     "correct_raw_metric": "raw_quaternion_exact_unit_passes",
     "correct_consumer_metric": "official_consumer_postprocess_passes",
     "quaternion_gap_blocks_adaptive_off": false,
-    "new_contract_version": "1.3.0",
-    "new_contract_sha256": "94fb9bd91f6efd3de74e39d2bad4bdd38523273a499448151622f607530ac0f3"
+    "new_contract_version": "1.3.1",
+    "new_contract_sha256": "839e2a3576b3fbb7b09aa457838b4187e53b100f91fa5f48dc74458b21163374"
   },
   "decision": {
     "checkpoint_is_trained": true,
@@ -82,6 +85,6 @@
     "g1_sim_eligible": false,
     "g1_execution_enabled": false,
     "hardware_execution_performed": false,
-    "reason": "The trained checkpoint and deployment reference are established. The reference publisher is not fail-closed for project thresholds and must not be run on the connected robot; multi-chunk IK/swept-path, explicit cadence, latency, and watchdog gates remain."
+    "reason": "The trained checkpoint, deployment reference, official consumer boundary and 15 Hz cadence are established. The reference publisher is not fail-closed for project thresholds and must not be run on the connected robot; multi-chunk IK/swept-path, latency and watchdog gates remain."
   }
 }

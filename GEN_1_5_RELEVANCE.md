@@ -79,7 +79,7 @@ GEN-1.5 says it produces 100 Hz action trajectories. This should not be read as
   safety-filtered prefix using fresh feedback;
 - stale policy output never bypasses the local watchdog.
 
-Our current 30 Hz policy contract and 119.94 ms commit age should therefore be
+Our confirmed 15 Hz deployment contract and 119.94 ms commit age should therefore be
 split from the future hardware command loop rather than forcing remote VLA
 inference to be the motor servo.
 

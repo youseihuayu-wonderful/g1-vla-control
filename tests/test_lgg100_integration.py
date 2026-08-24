@@ -9,7 +9,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from g1_policy_contract import ACTION_HORIZON, CONTRACT_ID, CONTRACT_SHA256
+from g1_policy_contract import ACTION_HORIZON, CONTRACT_ID, CONTRACT_SHA256, POLICY_RATE_HZ
 from lgg100_adaptive_ab import HF_REVISION, _load_verified_chunk
 from lgg100_candidate_server import G1CandidateInputs, G1CandidateOutputs
 from lgg100_sim_smoke import build_sim_observation
@@ -56,7 +56,7 @@ class LGG100CandidateContractTests(unittest.TestCase):
         actions = np.zeros((ACTION_HORIZON, 16), dtype=np.float64)
         actions[:, 6] = 1.0
         actions[:, 13] = 1.0
-        timestamps = np.arange(ACTION_HORIZON) / 30.0
+        timestamps = np.arange(ACTION_HORIZON) / POLICY_RATE_HZ
         digest = hashlib.sha256(actions.tobytes()).hexdigest()
         report = {
             "summary": {"passed": True},

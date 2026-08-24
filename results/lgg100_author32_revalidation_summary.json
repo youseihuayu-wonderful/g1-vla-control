@@ -10,6 +10,8 @@
     "name": "pi05_g1_eef",
     "action_horizon": 32,
     "discrete_state_input": false,
+    "deployment_policy_rate_hz": 15.0,
+    "deployment_policy_rate_confirmation": "project_owner_confirmation_2026-08-24",
     "provenance": "direct communication reported by project owner",
     "complete_historical_train_config_available": false
   },
@@ -78,5 +80,5 @@
     "raw_artifacts_modified": false,
     "official_consumer_postprocessing_recovered": true
   },
-  "verdict": "The trained checkpoint, pinned author transform, official quaternion consumer boundary, and behavioral semantic validation establish the G1 EEF-16 action contract. Sequential IK, swept-path, latency, closed-loop stacking, and hardware execution remain separate and unpassed."
+  "verdict": "The trained checkpoint, pinned author transform, official quaternion consumer boundary, confirmed 15 Hz cadence, and behavioral semantic validation establish the G1 EEF-16 action contract. Sequential IK, swept-path, latency, closed-loop stacking, and hardware execution remain separate and unpassed."
 }

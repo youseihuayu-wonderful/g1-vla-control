@@ -32,7 +32,12 @@ class G1PolicyContractTests(unittest.TestCase):
             parsed["joint_output"]["ordered_joints"], LEFT_JOINTS + RIGHT_JOINTS
         )
         self.assertEqual(ACTION_HORIZON, 32)
-        self.assertEqual(POLICY_RATE_HZ, 30.0)
+        self.assertEqual(POLICY_RATE_HZ, 15.0)
+        self.assertTrue(parsed["timing"]["policy_rate_confirmed"])
+        self.assertEqual(
+            parsed["timing"]["deployment_receding_horizon"]["control_hz_resolved"],
+            15.0,
+        )
         self.assertEqual(
             parsed["production_policy"]["model"],
             "LGG100/stack-cube-eef-24k",

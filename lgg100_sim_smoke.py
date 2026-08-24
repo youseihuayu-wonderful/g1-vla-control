@@ -72,7 +72,7 @@ def main() -> None:
     parser.add_argument("--warmup-calls", type=int, default=1)
     parser.add_argument("--call-timeout-ms", type=float, default=60_000.0)
     parser.add_argument("--connect-timeout-s", type=float, default=5.0)
-    parser.add_argument("--action-rate-hz", type=float, default=30.0)
+    parser.add_argument("--action-rate-hz", type=float, default=POLICY_RATE_HZ)
     parser.add_argument("--output", type=Path, default=RESULTS / "lgg100_vla_smoke_real.json")
     parser.add_argument("--chunk-output", type=Path, default=RESULTS / "lgg100_action_chunk_real.npz")
     args = parser.parse_args()

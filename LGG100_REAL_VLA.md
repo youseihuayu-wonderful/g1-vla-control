@@ -23,8 +23,9 @@ joint↔EEF transform. Repository history contains only the initial commit and a
 single checkpoint upload. The public `openpi-fintune` repository, direct author confirmation, and the
 pinned `leihao100/g1-client` deployment repository now establish the EEF
 contract, official quaternion consumer boundary, and receding-horizon reference.
-They still do not provide the complete historical TrainConfig or resolve the
-15 Hz code-default versus 30 Hz help-text conflict.
+They still do not provide the complete historical TrainConfig. The project
+owner has separately confirmed the deployment cadence as 15 Hz; the 30 Hz help
+text is retained only as stale-documentation provenance.
 
 Confirmed/supported model fields:
 

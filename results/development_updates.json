@@ -1298,5 +1298,43 @@
       "PI05_G1_EEF_FIVE_ITEM_AUDIT_CN.md",
       "hardware_execution_performed=false"
     ]
+  },
+  {
+    "time": "2026-08-24 15:43 EDT",
+    "title": "确认 LGG100 正式 deployment cadence 为 15 Hz",
+    "status": "pass",
+    "summary": "项目负责人确认正式 deployment cadence 为 15 Hz。Contract 升级到 v1.3.1；formal Adaptive-OFF/ON manifest 必须显式写入 15 Hz、full remaining horizon、prefetch lead 5、joint-space blend 5 和 time alignment。30 Hz help text 仅作为过期文档 provenance 保留。",
+    "done": [
+      "将 g1_policy_contract.yaml 的 policy_rate_hz 从 30.0 修正为 15.0，并保存确认 provenance。",
+      "固定 32-step chunk 标称跨度 31/15=2.067 s、prefetch lead 5 窗口 333 ms。",
+      "将 cadence 从 G3 blocker 移除，并新增独立 cadence attestation。",
+      "保持历史 raw neural outputs、Q0/Q0.5 inference bytes 和 cadence-independent semantic ranking 不变。"
+    ],
+    "conclusions": [
+      "cadence_gate_passed=true。",
+      "15 Hz 不自动授予 Simulation 或硬件执行权限。",
+      "g1_sim_eligible=false；g1_execution_enabled=false；hardware_execution_performed=false。"
+    ],
+    "remaining": [
+      "在 15 Hz 下完成完整 multi-chunk sequential IK 和 swept-path collision preflight。",
+      "验证 prefetch/time-alignment、chunk boundary stall、完整 commit latency 和 fresh-commit watchdog。",
+      "通过后才允许 Adaptive-OFF MuJoCo baseline。"
+    ],
+    "evidence": [
+      "g1_policy_contract.yaml v1.3.1",
+      "results/lgg100_deployment_cadence_attestation_20260824.json",
+      "results/yuhao_g1_client_deployment_audit_20260824.json",
+      "hardware_execution_performed=false"
+    ],
+    "fixes": [
+      "将 active policy/deployment rate 从历史 30 Hz 修正为已确认的 15 Hz。",
+      "将部署代码中的 30 Hz help text 明确标记为 stale，而不再建立 15/30 双分支。",
+      "按 15 Hz 重新绑定测试 fixture 的 nominal chunk duration。"
+    ],
+    "next": [
+      "让现有 Q0.5 staged job 自然结束，不修改其运行中代码或 raw outputs。",
+      "使用 contract v1.3.1 和显式 15 Hz manifest 完成 G3。",
+      "G3 通过后运行 Adaptive-OFF MuJoCo baseline；继续禁止硬件 Publisher。"
+    ]
   }
 ]

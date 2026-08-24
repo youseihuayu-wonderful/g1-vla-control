@@ -27,6 +27,16 @@ class AdaptiveABGPUPlanTests(unittest.TestCase):
         self.assertTrue(contract["single_chunk_byte_identity_required"])
         self.assertIn("may diverge", contract["closed_loop_identity_boundary"])
 
+    def test_confirmed_15_hz_cadence_is_explicit(self):
+        cadence = self.plan["deployment_cadence"]
+        self.assertTrue(cadence["confirmed"])
+        self.assertEqual(cadence["control_hz"], 15.0)
+        self.assertEqual(cadence["exec_steps"], 0)
+        self.assertEqual(cadence["prefetch_lead_steps"], 5)
+        self.assertEqual(cadence["blend_steps"], 5)
+        self.assertTrue(cadence["time_alignment"])
+        self.assertTrue(cadence["must_be_explicit_in_every_trial_manifest"])
+
     def test_gpu_request_is_bounded_and_scheduler_managed(self):
         gpu = self.plan["gpu_plan"]
         self.assertEqual(gpu["qualification"]["gpu_count"], 1)
