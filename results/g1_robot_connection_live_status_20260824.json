@@ -1,29 +1,36 @@
 {
-  "schema_version": "g1_robot_connection_live_status_v1",
-  "timestamp": "2026-08-24T11:26:00-04:00",
-  "scope": "Read-only connection freshness check; no robot state subscription and no command publication.",
+  "schema_version": "g1_robot_connection_live_status_v2",
+  "timestamp": "2026-08-24T11:31:00-04:00",
+  "scope": "Authenticated nested robot shell and read-only inventory; no state subscription and no command publication.",
   "operator_gateway": {
     "ssh_tcp_reachable": true,
-    "authenticated_shell_available": false,
-    "batch_auth_result": "permission_denied_no_noninteractive_credential",
+    "authenticated_shell_available": true,
     "credentials_stored_or_requested": false
   },
   "robot_internal_computer": {
-    "ssh_tcp_reachable_from_current_local_route": false,
-    "reachability_from_authenticated_gateway_confirmed": false,
-    "authenticated_shell_available": false
+    "ssh_tcp_reachable_from_gateway": true,
+    "authenticated_shell_available": true,
+    "architecture": "aarch64",
+    "os": "Ubuntu 22.04",
+    "kernel_family": "Tegra 5.15",
+    "active_network_interface_count": 2,
+    "system_python_version": "3.14.6",
+    "unitree_sdk2py_available_in_system_python": false,
+    "unitree_sdk2_cpp_tree_present": true,
+    "conda_environments": ["base", "teleimager"]
   },
   "herdr_robot_readonly_pane": {
     "pane_exists": true,
-    "foreground_process": "local_shell",
-    "active_ssh_process": false
+    "active_nested_ssh_session": true,
+    "label": "gateway-login"
   },
   "decision": {
     "gateway_network_path_available": true,
-    "robot_connection_available": false,
+    "robot_connection_available": true,
+    "readonly_inventory_completed": true,
     "lowstate_subscription_active": false,
     "robot_motion_allowed": false,
-    "reason": "The gateway SSH port is reachable, but no authenticated gateway or robot-internal shell is active."
+    "reason": "Authenticated robot shell and read-only inventory are available, but the audited Python subscriber environment is not installed and all motion gates remain closed."
   },
   "robot_command_sent": false,
   "publisher_created": false,
