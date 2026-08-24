@@ -8,6 +8,8 @@ from g1_dual_arm_ik import LEFT_JOINTS, RIGHT_JOINTS
 from g1_unitree_lowstate import (
     CONTRACT_ARM_INDICES,
     CONTRACT_ARM_JOINTS,
+    CONTRACT_WAIST_INDICES,
+    CONTRACT_WAIST_JOINTS,
     G1_29DOF_JOINT_INDEX,
     LOWSTATE_TOPIC,
     extract_lowstate_snapshot,
@@ -52,6 +54,10 @@ def fake_message():
 
 class UnitreeLowStateTests(unittest.TestCase):
     def test_official_g1_arm_indices_match_frozen_contract_order(self):
+        self.assertEqual(CONTRACT_WAIST_JOINTS, (
+            "waist_yaw_joint", "waist_roll_joint", "waist_pitch_joint"
+        ))
+        self.assertEqual(CONTRACT_WAIST_INDICES, (12, 13, 14))
         self.assertEqual(CONTRACT_ARM_JOINTS, tuple(LEFT_JOINTS + RIGHT_JOINTS))
         self.assertEqual(CONTRACT_ARM_INDICES, tuple(range(15, 29)))
         self.assertEqual(len(G1_29DOF_JOINT_INDEX), 29)
@@ -65,6 +71,9 @@ class UnitreeLowStateTests(unittest.TestCase):
         self.assertEqual(snapshot.received_monotonic_ns, 20)
         self.assertEqual(snapshot.tick, 1234)
         self.assertEqual(snapshot.version, (1, 2))
+        self.assertEqual(len(snapshot.waist_motor_state), 3)
+        self.assertEqual(tuple(state.index for state in snapshot.waist_motor_state), (12, 13, 14))
+        self.assertEqual(snapshot.waist_motor_state[0].q, 1.2)
         self.assertEqual(len(snapshot.arm_motor_state), 14)
         self.assertEqual(snapshot.arm_motor_state[0].index, 15)
         self.assertEqual(snapshot.arm_motor_state[0].q, 1.5)

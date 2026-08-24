@@ -58,6 +58,15 @@ G1_29DOF_JOINT_INDEX = {
     "right_wrist_yaw_joint": 28,
 }
 
+CONTRACT_WAIST_JOINTS = (
+    "waist_yaw_joint",
+    "waist_roll_joint",
+    "waist_pitch_joint",
+)
+CONTRACT_WAIST_INDICES = tuple(
+    G1_29DOF_JOINT_INDEX[name] for name in CONTRACT_WAIST_JOINTS
+)
+
 CONTRACT_ARM_JOINTS = (
     "left_shoulder_pitch_joint",
     "left_shoulder_roll_joint",
@@ -105,6 +114,7 @@ class LowStateSnapshot:
     imu_accelerometer: tuple[float, float, float]
     imu_rpy: tuple[float, float, float]
     imu_temperature: int
+    waist_motor_state: tuple[ArmMotorState, ...]
     arm_motor_state: tuple[ArmMotorState, ...]
 
     def to_dict(self) -> dict[str, Any]:
@@ -152,25 +162,31 @@ def extract_lowstate_snapshot(
             f"G1 LowState requires at least {G1_MOTOR_COUNT} motors, got {len(motor_state)}"
         )
 
-    arm = []
-    for name, index in zip(CONTRACT_ARM_JOINTS, CONTRACT_ARM_INDICES):
+    def copy_motor(name: str, index: int) -> ArmMotorState:
         state = motor_state[index]
-        arm.append(
-            ArmMotorState(
-                name=name,
-                index=index,
-                mode=int(state.mode),
-                q=_finite(state.q, f"motor_state[{index}].q"),
-                dq=_finite(state.dq, f"motor_state[{index}].dq"),
-                ddq=_finite(state.ddq, f"motor_state[{index}].ddq"),
-                tau_est=_finite(state.tau_est, f"motor_state[{index}].tau_est"),
-                temperature=_int_vector(
-                    state.temperature, 2, f"motor_state[{index}].temperature"
-                ),
-                vol=_finite(state.vol, f"motor_state[{index}].vol"),
-                motor_state=int(state.motorstate),
-            )
+        return ArmMotorState(
+            name=name,
+            index=index,
+            mode=int(state.mode),
+            q=_finite(state.q, f"motor_state[{index}].q"),
+            dq=_finite(state.dq, f"motor_state[{index}].dq"),
+            ddq=_finite(state.ddq, f"motor_state[{index}].ddq"),
+            tau_est=_finite(state.tau_est, f"motor_state[{index}].tau_est"),
+            temperature=_int_vector(
+                state.temperature, 2, f"motor_state[{index}].temperature"
+            ),
+            vol=_finite(state.vol, f"motor_state[{index}].vol"),
+            motor_state=int(state.motorstate),
         )
+
+    waist = tuple(
+        copy_motor(name, index)
+        for name, index in zip(CONTRACT_WAIST_JOINTS, CONTRACT_WAIST_INDICES)
+    )
+    arm = tuple(
+        copy_motor(name, index)
+        for name, index in zip(CONTRACT_ARM_JOINTS, CONTRACT_ARM_INDICES)
+    )
 
     imu = message.imu_state
     return LowStateSnapshot(
@@ -189,7 +205,8 @@ def extract_lowstate_snapshot(
         imu_accelerometer=_float_vector(imu.accelerometer, 3, "imu.accelerometer"),
         imu_rpy=_float_vector(imu.rpy, 3, "imu.rpy"),
         imu_temperature=int(imu.temperature),
-        arm_motor_state=tuple(arm),
+        waist_motor_state=waist,
+        arm_motor_state=arm,
     )
 
 
@@ -263,7 +280,7 @@ def capture_lowstate(
 
     success = len(snapshots) == sample_count
     return {
-        "schema_version": "g1_unitree_lowstate_readonly_v1",
+        "schema_version": "g1_unitree_lowstate_readonly_v2",
         "success": success,
         "source": {
             "repository": OFFICIAL_SDK_REPOSITORY,
