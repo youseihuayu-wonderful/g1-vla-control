@@ -1,0 +1,32 @@
+{
+  "schema_version": "g1_robot_connection_live_status_v1",
+  "timestamp": "2026-08-24T11:26:00-04:00",
+  "scope": "Read-only connection freshness check; no robot state subscription and no command publication.",
+  "operator_gateway": {
+    "ssh_tcp_reachable": true,
+    "authenticated_shell_available": false,
+    "batch_auth_result": "permission_denied_no_noninteractive_credential",
+    "credentials_stored_or_requested": false
+  },
+  "robot_internal_computer": {
+    "ssh_tcp_reachable_from_current_local_route": false,
+    "reachability_from_authenticated_gateway_confirmed": false,
+    "authenticated_shell_available": false
+  },
+  "herdr_robot_readonly_pane": {
+    "pane_exists": true,
+    "foreground_process": "local_shell",
+    "active_ssh_process": false
+  },
+  "decision": {
+    "gateway_network_path_available": true,
+    "robot_connection_available": false,
+    "lowstate_subscription_active": false,
+    "robot_motion_allowed": false,
+    "reason": "The gateway SSH port is reachable, but no authenticated gateway or robot-internal shell is active."
+  },
+  "robot_command_sent": false,
+  "publisher_created": false,
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

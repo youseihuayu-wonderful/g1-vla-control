@@ -324,6 +324,7 @@ def build() -> str:
     deterministic_speed = load("g1_adaptive_phase_validation.json")
     retiming_safety = load("retiming_safety_validation.json")
     current_connectivity = load("current_robot_gpu_readonly_preflight_20260822.json")
+    current_robot = load("g1_robot_connection_live_status_20260824.json")
     current_l40s = load("current_l40s_login_gpu_inventory_20260823.json")
     ab_gpu_plan = load("lgg100_adaptive_ab_gpu_experiment_plan.json")
     q0 = load("lgg100_slurm_q0_output_only_20260824.json")
@@ -498,11 +499,11 @@ def build() -> str:
                 "Mac→开发机 192.168.1.13→机器人 192.168.123.164 登录成功。",
                 "建立独立 L40S ControlMaster、keeper 和 loopback tunnel。",
             ],
-            "result": ["历史上已取得机器人内部认证 shell；没有执行机器人命令。", "2026-08-22 当前复查：operator gateway host down，机器人内部 SSH 未确认可达。", f"robot_connection_available={str(current_connectivity['robot_route']['robot_connection_available']).lower()}。"],
-            "meaning": ["历史连接证据仍有效，但当前没有可用只读入口。", "保存的 Herdr pane label 不等于 SSH session 仍在线。"],
-            "missing": ["恢复现场网络或授权 gateway。", "机器人内部实时 supervisor 架构。", "稳定有线延迟、断线与恢复测试。"],
-            "next": ["先恢复网络并重复 read-only connectivity check；不得发送动作。"],
-            "evidence": ["results/current_robot_gpu_readonly_preflight_20260822.json", "results/g1_robot_ssh_connection_status_20260818.json", "CONNECTION_RUNBOOK.md"],
+            "result": ["历史上已取得机器人内部认证 shell；没有执行机器人命令。", "2026-08-24 当前复查：operator gateway SSH TCP 已可达，但 non-interactive authentication 未通过。", "Herdr robot-readonly pane 当前只是本地 shell，没有 active SSH process。", f"robot_connection_available={str(current_robot['decision']['robot_connection_available']).lower()}。"],
+            "meaning": ["现场 gateway 网络路径已恢复，但真实机器人 shell 仍未连接。", "TCP 可达和保存的 pane label 都不等于机器人认证连接。"],
+            "missing": ["由用户在受控 pane 手动完成 gateway authentication；凭据不得由 agent 保存。", "认证后只读确认机器人内部 SSH。", "机器人内部实时 supervisor 与稳定链路测试。"],
+            "next": ["在 robot-readonly pane 手动认证 gateway；随后只做 read-only inventory，不订阅动作、不创建 Publisher。"],
+            "evidence": ["results/g1_robot_connection_live_status_20260824.json", "results/current_robot_gpu_readonly_preflight_20260822.json", "CONNECTION_RUNBOOK.md"],
         },
         {
             "domain": "REAL ROBOT", "id": "H1", "title": "Unitree SDK / LowState", "status": "partial", "label": "本地完成",

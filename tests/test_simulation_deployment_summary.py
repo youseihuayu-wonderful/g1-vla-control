@@ -177,6 +177,8 @@ class SimulationDeploymentSummaryTests(unittest.TestCase):
         self.assertIn("独立 Q0.5 当前 RUNNING", plain)
         self.assertIn("目标真实 inference 4 小时", plain)
         self.assertIn("不是 dummy occupancy", plain)
+        self.assertIn("operator gateway SSH TCP 已可达", plain)
+        self.assertIn("robot-readonly pane 当前只是本地 shell", plain)
         self.assertIn("robot_connection_available=false", plain)
 
     def test_checked_report_keeps_hardware_gates_closed(self):
