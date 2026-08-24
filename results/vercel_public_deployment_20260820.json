@@ -1,9 +1,9 @@
 {
   "schema_version": "vercel_public_deployment_v1",
-  "timestamp": "2026-08-23T20:58:00-04:00",
+  "timestamp": "2026-08-23T20:56:00-04:00",
   "project": "g1-vla-simulation-readiness",
   "production_alias": "https://g1-vla-simulation-readiness.vercel.app",
-  "deployment_id": "dpl_CVyxiy9ksQfy4iTF6cTfddewWARP",
+  "deployment_id": "dpl_CEiq4kXHgofLySKWhoBp8LVvWfFu",
   "ready_state": "READY",
   "http_status": 200,
   "content": {
