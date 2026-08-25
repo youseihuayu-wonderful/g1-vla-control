@@ -1,0 +1,122 @@
+{
+  "schema_version": "g1_yuhao_pinocchio_mujoco_fk_source_parity_v2",
+  "scope": "Offline source-parity and measured-waist impact analysis using one previously captured subscriber-only real G1 joint sample.",
+  "runtime": {
+    "pinocchio_version": "3.9.0",
+    "pin_distribution_version": "3.9.0",
+    "cmeel_urdfdom_version": "4.0.1",
+    "cmeel_tinyxml2_version": "10.0.0"
+  },
+  "source": {
+    "repository": "https://github.com/leihao100/g1-client",
+    "commit": "1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+    "eef_kinematics_sha256": "1653c374535505738755872c64899b42ae99c576be3838487f8dc222137980e2",
+    "urdf_sha256": "8bbf006633fc50b616f665c7a970780cc296577a0adfd7d28b049e751c238735",
+    "waist_assumption": "locked_at_zero",
+    "eef_offset_local_x_m": 0.05
+  },
+  "input": {
+    "sample_sha256": "b31831cad07c0d7d63f8d7e5e072a691e6fb67f6eda0f6bf7391096701e188ef",
+    "source_raw_capture_sha256": "918f74da274be58b2daeb1fcc83d67d7a293d35c51f47c1f55e61031e3e5a0fe",
+    "tick": 546373,
+    "measured_waist_q_rad": {
+      "waist_yaw_joint": -0.03193967044353485,
+      "waist_roll_joint": 0.03907441347837448,
+      "waist_pitch_joint": -0.007599280681461096
+    }
+  },
+  "thresholds": {
+    "source_parity_position_m": 0.001,
+    "source_parity_orientation_deg": 0.1,
+    "project_fk_position_m": 0.005,
+    "project_fk_orientation_deg": 3.0
+  },
+  "poses_xyzw": {
+    "yuhao_pinocchio_zero_waist": [
+      -0.013419130376999343,
+      0.17646195236609613,
+      -0.12769212659945306,
+      0.012832068976022524,
+      0.7402298068783728,
+      0.039421276645441844,
+      0.6710746113229475,
+      -0.02899622369179433,
+      -0.18278424184892678,
+      -0.12605811685322943,
+      -0.027794552137675618,
+      0.7649602457568273,
+      -0.02641161619778313,
+      0.6429352314292175
+    ],
+    "project_mujoco_zero_waist": [
+      -0.013419127091765404,
+      0.1764613389968872,
+      -0.12769222259521484,
+      0.012831566855311394,
+      0.7402298450469971,
+      0.03942074999213219,
+      0.671074628829956,
+      -0.028996219858527184,
+      -0.18278363347053528,
+      -0.12605822086334229,
+      -0.027794061228632927,
+      0.7649602890014648,
+      -0.026411080732941628,
+      0.6429352760314941
+    ],
+    "project_mujoco_measured_waist": [
+      -0.006262824870646,
+      0.18332983553409576,
+      -0.12073463946580887,
+      0.03760639578104019,
+      0.7362561225891113,
+      0.0431106798350811,
+      0.6742804646492004,
+      -0.03330928087234497,
+      -0.17501920461654663,
+      -0.13325393199920654,
+      -0.002886630827561021,
+      0.7630277276039124,
+      -0.021933699026703835,
+      0.6459870338439941
+    ]
+  },
+  "comparison": {
+    "yuhao_vs_project_zero_waist": {
+      "left_position_error_m": 6.20844397170834e-07,
+      "right_position_error_m": 6.172171941503377e-07,
+      "left_orientation_error_deg": 8.35128545355453e-05,
+      "right_orientation_error_deg": 8.342552537379955e-05
+    },
+    "project_zero_vs_measured_waist": {
+      "left_position_error_m": 0.012115975782587184,
+      "right_position_error_m": 0.01143097150238628,
+      "left_orientation_error_deg": 2.9294030836378484,
+      "right_orientation_error_deg": 2.929401878030361
+    }
+  },
+  "decision": {
+    "yuhao_project_zero_waist_source_parity_passed": true,
+    "measured_waist_is_nonzero": true,
+    "zero_waist_is_safe_approximation_at_current_pose": false,
+    "maximum_waist_induced_position_difference_m": 0.012115975782587184,
+    "maximum_waist_induced_orientation_difference_deg": 2.9294030836378484,
+    "shadow_policy_observation_fk": "yuhao_zero_waist_for_contract_parity",
+    "shadow_safety_and_ik_fk": "measured_waist_for_physical_geometry",
+    "dual_view_required": true,
+    "waist_divergence_requires_hold": true,
+    "offline_h2_core_completed": true,
+    "physical_eef_parity_verified": false,
+    "robot_motion_allowed": false,
+    "reason": "The two software models agree under the author's zero-waist assumption, but the measured waist changes EEF position beyond the registered 5 mm tolerance. Shadow must preserve zero-waist policy-contract state while independently using measured waist for safety/IK and holding on excessive divergence."
+  },
+  "safety": {
+    "offline_only": true,
+    "network_accessed": false,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "mode_change_requested": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

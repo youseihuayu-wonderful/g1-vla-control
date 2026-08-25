@@ -1,0 +1,77 @@
+{
+  "schema_version": "g1_first_motion_review_checklist_v1",
+  "owner": "Shihua Yu",
+  "scope": "Offline preparation of the independent first-motion review; this artifact grants no command authority.",
+  "offline_checklist_preparation_completed": true,
+  "prerequisite_gates": {
+    "h1_real_three_camera_passed": false,
+    "h2_source_parity_completed": true,
+    "h2_physical_eef_parity_passed": false,
+    "h3_dds_freshness_fully_qualified": false,
+    "h4_real_15_hz_policy_shadow_passed": false,
+    "h4_full_sequential_ik_passed": false,
+    "h4_swept_path_passed": false,
+    "h5_integrated_fault_injection_passed": false,
+    "complete_latency_contract_passed": false
+  },
+  "trial_day_hardware_checks": {
+    "mechanical_support_reconfirmed": false,
+    "safety_tether_clear": false,
+    "estop_tested_and_held": false,
+    "second_observer_ready": false,
+    "safety_zone_clear": false,
+    "free_space_cleared": false,
+    "power_network_temperature_within_official_limits": false,
+    "control_mode_authority_and_damping_fallback_verified": false
+  },
+  "official_limits_and_adapter_review": {
+    "joint_position_limits_frozen": false,
+    "joint_velocity_acceleration_limits_frozen": false,
+    "torque_current_temperature_shutdown_limits_frozen": false,
+    "command_loss_watchdog_validated": false,
+    "lowstate_and_fresh_commit_watchdogs_validated": false,
+    "unitree_adapter_independently_reviewed": false,
+    "one_time_operator_arm_token_required": true,
+    "direct_yuhao_motion_entrypoints_forbidden": true
+  },
+  "trial_manifest": {
+    "trial_id": null,
+    "single_arm": null,
+    "starting_snapshot_sha256": null,
+    "target_sha256": null,
+    "maximum_eef_displacement_m": null,
+    "maximum_joint_displacement_rad": null,
+    "maximum_eef_speed_m_s": null,
+    "maximum_joint_speed_rad_s": null,
+    "maximum_duration_s": null,
+    "allowed_contact": "none",
+    "gripper_command": "disabled",
+    "torso_waist_command": "disabled",
+    "locomotion": "disabled",
+    "automatic_retry_count": 0,
+    "manifest_sha256": null
+  },
+  "required_authorization": {
+    "operator_signed": false,
+    "independent_safety_reviewer_signed": false,
+    "manifest_hash_approved": false,
+    "one_time_publisher_arm_token_generated": false
+  },
+  "decision": {
+    "offline_h6_checklist_prepared": true,
+    "motion_review_passed": false,
+    "motion_authorized": false,
+    "publisher_creation_allowed": false,
+    "robot_motion_allowed": false,
+    "reason": "The checklist is prepared, but H1-H5, physical calibration, official limits, trial-day checks, and dual authorization remain incomplete."
+  },
+  "safety": {
+    "offline_only": true,
+    "network_accessed": false,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "mode_change_requested": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

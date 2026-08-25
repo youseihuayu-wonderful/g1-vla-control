@@ -1,10 +1,17 @@
 {
-  "schema_version": "g1_six_gate_execution_status_v1",
-  "timestamp": "2026-08-24T20:06:32-04:00",
+  "schema_version": "g1_six_gate_execution_status_v2",
+  "timestamp": "2026-08-24T20:34:39-04:00",
   "owner": "Shihua Yu",
   "state": "ACTIVE_READONLY_VALIDATION",
   "current_gate": "H1_REAL_THREE_CAMERA",
-  "strict_order": ["H1", "H2", "H3", "H4", "H5", "H6"],
+  "strict_order": [
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6"
+  ],
   "resolved_gate_count": 0,
   "total_gate_count": 6,
   "safety_baseline": {
@@ -37,38 +44,53 @@
         "true_simultaneous_snapshot": false
       },
       "next_action": "Audit and start only the camera image-server entrypoint after proving it contains no robot publisher or mode switch; rerun the fixed three-frame probe.",
-      "permission_after_pass": "real_visual_observation_only"
+      "permission_after_pass": "real_visual_observation_only",
+      "offline_observation_boundary_implemented": true,
+      "offline_observation_boundary_evidence": [
+        "g1_camera_observation.py",
+        "g1_camera_readonly_probe.py"
+      ]
     },
     {
       "id": "H2",
       "name": "real_joint_fk_source_parity",
-      "status": "PARTIAL_PROJECT_NUMERIC_ROUNDTRIP_PASSED",
+      "status": "OFFLINE_CORE_COMPLETED_LIVE_PHYSICAL_PARITY_PENDING",
       "completed": false,
       "evidence": [
         "results/g1_lowstate_current_pose_sample_20260824.json",
         "g1_real_lowstate_offline_parity.py",
-        "results/g1_real_lowstate_offline_parity_20260824.json"
+        "results/g1_real_lowstate_offline_parity_20260824.json",
+        "g1_yuhao_fk_source_parity.py",
+        "results/g1_yuhao_pinocchio_mujoco_fk_source_parity_20260824.json"
       ],
       "observed": {
         "real_joint_to_mujoco_mapping_passed": true,
         "numeric_frame_roundtrip_passed": true,
         "numeric_current_pose_ik_passed": true,
-        "maximum_final_position_error_m": 0.00004455816717115267,
-        "maximum_final_orientation_error_deg": 0.00004304479769151365,
+        "maximum_final_position_error_m": 4.455816717115267e-05,
+        "maximum_final_orientation_error_deg": 4.304479769151365e-05,
         "physical_eef_parity_verified": false,
-        "yuhao_pinocchio_direct_comparison_completed": false,
-        "measured_waist_is_exactly_zero": false
+        "yuhao_pinocchio_direct_comparison_completed": true,
+        "measured_waist_is_exactly_zero": false,
+        "yuhao_project_zero_waist_source_parity_passed": true,
+        "maximum_waist_induced_position_difference_m": 0.012115975782587184,
+        "maximum_waist_induced_orientation_difference_deg": 2.9294030836378484,
+        "zero_waist_is_safe_approximation_at_current_pose": false,
+        "dual_fk_view_required": true
       },
-      "next_action": "Run pinned Yuhao Pinocchio FK on the same q14 and compare against MuJoCo with waist forced to zero and measured waist retained.",
-      "permission_after_pass": "freeze_shadow_fk_boundary_only"
+      "next_action": "Use zero-waist FK only for frozen policy-contract observation, measured waist for safety/IK, and hold on excessive divergence; physical EEF parity remains live-only.",
+      "permission_after_pass": "freeze_shadow_fk_boundary_only",
+      "offline_work_completed": true
     },
     {
       "id": "H3",
       "name": "dds_freshness_and_stale_threshold",
-      "status": "PARTIAL_CAPTURED_NOT_QUALIFIED",
+      "status": "OFFLINE_FORENSIC_COMPLETED_LIVE_QUALIFICATION_PENDING",
       "completed": false,
       "evidence": [
-        "results/g1_lowstate_readonly_capture_300_20260824.json"
+        "results/g1_lowstate_readonly_capture_300_20260824.json",
+        "g1_dds_freshness.py",
+        "results/g1_dds_freshness_offline_analysis_20260824.json"
       ],
       "observed": {
         "captured_samples": 300,
@@ -81,21 +103,54 @@
         "median_callback_gap_ms": 1.397231,
         "maximum_callback_gap_ms": 3.228279
       },
-      "next_action": "Repeat bounded captures with error/tick/gap correlation, resolve tick semantics, and preregister warning/hold/disconnect thresholds.",
-      "permission_after_pass": "freeze_watchdog_timing_only"
+      "next_action": "Instrument exact CycloneDDS exception/sample identity and repeat bounded live captures before freezing hardware thresholds.",
+      "permission_after_pass": "freeze_watchdog_timing_only",
+      "offline_work_completed": true,
+      "offline_analysis": {
+        "aggregate_samples": 500,
+        "aggregate_duplicate_ticks": 17,
+        "aggregate_reader_errors_lower_bound": 26,
+        "maximum_receive_gap_ms": 3.98534,
+        "candidate_warning_ms": 20.0,
+        "candidate_stale_hold_ms": 50.0,
+        "candidate_disconnect_ms": 200.0,
+        "final_hardware_threshold_frozen": false,
+        "exact_reader_error_cause_identified": false,
+        "duplicate_tick_origin_identified": false
+      }
     },
     {
       "id": "H4",
       "name": "real_15_hz_policy_shadow",
-      "status": "LOCKED_BY_H1_H2_H3",
+      "status": "OFFLINE_REPLAY_COMPLETED_REAL_SHADOW_LOCKED",
       "completed": false,
-      "next_action": "Wait for H1-H3; then run frozen LGG100 with real observations into a mock sink only.",
-      "permission_after_pass": "real_observation_action_evidence_only"
+      "next_action": "Replace fixtures with three real cameras, streaming LowState, and frozen LGG100 inference after H1/H3; retain all current fail-closed holds.",
+      "permission_after_pass": "real_observation_action_evidence_only",
+      "offline_work_completed": true,
+      "evidence": [
+        "g1_camera_observation.py",
+        "g1_offline_policy_shadow_replay.py",
+        "results/g1_offline_policy_shadow_replay_20260824.json"
+      ],
+      "offline_replay": {
+        "synthetic_cameras_used": true,
+        "frozen_lgg100_inference_executed": false,
+        "action_horizon": 32,
+        "policy_rate_hz": 15.0,
+        "sequential_ik_maximum_position_error_m": 0.0065429948087854595,
+        "swept_path_accepted": false,
+        "swept_path_reason": "initial_configuration_collision",
+        "hold_reasons": [
+          "collision_failure",
+          "ik_failure",
+          "waist_divergence"
+        ]
+      }
     },
     {
       "id": "H5",
       "name": "watchdog_and_fail_closed_mock_adapter",
-      "status": "LOCKED_BY_H4",
+      "status": "OFFLINE_MOCK_FAULT_SUITE_PASSED_INTEGRATED_GATE_LOCKED",
       "completed": false,
       "required_faults": [
         "lowstate_stop",
@@ -110,12 +165,27 @@
         "hold": true,
         "robot_command_sent": false
       },
-      "permission_after_pass": "first_motion_review_only"
+      "permission_after_pass": "first_motion_review_only",
+      "offline_work_completed": true,
+      "evidence": [
+        "g1_fail_closed_adapter.py",
+        "g1_fail_closed_fault_injection.py",
+        "results/g1_fail_closed_mock_fault_injection_20260824.json"
+      ],
+      "offline_fault_suite": {
+        "required_cases": 8,
+        "passed_cases": 8,
+        "all_publish_allowed_false": true,
+        "all_hold_true": true,
+        "all_robot_command_sent_false": true,
+        "hardware_transport_present": false
+      },
+      "next_action": "Bind the same fault suite to qualified real-observation H4 Shadow; do not add a hardware transport before independent adapter review."
     },
     {
       "id": "H6",
       "name": "first_hardware_motion_review",
-      "status": "LOCKED_BY_H1_TO_H5",
+      "status": "OFFLINE_CHECKLIST_PREPARED_REVIEW_LOCKED",
       "completed": false,
       "constraints_if_later_approved": [
         "mechanically_supported",
@@ -127,15 +197,25 @@
         "no_table_contact",
         "estop_operator_continuously_ready"
       ],
-      "motion_authorized": false
+      "motion_authorized": false,
+      "offline_work_completed": true,
+      "evidence": [
+        "G1_FIRST_MOTION_REVIEW_CHECKLIST_CN.md",
+        "results/g1_first_motion_review_checklist_20260824.json"
+      ],
+      "next_action": "Keep every approval field false until H1-H5, physical calibration, official limits, trial-day checks, and dual authorization pass."
     }
   ],
   "decision": {
     "continue_with_h1_camera_only_audit": true,
     "zero_motion_policy_shadow_eligible": false,
     "robot_motion_allowed": false,
-    "reason": "The six gates are now explicitly tracked. H1 camera runtime is blocked, H2/H3 are partial, and H4-H6 remain locked."
+    "reason": "All five planned offline work packages are complete, but no live gate is promoted: H1 camera runtime, H2 physical parity, H3 live freshness, H4 real Shadow, H5 integrated watchdog, and H6 authorization remain incomplete.",
+    "offline_five_task_plan_completed": true
   },
   "g1_execution_enabled": false,
-  "hardware_execution_performed": false
+  "hardware_execution_performed": false,
+  "offline_tasks_completed": 5,
+  "offline_tasks_total": 5,
+  "offline_tasks_do_not_promote_live_gates": true
 }

@@ -1,0 +1,90 @@
+{
+  "schema_version": "g1_dds_freshness_offline_analysis_v1",
+  "scope": "Offline forensic analysis of bounded subscriber-only LowState summaries.",
+  "inputs": [
+    {
+      "file": "g1_lowstate_readonly_capture_20260824.json",
+      "sha256": "c2db52d6dae72b1de32f13fbdee6f31cbfe61ef1a4a07b60689e4cb482de8efc",
+      "captured_samples": 100,
+      "reader_errors_observed": 1,
+      "duplicate_ticks": 4,
+      "tick_decreases": 0,
+      "median_receive_gap_ms": 1.621353,
+      "maximum_receive_gap_ms": 3.203889
+    },
+    {
+      "file": "g1_lowstate_readonly_capture_with_waist_20260824.json",
+      "sha256": "757954053be1c507a9140594b21640a0eb1479fd110ff3e317c1164c3ae0542e",
+      "captured_samples": 100,
+      "reader_errors_observed": 7,
+      "duplicate_ticks": 4,
+      "tick_decreases": 0,
+      "median_receive_gap_ms": 1.724712,
+      "maximum_receive_gap_ms": 3.98534
+    },
+    {
+      "file": "g1_lowstate_readonly_capture_300_20260824.json",
+      "sha256": "6a83a972c50adfb12bec123cd0a4da214c1879adb5a3ce0f9c78ad8d2b74f984",
+      "captured_samples": 300,
+      "reader_errors_observed": 18,
+      "duplicate_ticks": 9,
+      "tick_decreases": 0,
+      "median_receive_gap_ms": 1.397231,
+      "maximum_receive_gap_ms": 3.228279
+    }
+  ],
+  "aggregate": {
+    "captured_samples": 500,
+    "duplicate_ticks": 17,
+    "duplicate_fraction": 0.034,
+    "reader_errors_observed_lower_bound": 26,
+    "reader_errors_per_captured_sample_lower_bound": 0.052,
+    "tick_decreases": 0,
+    "maximum_receive_gap_ms": 3.98534
+  },
+  "source_audit": {
+    "sdk_channel_file": "channel.py",
+    "sdk_channel_sha256": "8a58eea2bc6bb8792e5b5fa76949407bd8c2ef8af07172d1a3a465bcc544e247",
+    "reader_error_uses_generic_bare_except": true,
+    "reader_error_exact_exception_preserved": false,
+    "reader_error_exact_cause_identified": false,
+    "official_lowstate_tick_type": "uint32",
+    "official_lowstate_tick_period_or_unit_documented_in_pinned_idl": false
+  },
+  "interpretation": {
+    "duplicate_tick_proves_dds_duplicate_delivery": false,
+    "duplicate_tick_proves_robot_tick_semantics": false,
+    "reason": "The available summaries do not preserve DDS sample identity or the exception type, and the official IDL specifies only uint32 tick. A duplicate tick is therefore treated conservatively as no new source progress, not classified as a DDS or robot duplicate.",
+    "tick_jump_can_be_converted_to_time": false,
+    "watchdog_clock": "local_monotonic_receive_time",
+    "tick_usage": "progress_only_with_uint32_rollover_handling"
+  },
+  "provisional_thresholds": {
+    "warning_ms": 20.0,
+    "stale_hold_ms": 50.0,
+    "disconnect_ms": 200.0,
+    "recovery_unique_ticks": 2,
+    "sample_interval_at_15_hz_ms": 66.66666666666667,
+    "stale_hold_is_less_than_one_policy_interval": true,
+    "basis": "50 ms is more than 12x the observed 3.98534 ms maximum receive gap but remains below one 15 Hz policy interval; 200 ms is three policy intervals.",
+    "final_hardware_threshold_frozen": false
+  },
+  "decision": {
+    "offline_h3_forensic_completed": true,
+    "candidate_watchdog_preregistered": true,
+    "reader_error_root_cause_resolved": false,
+    "duplicate_tick_origin_resolved": false,
+    "tick_period_resolved": false,
+    "dds_freshness_fully_qualified": false,
+    "live_recapture_required": true,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "network_accessed": false,
+    "publisher_created": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

@@ -1,0 +1,1191 @@
+{
+  "schema_version": "g1_offline_policy_shadow_replay_v1",
+  "scope": "Offline dataflow replay using saved real joints, synthetic cameras, a deterministic hold-policy fixture, measured-waist IK, and mock sink.",
+  "contract": {
+    "id": "g1_edu_dual_dex1_eef_v1",
+    "version": "1.3.1",
+    "sha256": "839e2a3576b3fbb7b09aa457838b4187e53b100f91fa5f48dc74458b21163374",
+    "policy_rate_hz": 15.0,
+    "action_horizon": 32
+  },
+  "inputs": {
+    "lowstate_sample_sha256": "b31831cad07c0d7d63f8d7e5e072a691e6fb67f6eda0f6bf7391096701e188ef",
+    "fk_report_sha256": "2261adf93d8042b705edbe47ecd03bb8f520ea692a7f0a01e87c9d3a406d1422",
+    "camera_source": "deterministic_synthetic_fixture_not_real_camera",
+    "policy_source": "deterministic_hold_fixture_not_lgg100_inference",
+    "gripper_source": "zero_fixture_not_real_dex1_state"
+  },
+  "observation": {
+    "sha256": "d3db23c297ca94a61d1a4c84de893311c678dd8414d1ded259d51e02023c483f",
+    "state_sha256": "083cc4afca54079bec5de2857d5ff730fc7d22510d0d2d3722c5612c5e10860f",
+    "state_fk_view": "yuhao_zero_waist_for_contract_parity",
+    "camera": {
+      "camera_frames": [
+        {
+          "camera": "head_left",
+          "source_color_order": "BGR",
+          "policy_color_order": "RGB",
+          "source_shape": [
+            480,
+            1280,
+            3
+          ],
+          "selected_shape": [
+            480,
+            640,
+            3
+          ],
+          "policy_shape": [
+            224,
+            224,
+            3
+          ],
+          "head_binocular": true,
+          "head_left_crop_applied": true,
+          "received_monotonic_ns": 1000000000,
+          "received_unix_ns": null,
+          "source_timestamp_ns": null,
+          "source_bgr_sha256": "1049d4f0ca0e7fed211fc1d8e0ae9a37dc0dd5181db01fac656236ce3031c67a",
+          "selected_bgr_sha256": "6b556754cca41127b01518ee1f1a05aac8162c5bc6be3b78460aa72118f710a1",
+          "policy_rgb_sha256": "5550d4e5ca003834be9fd8cd76e975926dff0291d096b90c0f327a7d15d86198"
+        },
+        {
+          "camera": "left_wrist",
+          "source_color_order": "BGR",
+          "policy_color_order": "RGB",
+          "source_shape": [
+            480,
+            640,
+            3
+          ],
+          "selected_shape": [
+            480,
+            640,
+            3
+          ],
+          "policy_shape": [
+            224,
+            224,
+            3
+          ],
+          "head_binocular": null,
+          "head_left_crop_applied": false,
+          "received_monotonic_ns": 1005000000,
+          "received_unix_ns": null,
+          "source_timestamp_ns": null,
+          "source_bgr_sha256": "72faa5234a2334e55d74bcbaf3c160d8c187537497c2cb66d41c202b72c658a9",
+          "selected_bgr_sha256": "72faa5234a2334e55d74bcbaf3c160d8c187537497c2cb66d41c202b72c658a9",
+          "policy_rgb_sha256": "4b7ee405a911ba7971eaa016e1bd070b7fcd19a8dd4a0c9258c6a000215ae5b0"
+        },
+        {
+          "camera": "right_wrist",
+          "source_color_order": "BGR",
+          "policy_color_order": "RGB",
+          "source_shape": [
+            480,
+            640,
+            3
+          ],
+          "selected_shape": [
+            480,
+            640,
+            3
+          ],
+          "policy_shape": [
+            224,
+            224,
+            3
+          ],
+          "head_binocular": null,
+          "head_left_crop_applied": false,
+          "received_monotonic_ns": 1010000000,
+          "received_unix_ns": null,
+          "source_timestamp_ns": null,
+          "source_bgr_sha256": "b19d6a974a6171552f63542bc7255c7aeb20b53a64b935de08b2cdd536d755f1",
+          "selected_bgr_sha256": "b19d6a974a6171552f63542bc7255c7aeb20b53a64b935de08b2cdd536d755f1",
+          "policy_rgb_sha256": "273169157f2853e6ceec96d81097beb5a84a3ff71c4a53dda4bfebe99d73f2f8"
+        }
+      ],
+      "true_simultaneous_snapshot": false,
+      "sequential_capture_span_ms": 10.0,
+      "all_policy_images_uint8_rgb_224": true
+    }
+  },
+  "action": {
+    "raw_sha256": "b35aed749e8c1727117416612be4c6b0cfde62837e99f74559d9775d331de86e",
+    "canonical_sha256": "9bae7f86d0e3f55f3ad5c322a2d5919255e95b32c21001630aabbe19ff3399a7",
+    "raw_shape": [
+      32,
+      16
+    ],
+    "canonical_shape": [
+      32,
+      16
+    ],
+    "quaternion_only_postprocessing": true,
+    "raw_and_canonical_different": true
+  },
+  "latency": {
+    "lgg100_inference_executed": false,
+    "replayed_q0_inference_p50_ms": 80.77534503536299,
+    "replayed_q0_latency_is_current_run_measurement": false,
+    "sequential_ik_total_ms": 1370.585,
+    "sequential_ik_per_target_mean_ms": 42.83078125,
+    "swept_path_ms": 1.128875
+  },
+  "schedule": {
+    "timestamps_s": [
+      0.0,
+      0.06666666666666667,
+      0.13333333333333333,
+      0.2,
+      0.26666666666666666,
+      0.3333333333333333,
+      0.4,
+      0.4666666666666667,
+      0.5333333333333333,
+      0.6,
+      0.6666666666666666,
+      0.7333333333333333,
+      0.8,
+      0.8666666666666667,
+      0.9333333333333333,
+      1.0,
+      1.0666666666666667,
+      1.1333333333333333,
+      1.2,
+      1.2666666666666666,
+      1.3333333333333333,
+      1.4,
+      1.4666666666666666,
+      1.5333333333333334,
+      1.6,
+      1.6666666666666667,
+      1.7333333333333334,
+      1.8,
+      1.8666666666666667,
+      1.9333333333333333,
+      2.0,
+      2.066666666666667
+    ],
+    "sample_interval_ms": 66.66666666666667,
+    "chunk_span_s": 2.066666666666667,
+    "exec_steps": 0,
+    "prefetch_lead_steps": 5,
+    "prefetch_boundary_index": 27,
+    "prefetch_boundary_time_s": 1.8,
+    "prefetch_window_ms": 333.3333333333333,
+    "blend_steps": 5,
+    "time_alignment": true
+  },
+  "sequential_ik": {
+    "all_reachable": false,
+    "all_collision_free_at_targets": false,
+    "all_joint_limits_ok": true,
+    "targets": [
+      {
+        "index": 0,
+        "suggested_joint_target_rad": [
+          0.10849342971390617,
+          0.04944949689813281,
+          0.011757067562362769,
+          1.4240972453562548,
+          -0.027844792173736695,
+          0.15102153550420402,
+          -0.013696105663927403,
+          0.12576661424639607,
+          -0.09201357453368793,
+          -0.03456935193601743,
+          1.3641269478446458,
+          -0.0974223257018301,
+          0.2610711438310101,
+          -0.009341274120533224
+        ],
+        "suggested_joint_target_sha256": "8238e17b3af5398e79e2114f21ca9ddb5f83ddf57ef29180a7d7bc3db2e4dc3b",
+        "maximum_delta_from_current_rad": 0.04733249374746823,
+        "maximum_delta_from_previous_rad": 0.04733249374746823,
+        "position_error_m": 0.0065429948087854595,
+        "orientation_error_rad": 0.00019463422143659815,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 1,
+        "suggested_joint_target_rad": [
+          0.11046792038704853,
+          0.048263998337061575,
+          0.024087409200062984,
+          1.4191556101956142,
+          -0.014927474599646023,
+          0.1540382965827281,
+          -0.014401849172713487,
+          0.24084162126476769,
+          -0.08901801130903401,
+          -0.0042113893140497275,
+          1.087999551728296,
+          -0.09368222578110319,
+          0.4235737089623199,
+          0.003235805874669715
+        ],
+        "suggested_joint_target_sha256": "a928c55fce04997865942b72ad8cec155d44d1d16331e1c118b3e1cf15e13c48",
+        "maximum_delta_from_current_rad": 0.321597010657263,
+        "maximum_delta_from_previous_rad": 0.27612739611634973,
+        "position_error_m": 0.006189575864435177,
+        "orientation_error_rad": 0.00011237604691770436,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 2,
+        "suggested_joint_target_rad": [
+          0.110757749376616,
+          0.04708682339606796,
+          0.03671088835019744,
+          1.4182014107314993,
+          -0.002088323847561462,
+          0.1546816452170028,
+          -0.015173972166700399,
+          0.2707628944163624,
+          -0.08853320284300024,
+          0.0024483347962967663,
+          1.0157025197620497,
+          -0.0945497675761809,
+          0.4663579188155035,
+          0.006724127672651836
+        ],
+        "suggested_joint_target_sha256": "1f2e182e1be324de613bdb638aec8a255b9891e7ce04271a9f13ddbcd3b58fb8",
+        "maximum_delta_from_current_rad": 0.39389404262350936,
+        "maximum_delta_from_previous_rad": 0.07229703196624637,
+        "position_error_m": 0.00618194990073805,
+        "orientation_error_rad": 0.00011198402812544443,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 3,
+        "suggested_joint_target_rad": [
+          0.11086652272507777,
+          0.04591034359769454,
+          0.049345565070317836,
+          1.4176479029519846,
+          0.010722648580590735,
+          0.15507562668441782,
+          -0.015955655595366224,
+          0.27137452933464584,
+          -0.0885248380109163,
+          0.0025838261590409705,
+          1.0142210277450117,
+          -0.09457103010140862,
+          0.4672365563410093,
+          0.006796598657936893
+        ],
+        "suggested_joint_target_sha256": "a3c3aa0052b77a141fa2df72738dd8a8556e175d321af0717d254ef5da9dedfd",
+        "maximum_delta_from_current_rad": 0.3953755346405474,
+        "maximum_delta_from_previous_rad": 0.012810972428152196,
+        "position_error_m": 0.006174347237527245,
+        "orientation_error_rad": 0.00011181833617912828,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 4,
+        "suggested_joint_target_rad": [
+          0.11094333779185046,
+          0.044732102661494626,
+          0.06196041987101385,
+          1.417139455450384,
+          0.02350782403565644,
+          0.15543079593932538,
+          -0.016743127212468643,
+          0.2713844152615544,
+          -0.08852470333048626,
+          0.0025860160282672644,
+          1.014197080803239,
+          -0.09457137484402608,
+          0.4672507595342363,
+          0.00679777044783874
+        ],
+        "suggested_joint_target_sha256": "786deae46c82674cd1bb8dd885219368976d543d0148b9062d8bf85a641ab35b",
+        "maximum_delta_from_current_rad": 0.3953994815823201,
+        "maximum_delta_from_previous_rad": 0.012785175455065705,
+        "position_error_m": 0.0061667637835969985,
+        "orientation_error_rad": 0.00011167549736105739,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 5,
+        "suggested_joint_target_rad": [
+          0.11100297391473112,
+          0.04355218015628299,
+          0.07454957487258847,
+          1.416640891007267,
+          0.0362645718417225,
+          0.15576790497900234,
+          -0.01753582142219924,
+          0.27138457437168356,
+          -0.08852470116299316,
+          0.0025860512733329477,
+          1.0141966953862007,
+          -0.09457138039280258,
+          0.4672509881295222,
+          0.006797789307453087
+        ],
+        "suggested_joint_target_sha256": "a4142fc6683eafffb4cbfd0676a15c211e0b1f8f7f3dab6921b2d34d64f21b61",
+        "maximum_delta_from_current_rad": 0.39539986699935836,
+        "maximum_delta_from_previous_rad": 0.01275674780606606,
+        "position_error_m": 0.006159203389465439,
+        "orientation_error_rad": 0.0001115353369578848,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 6,
+        "suggested_joint_target_rad": [
+          0.11104686844244623,
+          0.042371111299975714,
+          0.08710970919392666,
+          1.4161489082682421,
+          0.04898976829844861,
+          0.15608883975738452,
+          -0.0183332781900521,
+          0.2713845769323231,
+          -0.08852470112811066,
+          0.0025860518405495547,
+          1.0141966891834897,
+          -0.09457138048210187,
+          0.46725099180842167,
+          0.006797789610970381
+        ],
+        "suggested_joint_target_sha256": "e983c121d3e71a7375d1a7919f8aae49bcf5ac15f2f5856c2a694fed2762af25",
+        "maximum_delta_from_current_rad": 0.3953998732020694,
+        "maximum_delta_from_previous_rad": 0.01272519645672611,
+        "position_error_m": 0.006151669805665979,
+        "orientation_error_rad": 0.00011139590738954938,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 7,
+        "suggested_joint_target_rad": [
+          0.11107514824616643,
+          0.041189496731762726,
+          0.09963780094016296,
+          1.4156633754159977,
+          0.06168028207551022,
+          0.15639362741017254,
+          -0.01913502240476307,
+          0.2713845769735328,
+          -0.08852470112754925,
+          0.0025860518496780543,
+          1.0141966890836664,
+          -0.09457138048353902,
+          0.46725099186762803,
+          0.006797789615855071
+        ],
+        "suggested_joint_target_sha256": "096f2bb9052b9b7bc4cfbf517a30afb8e282f7b292f7707e049097bad0573618",
+        "maximum_delta_from_current_rad": 0.39539987330189263,
+        "maximum_delta_from_previous_rad": 0.01269051377706161,
+        "position_error_m": 0.006144166704131219,
+        "orientation_error_rad": 0.00011125707993780443,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 8,
+        "suggested_joint_target_rad": [
+          0.11108782974231754,
+          0.04000794399009001,
+          0.11213090462095623,
+          1.4151844654053745,
+          0.07433303044334383,
+          0.15668213356669147,
+          -0.01994057170111098,
+          0.271384576974196,
+          -0.08852470112754023,
+          0.0025860518498250027,
+          1.0141966890820602,
+          -0.09457138048356209,
+          0.4672509918685806,
+          0.0067977896159336255
+        ],
+        "suggested_joint_target_sha256": "f5dc6a0313dc2ee9fbc5db18217b33c4d8deeed82cda2dc7240b34bbc1bb91ad",
+        "maximum_delta_from_current_rad": 0.3953998733034989,
+        "maximum_delta_from_previous_rad": 0.01265274836783361,
+        "position_error_m": 0.006136697680873032,
+        "orientation_error_rad": 0.00011111890667816719,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 9,
+        "suggested_joint_target_rad": [
+          0.11108493875420011,
+          0.038827058417463006,
+          0.12458613275013329,
+          1.4147123689587964,
+          0.08694498963733255,
+          0.15695423231820876,
+          -0.02074944037461444,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.002586051849827319,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934567
+        ],
+        "suggested_joint_target_sha256": "ae6b0db82cb3e4808ecbb57f07bdd49d9d0402fb6701c57a8c82fa0071e98010",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.01261195919398872,
+        "position_error_m": 0.006129266249042095,
+        "orientation_error_rad": 0.00011098145629977943,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 10,
+        "suggested_joint_target_rad": [
+          0.11106652227106469,
+          0.03764744067264329,
+          0.1370006577717814,
+          1.4142472655328624,
+          0.09951320009465148,
+          0.15720982327908598,
+          -0.021561141225465028,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "26b185a8ce8bc5f5c5ff54cb5210952bf96fad0d3b124a08ccda32f6e20a68a8",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012568210457318929,
+        "position_error_m": 0.006121875831395474,
+        "orientation_error_rad": 0.00011084479747205378,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 11,
+        "suggested_joint_target_rad": [
+          0.11103264928444055,
+          0.036469685110239985,
+          0.1493717157913284,
+          1.4137893202357723,
+          0.11203477087782053,
+          0.15744883319712802,
+          -0.022375187009642222,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "9c5d4785d65eacff3e578d5ad7690a4cfaa5c5defe57af33b696383bf38e1947",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012521570783169053,
+        "position_error_m": 0.006114529753185583,
+        "orientation_error_rad": 0.00011070899701831782,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 12,
+        "suggested_joint_target_rad": [
+          0.11098341044744027,
+          0.035294378312891325,
+          0.16169661023122778,
+          1.4133386834211334,
+          0.12450688373028702,
+          0.15767121590094021,
+          -0.02319109180813569,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "87ef0fff2d4e5607db6a3bb43fc48cb4fdbe52245c512afeeab4efacaca2ed3a",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012472112852466494,
+        "position_error_m": 0.006107231235592681,
+        "orientation_error_rad": 0.00011057411960737322,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 13,
+        "suggested_joint_target_rad": [
+          0.11091891754111269,
+          0.03412209769639275,
+          0.1739727152122885,
+          1.4128954906155682,
+          0.13692679680084036,
+          0.15787695197495905,
+          -0.024008372353329737,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "7e8af86a6ab56dbfe6943d44e2c098d96b1f5c03b5ab3004eadfb985be332ecb",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012419913070553332,
+        "position_error_m": 0.006099983389745328,
+        "orientation_error_rad": 0.00011044022758985493,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 14,
+        "suggested_joint_target_rad": [
+          0.11083930285209213,
+          0.032953410184516654,
+          0.18619747863399516,
+          1.4124598625417901,
+          0.14929184803275725,
+          0.15806604830749613,
+          -0.024826549311234774,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "1449b7b70688122dd054dc0539153421a6b25d6de7d5376f96e3b55013b57614",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.01236505123191689,
+        "position_error_m": 0.0060927892113371695,
+        "orientation_error_rad": 0.00011030738088312026,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 15,
+        "suggested_joint_target_rad": [
+          0.11074471847755298,
+          0.03178887095855841,
+          0.19836842494680768,
+          1.4120319052105887,
+          0.16159945821169355,
+          0.1582385375323581,
+          -0.02564514851341082,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "4c749605ecea5b7655b594623a0a6f9ec2f6751a238c982ae45b68ad933d3a4f",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012307610178936307,
+        "position_error_m": 0.006085651575863843,
+        "orientation_error_rad": 0.00011017563685798456,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 16,
+        "suggested_joint_target_rad": [
+          0.11063533556494401,
+          0.030629022286836154,
+          0.21048315761353106,
+          1.411611710076074,
+          0.17384713366854876,
+          0.15839447737258866,
+          -0.026463702132446205,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "cf83561ef5c858b6fc2514c8151998265054bfc9aec940983fa6763a0cbae8e4",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012247675456855206,
+        "position_error_m": 0.006078573234473599,
+        "orientation_error_rad": 0.0001100450502469816,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 17,
+        "suggested_joint_target_rad": [
+          0.11051134349337453,
+          0.029474392438604245,
+          0.2225393612593034,
+          1.4111993542503112,
+          0.1860324686361018,
+          0.15853394989418576,
+          -0.027281749795519433,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "8ded2f30cabf7f24ebe21dae05ade7e946d267ec91ff227376dcfae60be2c9a1",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.01218533496755303,
+        "position_error_m": 0.006071556810449396,
+        "orientation_error_rad": 0.00010991567306592818,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 18,
+        "suggested_joint_target_rad": [
+          0.11037294900363318,
+          0.028325494685966797,
+          0.2345348035119262,
+          1.410794900773361,
+          0.19815314726071567,
+          0.1586570606779427,
+          -0.02809883963133863,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "88b466175fdfad73809189b6ed909951924bb9e73355586d7afb26ded801e825",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012120678624613884,
+        "position_error_m": 0.006064604796303205,
+        "orientation_error_rad": 0.00010978755454800688,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 19,
+        "suggested_joint_target_rad": [
+          0.11022037528397119,
+          0.027182826396480855,
+          0.2464673365363003,
+          1.4103983989344107,
+          0.21020694527278339,
+          0.15876393791791107,
+          -0.028914529246543492,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "3f84077706f87594636e7a5f73388980860d39e54ea6c2c23cb35393300cd1ce",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.012053798012067712,
+        "position_error_m": 0.006057719551485186,
+        "orientation_error_rad": 0.00010966074109831618,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 20,
+        "suggested_joint_target_rad": [
+          0.11005386101879196,
+          0.02604686821827314,
+          0.2583348982686211,
+          1.4100098846395386,
+          0.22219173132179437,
+          0.15885473145518572,
+          -0.02972838662844745,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "24edd304579f31edd6a3dd32b046c966b51e330e0537b4f32e2ce16f5d79b2ff",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011984786049010987,
+        "position_error_m": 0.006050903300688105,
+        "orientation_error_rad": 0.00010953527625427368,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 21,
+        "suggested_joint_target_rad": [
+          0.10987365940737023,
+          0.024918083358645187,
+          0.27013551335771174,
+          1.409629380821445,
+          0.23410546798393367,
+          0.15892961175582457,
+          -0.03053999097177903,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "fdd4b74fac2888bee9dbe6fccdc970eeaa6932bf3869d9f7bf67d765638f59a9",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011913736662139296,
+        "position_error_m": 0.006044158132732561,
+        "orientation_error_rad": 0.00010941120066695633,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 22,
+        "suggested_joint_target_rad": [
+          0.10968003715961615,
+          0.02379691695633179,
+          0.28186729382244,
+          1.4092568978863922,
+          0.24594621245197512,
+          0.158988768841732,
+          -0.031348933427848,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "2884c89512f7ab7cbc728d9f18bba4f5e2d5b7fda6ef66b63a28eafc42be653d",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011840744468041453,
+        "position_error_m": 0.006037486000013825,
+        "orientation_error_rad": 0.00010928855208969575,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 23,
+        "suggested_joint_target_rad": [
+          0.1094732734756994,
+          0.02268379554682115,
+          0.29352843943553764,
+          1.4088924341935896,
+          0.25771211691885837,
+          0.15903241118322647,
+          -0.0321548177752916,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "35abb33ab3be1eb7b92c8b51425e7c5b0f1277252797f771dec70dfcbcb7f407",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011765904466883248,
+        "position_error_m": 0.006030888718479871,
+        "orientation_error_rad": 0.00010916736538422447,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 24,
+        "suggested_joint_target_rad": [
+          0.10925365901613172,
+          0.021579126619430133,
+          0.3051172378453553,
+          1.4085359765622425,
+          0.26940142866778777,
+          0.15906076456184257,
+          -0.03295726101225355,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "025bca10282c31e0b798dce50d27c82778265ecdb53a5affc5574ee432ad151c",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011689311748929399,
+        "position_error_m": 0.006024367968122815,
+        "orientation_error_rad": 0.00010904767253634317,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 25,
+        "suggested_joint_target_rad": [
+          0.10902149486858949,
+          0.020483298264184914,
+          0.31663206444809694,
+          1.4081875008015894,
+          0.281012489882904,
+          0.15907407091164985,
+          -0.03375589387050062,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "bd38d873ea5ee0abf1e4344e91e78226993029635934adeab6a83dc1e0ca878e",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011611061215116236,
+        "position_error_m": 0.006017925293946334,
+        "orientation_error_rad": 0.0001089295026814851,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 26,
+        "suggested_joint_target_rad": [
+          0.10877709151742897,
+          0.019396678905968957,
+          0.32807138202392483,
+          1.407846972259346,
+          0.292543737195602,
+          0.15907258714703335,
+          -0.034550361252580084,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "9025f4d9f5e9a22ec813f407aac89c42d83a6c083b3754cbcd4b758c727a873c",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011531247312698,
+        "position_error_m": 0.0060115621073822114,
+        "orientation_error_rad": 0.00010881288214392037,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 27,
+        "suggested_joint_target_rad": [
+          0.10852076782146583,
+          0.018319617122879574,
+          0.3394337401509921,
+          1.4075143463841464,
+          0.30399370098237766,
+          0.15905658398449712,
+          -0.035340322593670224,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "4248cbb837038983ea2ae94731fb6f2c3fda4b646348ff7ecede71d9d4120ed5",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011449963786775652,
+        "position_error_m": 0.006005279688124646,
+        "orientation_error_rad": 0.00010869783448259214,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 28,
+        "suggested_joint_target_rad": [
+          0.10825285000517397,
+          0.01725244154528758,
+          0.35071777441195906,
+          1.4071895692977658,
+          0.31536100443070014,
+          0.1590263447655923,
+          -0.03612545215026292,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "31e698472202e62799981abeacad65194192a563576f9015799e65d7358720ce",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011367303448322486,
+        "position_error_m": 0.005999079186345489,
+        "orientation_error_rad": 0.0001085843805481106,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 29,
+        "suggested_joint_target_rad": [
+          0.10797367066804181,
+          0.01619546083170652,
+          0.36192220540788084,
+          1.406872578373125,
+          0.3266443623898286,
+          0.15898216428759912,
+          -0.03690543921825071,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "27639c8cb6e1435ff939549829bf33698c83c458d0331915ce0c542ee0643c44",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011283357959128437,
+        "position_error_m": 0.005992961625258012,
+        "orientation_error_rad": 0.00010847253854260843,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 30,
+        "suggested_joint_target_rad": [
+          0.10768356781636067,
+          0.015148963717266626,
+          0.3730458375945528,
+          1.4065633028143334,
+          0.33784258002374407,
+          0.15892434764806945,
+          -0.0376799882833584,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "85cf6512cf16102254e4825d303bd6ff986379f1bf5c47a46aaec95b9647bda6",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011198217633915486,
+        "position_error_m": 0.005986927903996343,
+        "orientation_error_rad": 0.00010836232409350078,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      },
+      {
+        "index": 31,
+        "suggested_joint_target_rad": [
+          0.10738288392128244,
+          0.014113219130335844,
+          0.384087557956435,
+          1.4062616642352874,
+          0.34895455128344055,
+          0.1588532091087998,
+          -0.038448819107172294,
+          0.27138457697420454,
+          -0.08852470112754024,
+          0.0025860518498273324,
+          1.0141966890820395,
+          -0.09457138048356217,
+          0.4672509918685932,
+          0.006797789615934565
+        ],
+        "suggested_joint_target_sha256": "57002b2d76b3a097a0d8772b110a13e4e91f4e6486353b4bbb5609d2126b4153",
+        "maximum_delta_from_current_rad": 0.39539987330351956,
+        "maximum_delta_from_previous_rad": 0.011111971259696485,
+        "position_error_m": 0.005980978800775243,
+        "orientation_error_rad": 0.00010825375033024208,
+        "reachable": false,
+        "joint_limits_ok": true,
+        "collision_free": false,
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ]
+      }
+    ]
+  },
+  "swept_path": {
+    "accepted": false,
+    "checked_targets": 0,
+    "checked_interpolated_configurations": 1,
+    "maximum_position_error_m": 0.0,
+    "maximum_orientation_error_rad": 0.0,
+    "reason": "initial_configuration_collision",
+    "collision_reasons": [
+      "nonadjacent_self_contact"
+    ]
+  },
+  "mock_sink": {
+    "record_count": 32,
+    "all_publish_allowed_false": true,
+    "all_robot_command_sent_false": true,
+    "all_hold_true": true,
+    "hold_reason_union": [
+      "collision_failure",
+      "ik_failure",
+      "waist_divergence"
+    ]
+  },
+  "decision": {
+    "offline_h4_replay_harness_completed": true,
+    "real_three_camera_observation_used": false,
+    "real_streaming_lowstate_used": false,
+    "frozen_lgg100_inference_executed": false,
+    "real_15_hz_policy_shadow_passed": false,
+    "waist_divergence_hold_observed": true,
+    "integrated_shadow_eligible": false,
+    "robot_motion_allowed": false,
+    "reason": "The offline replay plumbing is complete, but synthetic images and a deterministic policy fixture cannot qualify real Policy Shadow. Measured waist divergence correctly forces every mock decision to hold."
+  },
+  "safety": {
+    "offline_only": true,
+    "network_accessed": false,
+    "publisher_created": false,
+    "hardware_transport_present": false,
+    "robot_command_sent": false,
+    "mode_change_requested": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

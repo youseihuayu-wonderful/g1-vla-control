@@ -1,0 +1,147 @@
+{
+  "schema_version": "g1_fail_closed_mock_fault_injection_v1",
+  "scope": "Offline mock-only fault injection; no DDS or robot transport exists.",
+  "thresholds": {
+    "lowstate_stale_ms": 50.0,
+    "camera_stale_ms": 100.0,
+    "policy_timeout_ms": 100.0,
+    "maximum_waist_divergence_m": 0.005,
+    "maximum_waist_divergence_deg": 3.0
+  },
+  "input_hashes": {
+    "nominal_action_sha256": "ad7facb2586fc6e966c004d7d1d16b024f5805ff7cb47c7a85dabd8b48892ca7",
+    "suggested_joint_target_sha256": "b5fdab78d8947eacc864bfeecb4d2100780e5afe1cd8efafb124887913ac49fa"
+  },
+  "nominal_mock_case": {
+    "safety_gate_passed": true,
+    "hold": false,
+    "publish_allowed": false,
+    "hardware_transport_present": false,
+    "robot_command_sent": false,
+    "interpretation": "A nominal suggestion may be accepted by the evidence sink, but cannot be published because the adapter has no hardware transport."
+  },
+  "fault_cases": [
+    {
+      "name": "lowstate_stop",
+      "expected_reason": "lowstate_stale",
+      "observed_reasons": [
+        "lowstate_stale"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    },
+    {
+      "name": "camera_freeze",
+      "expected_reason": "camera_frozen:head_left",
+      "observed_reasons": [
+        "camera_frozen:head_left"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    },
+    {
+      "name": "policy_timeout",
+      "expected_reason": "policy_timeout",
+      "observed_reasons": [
+        "policy_timeout"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    },
+    {
+      "name": "action_nan",
+      "expected_reason": "action_nonfinite",
+      "observed_reasons": [
+        "action_nonfinite"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    },
+    {
+      "name": "action_inf",
+      "expected_reason": "action_nonfinite",
+      "observed_reasons": [
+        "action_nonfinite"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    },
+    {
+      "name": "ik_failure",
+      "expected_reason": "ik_failure",
+      "observed_reasons": [
+        "ik_failure"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    },
+    {
+      "name": "collision_failure",
+      "expected_reason": "collision_failure",
+      "observed_reasons": [
+        "collision_failure"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    },
+    {
+      "name": "dds_disconnect",
+      "expected_reason": "dds_disconnected",
+      "observed_reasons": [
+        "dds_disconnected"
+      ],
+      "publish_allowed": false,
+      "hold": true,
+      "publisher_created": false,
+      "robot_command_sent": false,
+      "passed": true
+    }
+  ],
+  "summary": {
+    "required_fault_case_count": 8,
+    "passed_fault_case_count": 8,
+    "all_faults_fail_closed": true,
+    "all_publish_allowed_false": true,
+    "all_hold_true": true,
+    "all_robot_command_sent_false": true
+  },
+  "decision": {
+    "offline_h5_mock_fault_suite_passed": true,
+    "integrated_real_shadow_watchdog_validated": false,
+    "hardware_adapter_reviewed": false,
+    "hardware_publish_capability_present": false,
+    "robot_motion_allowed": false,
+    "reason": "All required offline faults fail closed in a transport-free mock adapter. H5 cannot be promoted to integrated pass until the same suite is bound to a qualified real-observation H4 Shadow."
+  },
+  "safety": {
+    "offline_only": true,
+    "unitree_sdk_imported": false,
+    "network_accessed": false,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "mode_change_requested": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

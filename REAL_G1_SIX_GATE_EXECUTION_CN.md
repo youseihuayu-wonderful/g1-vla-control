@@ -17,14 +17,14 @@
 
 | Gate | 问题 | 当前状态 | 当前证据 | 通过后权限 |
 |---|---|---|---|---|
-| H1 | 真实三相机 | **阻塞** | 配置存在且三路 `enable_zmq=true`，但没有 image-server 进程/端口，三帧均为 `None` | 可建立真实视觉 observation；仍不可运动 |
-| H2 | 真实关节 FK 对照 | **部分通过** | 300-sample LowState 可映射到 MuJoCo；frame/current-pose IK 数值 round-trip 通过 | 可冻结 zero-waist/waist-aware FK 选择；仍不可运动 |
-| H3 | DDS freshness | **部分通过** | 300/300、无 tick decrease；18 Reader errors、9 duplicates、最大正 tick jump 15 | 可冻结 stale/watchdog 时间阈值；仍不可运动 |
-| H4 | 15 Hz Policy Shadow | **锁定** | 等待 H1–H3 | 可保存真实 observation 下的建议动作；仍不可运动 |
-| H5 | Watchdog + fail-closed mock adapter | **锁定** | 已有 Simulation 单元机制，但未绑定本轮真实 Shadow | 可进入 H6 评审；仍不自动运动 |
-| H6 | 第一次真机动作评审 | **锁定** | H1–H5 未全部通过 | 仅决定是否允许单次、低速、free-space 试验 |
+| H1 | 真实三相机 | **阻塞** | 离线 BGR/head-left/RGB224 boundary 已实现；image server 未运行，真实三帧仍为 `None` | 可建立真实视觉 observation；仍不可运动 |
+| H2 | 真实关节 FK 对照 | **离线核心完成** | zero-waist 软件模型一致；真实 waist 造成最大 `12.12 mm / 2.93°` 偏差 | 可冻结双 FK view；物理 EEF parity 仍不可运动 |
+| H3 | DDS freshness | **离线 forensic 完成** | 汇总 500 samples；候选 `20/50/200 ms`，根因和最终 threshold 仍待 live capture | 可预注册 watchdog；仍不可运动 |
+| H4 | 15 Hz Policy Shadow | **离线 replay 完成，真实 Shadow 锁定** | 32-step plumbing 完成；IK residual、初始碰撞和 waist divergence 均正确 hold | 可保存离线建议动作；仍不可运动 |
+| H5 | Watchdog + fail-closed mock adapter | **离线 8/8，通过但未集成** | 所有 fault 均 `publish_allowed=false`、`hold=true`、`robot_command_sent=false` | 仍须绑定真实 H4；不自动运动 |
+| H6 | 第一次真机动作评审 | **离线 checklist 完成，评审锁定** | 所有签字、limits 和 arm token 均保持未通过 | 仅决定是否允许单次、低速、free-space 试验 |
 
-当前完整解决数：**0/6**。H2/H3 的部分结果不得表述为完整通过。
+当前真实 Gate 完整解决数仍为 **0/6**；计划的离线工作包为 **5/5 完成**。离线完成不得提升 live Gate 或动作权限。
 
 ## H1 · 真实三相机
 
@@ -45,7 +45,7 @@
 
 ### 当前阻塞
 
-`results/g1_three_camera_readonly_probe_20260824.json` 证明配置存在但 runtime 未启动。下一动作是审计 camera-only server 启动入口；只有确认其不包含机器人 Publisher/模式切换后，才能启动并重跑固定三帧 probe。
+`g1_camera_observation.py` 已离线实现 Yuhao 协议边界：BGR、binocular head-left 裁剪、BGR→RGB、`224×224 uint8`、三路 timestamp/hash 和顺序跨度验证。`results/g1_three_camera_readonly_probe_20260824.json` 仍证明实际 runtime 未启动；连接恢复后必须读取真实帧，不能用 synthetic fixture 通过 H1。
 
 ## H2 · Yuhao Pinocchio FK × 项目 MuJoCo FK
 
@@ -54,33 +54,32 @@
 - 真实 waist 3 + arms 14 均存在且落在 MuJoCo model range；
 - pelvis/world frame round-trip 最大 position error `6.05e-9 m`；
 - perturbation-seeded current-pose IK 最终最大 position error `4.46e-5 m`；
-- 最终最大 orientation error约 `4.30e-5 deg`。
+- Yuhao Pinocchio 与项目 MuJoCo 在 `waist=0` 时最大误差约 `0.000000621 m / 0.0000836°`；
+- measured waist 与 zero-waist EEF 最大差异约 `0.012116 m / 2.9294°`。
 
-### 尚缺
+### 冻结决定
 
-1. 对同一真实 `q14` 运行 pinned Yuhao Pinocchio FK；
-2. 与 MuJoCo `waist=0` 结果比较；
-3. 与 MuJoCo measured-waist 结果比较；
-4. 量化真实非零 waist 对左右 EEF 的 position/orientation 影响；
-5. 物理测量 EEF site，不能只依赖两个软件模型互相同意。
+- Policy observation 使用 Yuhao zero-waist view，保持训练/部署 contract；
+- safety、IK 和 swept geometry 使用 measured-waist view；
+- 两个 view 的位置差异超过 `5 mm` 时必须 hold；当前样本触发 hold；
+- 仍须物理测量 EEF site，不能只依赖两个软件模型互相同意。
 
 ## H3 · DDS freshness
 
-### 当前测量
+### 离线 forensic
 
-- 300/300 samples；
-- callback overflow 0；
-- median gap `1.397231 ms`，max gap `3.228279 ms`；
-- 291 unique ticks、9 duplicates、0 decreases；
-- positive tick increment `1–15`；
-- 18 次 Reader error。
+- 三批合计 500 samples、17 duplicate ticks、0 decreases；
+- Reader errors 至少 26 次；最大 receive gap `3.98534 ms`；
+- pinned SDK 用裸 `except` 打印通用错误，现有证据没有保存真实异常类型；
+- pinned IDL 只定义 `tick:uint32`，没有定义 tick period/unit；
+- duplicate tick 只能保守解释为“没有新的 source progress”，不能判定是 DDS 重复还是机器人 tick 语义。
 
-### 通过标准
+### 候选 watchdog（PROVISIONAL）
 
-- 重复多个固定 capture，保存 Reader error 与 tick/gap 联合分布；
-- 解释 duplicate/tick jump 语义；
-- 冻结 warning、hold、disconnect timeout；
-- offline fault injection 证明 stale 时只进入 hold。
+- warning `20 ms`；stale hold `50 ms`；disconnect `200 ms`；
+- stale 后要求连续 2 个 unique ticks 才恢复；
+- deadline 使用 local monotonic receive time，tick 仅用于 progress 和 uint32 rollover；
+- 最终值仍须 instrumented live capture 后冻结。
 
 ## H4 · 15 Hz 真实 Policy Shadow
 
@@ -95,6 +94,8 @@
 
 每个周期保存 observation/raw/canonical/joint hashes、延迟、prefetch boundary、hold reason 和 current-joint delta。禁止创建 Unitree Publisher。
 
+离线 replay 已完成 32-step、15 Hz、5-step prefetch boundary 和 mock sink。它使用 synthetic cameras、deterministic hold-policy fixture 和历史 Q0 latency，只验证 plumbing，不是 LGG100 inference。结果因 `6.54 mm` IK residual、`initial_configuration_collision` 和 waist divergence fail-closed。
+
 ## H5 · Watchdog + fail-closed mock adapter
 
 必须注入 LowState 停止、相机冻结、Policy timeout、NaN/Inf、IK/collision failure 和 DDS 断线。每项都必须得到：
@@ -105,6 +106,8 @@ hold=true
 robot_command_sent=false
 ```
 
+离线 mock suite 已执行 8 个 case（NaN 和 Inf 分开、IK 和 collision 分开），8/8 通过。adapter 不含 Unitree SDK 或 hardware transport；只有绑定真实 H4 后才能将 H5 标为集成通过。
+
 ## H6 · 第一次动作评审
 
-H1–H5 全部通过后才评审：支撑、单臂、free-space、极低速、小位移、无抓取、无桌面接触、E-stop 操作员持续就绪。H6 之前禁止运行 Yuhao 的 `main_eef.py`、`main.py`、`replay.py`。
+H1–H5 全部通过后才评审：支撑、单臂、free-space、极低速、小位移、无抓取、无桌面接触、E-stop 操作员持续就绪。`G1_FIRST_MOTION_REVIEW_CHECKLIST_CN.md` 已完成离线模板，但所有 trial-day 检查、官方 limits、双签字和一次性 arm token 均为 false。H6 之前禁止运行 Yuhao 的 `main_eef.py`、`main.py`、`replay.py`。

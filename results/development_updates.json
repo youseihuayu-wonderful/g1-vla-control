@@ -1379,5 +1379,56 @@
       "results/g1_three_camera_readonly_probe_20260824.json",
       "publisher_created=false; robot_command_sent=false; hardware_execution_performed=false"
     ]
+  },
+  {
+    "time": "2026-08-24 20:34 EDT",
+    "title": "完成五个离线 G1 工作包但保持全部 live Gate fail-closed",
+    "status": "partial",
+    "summary": "完成 H2 FK source parity、H3 DDS forensic/candidate watchdog、H5 mock fault injection、H4 15 Hz replay harness 和 H6 first-motion checklist。离线工作包 5/5，真实 Gate 仍为 0/6，未创建 Publisher 或发送命令。",
+    "done": [
+      "修复 Pinocchio 3.9.0 与 urdfdom/tinyxml2 ABI 组合并冻结可复现 requirements。",
+      "同一真实 q14 下，Yuhao Pinocchio 与项目 MuJoCo zero-waist 最大差异约 0.621 µm / 0.000084°。",
+      "量化 measured waist 相对 zero-waist 的最大 EEF 差异约 12.116 mm / 2.9294°，冻结 policy zero-waist view 与 safety measured-waist view。",
+      "汇总三批 500 LowState samples，预注册 20/50/200 ms monotonic freshness thresholds 和 2-unique-tick recovery。",
+      "实现无 Unitree SDK/transport 的 fail-closed mock adapter，8/8 fault cases 通过。",
+      "完成 synthetic-camera/deterministic-policy 的 32-step 15 Hz replay，保存 observation/action/joint hashes、prefetch boundary 和每个 joint delta。",
+      "完成第一次真机动作独立评审 checklist，全部授权字段默认 false。"
+    ],
+    "conclusions": [
+      "当前真实 waist 不能在 5 mm Gate 下近似为零；超限必须 hold。",
+      "现有 SDK 裸 except 丢失 Reader exception 类型，duplicate tick 和 tick period 无法离线定因；deadline 必须基于 monotonic receive time。",
+      "replay 暴露最大 IK residual 约 6.54 mm、initial nonadjacent self-contact 和 waist divergence，全部进入 hold。",
+      "离线 H4 没有运行 frozen LGG100 inference，也没有真实相机或 streaming LowState，不是 Real Policy Shadow。",
+      "robot_motion_allowed=false。"
+    ],
+    "fixes": [
+      "避免 Pinocchio wheel 静默链接到不兼容的 urdfdom 6/tinyxml2 11。",
+      "避免使用 zero-waist 视图作为真实物理安全几何。",
+      "避免用 duplicate callback 刷新 unique-state freshness deadline。",
+      "mock adapter 即使 nominal safety 通过也没有 hardware transport，publish_allowed 始终 false。",
+      "first-motion checklist 不生成 Publisher token，不隐式授权。"
+    ],
+    "remaining": [
+      "启动并读取真实三相机，验证真实 frame timestamp/freeze/RGB224。",
+      "instrument Reader exception/sample identity 并重复 live capture，冻结最终 watchdog threshold。",
+      "用真实相机、streaming LowState 和 frozen LGG100 inference 运行真实 15 Hz Shadow。",
+      "解决真实姿态 MuJoCo nonadjacent self-contact 与 6.54 mm sequential IK residual。",
+      "取得物理 EEF、三相机标定和官方 torque/current/temperature limits。",
+      "将 H5 fault suite 绑定真实 H4，并完成独立硬件 adapter 审核。"
+    ],
+    "next": [
+      "离线保持所有 hold，不放宽 5 mm/3° 或碰撞阈值。",
+      "连接恢复后严格回到 H1 camera-only server 审计和真实三帧读取。",
+      "H1-H5 live Gate 未全部通过前，H6 motion_review_passed 和 motion_authorized 保持 false。"
+    ],
+    "evidence": [
+      "results/g1_yuhao_pinocchio_mujoco_fk_source_parity_20260824.json",
+      "results/g1_dds_freshness_offline_analysis_20260824.json",
+      "results/g1_fail_closed_mock_fault_injection_20260824.json",
+      "results/g1_offline_policy_shadow_replay_20260824.json",
+      "results/g1_first_motion_review_checklist_20260824.json",
+      "results/g1_offline_five_step_completion_20260824.json",
+      "publisher_created=false; hardware_transport_present=false; robot_command_sent=false"
+    ]
   }
 ]

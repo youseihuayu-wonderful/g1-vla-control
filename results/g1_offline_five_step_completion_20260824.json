@@ -1,0 +1,89 @@
+{
+  "schema_version": "g1_offline_five_step_completion_v1",
+  "scope": "Aggregate five offline work packages; no live gate or command authority.",
+  "execution_order": [
+    "H2_fk_source_parity",
+    "H3_dds_offline_forensic",
+    "H5_mock_fault_injection",
+    "H4_policy_shadow_replay",
+    "H6_first_motion_checklist"
+  ],
+  "steps": [
+    {
+      "step": 1,
+      "name": "H2_fk_source_parity",
+      "evidence_file": "g1_yuhao_pinocchio_mujoco_fk_source_parity_20260824.json",
+      "evidence_sha256": "2261adf93d8042b705edbe47ecd03bb8f520ea692a7f0a01e87c9d3a406d1422",
+      "offline_work_completed": true,
+      "live_gate_promoted": false,
+      "robot_motion_allowed": false
+    },
+    {
+      "step": 2,
+      "name": "H3_dds_offline_forensic",
+      "evidence_file": "g1_dds_freshness_offline_analysis_20260824.json",
+      "evidence_sha256": "47b3fe2c88f1152bd28e8431aaae8b9dda3a3039be2d0e37a406bdef80fb6112",
+      "offline_work_completed": true,
+      "live_gate_promoted": false,
+      "robot_motion_allowed": false
+    },
+    {
+      "step": 3,
+      "name": "H5_mock_fault_injection",
+      "evidence_file": "g1_fail_closed_mock_fault_injection_20260824.json",
+      "evidence_sha256": "89fdb35d49162419889a4965f8ef3beb113f69e7fba633f6f97fe5770abe3e8c",
+      "offline_work_completed": true,
+      "live_gate_promoted": false,
+      "robot_motion_allowed": false
+    },
+    {
+      "step": 4,
+      "name": "H4_policy_shadow_replay",
+      "evidence_file": "g1_offline_policy_shadow_replay_20260824.json",
+      "evidence_sha256": "cb81d2c67da8411f945164647b651e460bf79a6e1ce1ed6190b642e6a68f12bf",
+      "offline_work_completed": true,
+      "live_gate_promoted": false,
+      "robot_motion_allowed": false
+    },
+    {
+      "step": 5,
+      "name": "H6_first_motion_checklist",
+      "evidence_file": "g1_first_motion_review_checklist_20260824.json",
+      "evidence_sha256": "fbf34ee1fb77a03f2c63796861e60a985f0fbac148251d9228fc00e59eb05d78",
+      "offline_work_completed": true,
+      "live_gate_promoted": false,
+      "robot_motion_allowed": false
+    }
+  ],
+  "summary": {
+    "offline_steps_total": 5,
+    "offline_steps_completed": 5,
+    "all_offline_steps_completed": true,
+    "live_gates_completed": 0
+  },
+  "remaining_live_blockers": [
+    "real three-camera image server and frame capture",
+    "physical EEF and camera calibration",
+    "instrumented DDS recapture and final freshness threshold",
+    "real streaming 15 Hz frozen-LGG100 Policy Shadow",
+    "integrated watchdog and independently reviewed hardware adapter",
+    "official hardware limits, trial-day checks, and dual authorization"
+  ],
+  "decision": {
+    "offline_five_step_plan_completed": true,
+    "real_policy_shadow_passed": false,
+    "motion_review_passed": false,
+    "motion_authorized": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "network_accessed": false,
+    "publisher_created": false,
+    "hardware_transport_present": false,
+    "robot_command_sent": false,
+    "mode_change_requested": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

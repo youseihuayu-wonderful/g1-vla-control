@@ -1,0 +1,6 @@
+# Reproducible offline Yuhao Pinocchio FK source-parity runtime.
+# pin 3.9.0 links against urdfdom 4 and tinyxml2 10 on macOS; newer cmeel
+# dependency releases are ABI-incompatible even though pip may resolve them.
+pin==3.9.0
+cmeel-urdfdom==4.0.1
+cmeel-tinyxml2==10.0.0

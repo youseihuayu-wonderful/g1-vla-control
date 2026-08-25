@@ -1,7 +1,7 @@
 {
-  "passed": 136,
+  "passed": 147,
   "failed": 0,
-  "total": 136,
+  "total": 147,
   "success": true,
-  "scope": "Local tests including pinned Yuhao training/deployment source attestation, confirmed 15 Hz cadence, subscriber-only real LowState/current-pose parity, camera probe non-promotion, strict six-gate ordering, official quaternion consumer post-processing, fail-closed Slurm runners, public redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including pinned Yuhao/MuJoCo zero-waist source parity, measured-waist dual-view decision, camera BGR/head-left/RGB224 boundary, provisional monotonic DDS watchdog, 8-case mock fault injection, offline 15 Hz replay non-promotion, first-motion authorization lock, official quaternion consumer post-processing, public redaction, and hardware safety gates; GitHub Actions rerun pending."
 }
