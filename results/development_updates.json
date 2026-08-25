@@ -1336,5 +1336,48 @@
       "使用 contract v1.3.1 和显式 15 Hz manifest 完成 G3。",
       "G3 通过后运行 Adaptive-OFF MuJoCo baseline；继续禁止硬件 Publisher。"
     ]
+  },
+  {
+    "time": "2026-08-24 20:06 EDT",
+    "title": "冻结真实 G1 六阶段验证顺序并启动 H1/H2/H3 只读证据",
+    "status": "partial",
+    "summary": "将真实三相机、FK source parity、DDS freshness、15 Hz Policy Shadow、watchdog/fail-closed mock adapter 和第一次运动评审冻结为 H1-H6 严格顺序。当前完整通过 0/6；H2/H3 部分完成，H1 因 image server 未运行而阻塞，H4-H6 保持锁定。",
+    "done": [
+      "真实 G1 subscriber-only 新采集 300/300 LowState，包含 waist 3 + arms 14。",
+      "真实 joint mapping、MuJoCo pelvis/world frame round-trip 和 current-pose numeric IK 通过。",
+      "只读三相机 probe 确认三路配置 enable_zmq=true，但实际三帧均为 None。",
+      "确认本轮未请求 ai mode、未创建 Publisher、未发送机器人命令。",
+      "新增版本化六 Gate Markdown/JSON 状态和四项 regression tests。"
+    ],
+    "conclusions": [
+      "真实 joint 数据能够进入项目 MuJoCo 数值链，但这不是物理 EEF parity。",
+      "image server 当前没有进程/端口证据，不能开始真实视觉 Shadow。",
+      "DDS 仍有 18 Reader errors、9 duplicate ticks 和最大正 tick increment 15，freshness 未通过。",
+      "robot_motion_allowed=false。"
+    ],
+    "fixes": [
+      "防止仅凭 enable_zmq 配置将 image server 错报为运行。",
+      "防止将软件 FK/IK 自洽误报为真实物理 EEF 测量通过。",
+      "将 H1-H5 全通过设为进入 H6 评审的必要条件。"
+    ],
+    "remaining": [
+      "恢复 read-only gateway 连接并审计 camera-only server 入口。",
+      "完成 Yuhao Pinocchio 与 MuJoCo 的同 q14 zero-waist/measured-waist 对照。",
+      "重复 bounded LowState captures，冻结 stale/watchdog 阈值。",
+      "完成真实 15 Hz mock-sink Shadow 和 fault injection。"
+    ],
+    "next": [
+      "当前只处理 H1：连接恢复后先静态扫描 teleimager server，证明无机器人 Publisher/模式切换。",
+      "安全审计通过后仅启动 camera server，重新读取固定三帧并验证 224x224 RGB boundary。",
+      "H1 未通过前不启动 Policy Shadow，不评审真机动作。"
+    ],
+    "evidence": [
+      "REAL_G1_SIX_GATE_EXECUTION_CN.md",
+      "results/g1_six_gate_execution_status_20260824.json",
+      "results/g1_lowstate_readonly_capture_300_20260824.json",
+      "results/g1_real_lowstate_offline_parity_20260824.json",
+      "results/g1_three_camera_readonly_probe_20260824.json",
+      "publisher_created=false; robot_command_sent=false; hardware_execution_performed=false"
+    ]
   }
 ]

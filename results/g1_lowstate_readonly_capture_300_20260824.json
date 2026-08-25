@@ -1,0 +1,57 @@
+{
+  "schema_version": "g1_lowstate_readonly_capture_300_summary_v1",
+  "scope": "Fresh real G1 subscriber-only LowState capture with waist and arms; no command publication.",
+  "capture": {
+    "success": true,
+    "requested_samples": 300,
+    "captured_samples": 300,
+    "callback_overflow": 0,
+    "reader_take_sample_errors_observed": 18,
+    "timing_gap_ms": {
+      "gap_count": 299,
+      "gap_min_ms": 0.015137,
+      "gap_median_ms": 1.397231,
+      "gap_max_ms": 3.228279
+    },
+    "tick": {
+      "first": 546014,
+      "last": 546373,
+      "unique": 291,
+      "duplicate_sample_count": 9,
+      "decrease_count": 0,
+      "positive_increment_min": 1,
+      "positive_increment_max": 15
+    },
+    "mode_pr_values": [0],
+    "mode_machine_values": [5],
+    "imu_quaternion_norm": {
+      "min": 0.9999999363600665,
+      "max": 1.0000001154271385
+    },
+    "waist_and_arm_state": {
+      "q_min_rad": -0.096580870449543,
+      "q_max_rad": 1.4670249223709106,
+      "max_abs_dq": 0.05828152969479561,
+      "max_abs_tau_est": 0.3355823755264282,
+      "max_temperature": 53
+    },
+    "raw_capture_sha256": "918f74da274be58b2daeb1fcc83d67d7a293d35c51f47c1f55e61031e3e5a0fe"
+  },
+  "safety": {
+    "subscriber_only": true,
+    "send_channel_created": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "decision": {
+    "waist_and_arm_capture_passed": true,
+    "dds_freshness_fully_qualified": false,
+    "offline_current_pose_fk_eligible": true,
+    "zero_motion_shadow_eligible": false,
+    "robot_motion_allowed": false,
+    "reason": "Capture completed, but Reader errors, duplicate-tick behavior and unverified mode/unit/IMU/EEF semantics remain fail-closed."
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

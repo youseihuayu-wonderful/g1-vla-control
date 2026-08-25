@@ -1,0 +1,63 @@
+{
+  "schema_version": "g1_lowstate_current_pose_sample_v1",
+  "source_raw_capture_sha256": "918f74da274be58b2daeb1fcc83d67d7a293d35c51f47c1f55e61031e3e5a0fe",
+  "received_unix_ns": 1787611905478255918,
+  "tick": 546373,
+  "mode_pr": 0,
+  "mode_machine": 5,
+  "mode_semantics_verified": false,
+  "imu_quaternion": [
+    0.9994239211082458,
+    0.0072490558959543705,
+    -0.010464911349117756,
+    -0.03146158903837204
+  ],
+  "imu_quaternion_order_verified": false,
+  "waist_q_rad": {
+    "waist_yaw_joint": -0.03193967044353485,
+    "waist_roll_joint": 0.03907441347837448,
+    "waist_pitch_joint": -0.007599280681461096
+  },
+  "arm_q_rad": {
+    "left_shoulder_pitch_joint": 0.07278019934892654,
+    "left_shoulder_roll_joint": 0.06635665148496628,
+    "left_shoulder_yaw_joint": -0.008616657927632332,
+    "left_elbow_joint": 1.4670249223709106,
+    "left_wrist_roll_joint": -0.028378644958138466,
+    "left_wrist_pitch_joint": 0.13146695494651794,
+    "left_wrist_yaw_joint": 0.01031841803342104,
+    "right_shoulder_pitch_joint": 0.12183163315057755,
+    "right_shoulder_roll_joint": -0.07539276033639908,
+    "right_shoulder_yaw_joint": -0.061838600784540176,
+    "right_elbow_joint": 1.409596562385559,
+    "right_wrist_roll_joint": -0.0965569019317627,
+    "right_wrist_pitch_joint": 0.21373865008354187,
+    "right_wrist_yaw_joint": 0.012259862385690212
+  },
+  "waist_dq_rad_s": {
+    "waist_yaw_joint": -0.018855789676308632,
+    "waist_roll_joint": -0.005819841753691435,
+    "waist_pitch_joint": 0.0013717578258365393
+  },
+  "arm_dq_rad_s": {
+    "left_shoulder_pitch_joint": -0.012271846644580364,
+    "left_shoulder_roll_joint": 0.019941750913858414,
+    "left_shoulder_yaw_joint": 0.0,
+    "left_elbow_joint": 0.0,
+    "left_wrist_roll_joint": -0.004601942375302315,
+    "left_wrist_pitch_joint": 0.0,
+    "left_wrist_yaw_joint": 0.0,
+    "right_shoulder_pitch_joint": 0.02147573232650757,
+    "right_shoulder_roll_joint": 0.0,
+    "right_shoulder_yaw_joint": -0.010737866163253784,
+    "right_elbow_joint": 0.013805828057229519,
+    "right_wrist_roll_joint": 0.0,
+    "right_wrist_pitch_joint": -0.02454369328916073,
+    "right_wrist_yaw_joint": 0.0
+  },
+  "safety": {
+    "subscriber_only_source": true,
+    "publisher_created": false,
+    "robot_command_sent": false
+  }
+}

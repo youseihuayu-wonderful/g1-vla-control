@@ -1,7 +1,7 @@
 {
-  "passed": 132,
+  "passed": 136,
   "failed": 0,
-  "total": 132,
+  "total": 136,
   "success": true,
-  "scope": "Local tests including pinned Yuhao training/deployment source attestation, confirmed 15 Hz cadence, official quaternion consumer post-processing, Q0/Q0.5 interpretation, fail-closed Slurm runners, public redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including pinned Yuhao training/deployment source attestation, confirmed 15 Hz cadence, subscriber-only real LowState/current-pose parity, camera probe non-promotion, strict six-gate ordering, official quaternion consumer post-processing, fail-closed Slurm runners, public redaction, and hardware safety gates; GitHub Actions rerun pending."
 }

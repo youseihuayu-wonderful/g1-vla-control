@@ -1,0 +1,86 @@
+{
+  "schema_version": "g1_three_camera_readonly_probe_v1",
+  "scope": "Read-only teleimager configuration query and one sequential frame per camera.",
+  "source_color_order": "BGR",
+  "true_simultaneous_snapshot": false,
+  "safety": {
+    "camera_read_only": true,
+    "unitree_dds_imported": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "connect_and_config_ms": 1066.903048,
+  "config": {
+    "head_camera": {
+      "present": true,
+      "enable_zmq": true,
+      "binocular": false
+    },
+    "left_wrist_camera": {
+      "present": true,
+      "enable_zmq": true,
+      "binocular": false
+    },
+    "right_wrist_camera": {
+      "present": true,
+      "enable_zmq": true,
+      "binocular": false
+    }
+  },
+  "frames": {
+    "head": {
+      "success": false,
+      "shape": null,
+      "dtype": null,
+      "finite": false,
+      "request_ms": 0.02768,
+      "received_unix_ns": 1787613101206273401,
+      "received_monotonic_ns": 1721036279192,
+      "sha256": null,
+      "source_metadata": {}
+    },
+    "left_wrist": {
+      "success": false,
+      "shape": null,
+      "dtype": null,
+      "finite": false,
+      "request_ms": 0.022913,
+      "received_unix_ns": 1787613101206367612,
+      "received_monotonic_ns": 1721036406172,
+      "sha256": null,
+      "source_metadata": {}
+    },
+    "right_wrist": {
+      "success": false,
+      "shape": null,
+      "dtype": null,
+      "finite": false,
+      "request_ms": 0.016256,
+      "received_unix_ns": 1787613101206403453,
+      "received_monotonic_ns": 1721036444221,
+      "sha256": null,
+      "source_metadata": {}
+    }
+  },
+  "all_three_frames_available": false,
+  "sequential_capture_span_ms": 0.165029,
+  "success": false,
+  "runtime_inventory": {
+    "camera_related_process_found": false,
+    "expected_camera_port_listener_found": false,
+    "system_service_found": false,
+    "configuration_only_enable_zmq_true": true
+  },
+  "decision": {
+    "no_ai_mode_switch_requested": true,
+    "image_server_configuration_present": true,
+    "image_server_runtime_verified": false,
+    "three_camera_capture_passed": false,
+    "zero_motion_policy_shadow_eligible": false,
+    "robot_motion_allowed": false,
+    "reason": "All three camera configs declare enable_zmq=true, but no image-server process, expected port listener, or non-null frame was observed."
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

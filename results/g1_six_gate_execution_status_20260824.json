@@ -1,0 +1,141 @@
+{
+  "schema_version": "g1_six_gate_execution_status_v1",
+  "timestamp": "2026-08-24T20:06:32-04:00",
+  "owner": "Shihua Yu",
+  "state": "ACTIVE_READONLY_VALIDATION",
+  "current_gate": "H1_REAL_THREE_CAMERA",
+  "strict_order": ["H1", "H2", "H3", "H4", "H5", "H6"],
+  "resolved_gate_count": 0,
+  "total_gate_count": 6,
+  "safety_baseline": {
+    "damping_confirmed_by_operator": true,
+    "mechanical_support_confirmed_by_operator": true,
+    "estop_ready_confirmed_by_operator": true,
+    "ai_mode_switch_requested": false,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "g1_execution_enabled": false,
+    "hardware_execution_performed": false
+  },
+  "gates": [
+    {
+      "id": "H1",
+      "name": "real_three_camera_observation",
+      "status": "BLOCKED_IMAGE_SERVER_NOT_RUNNING",
+      "completed": false,
+      "evidence": [
+        "g1_camera_readonly_probe.py",
+        "results/g1_three_camera_readonly_probe_20260824.json"
+      ],
+      "observed": {
+        "all_three_configs_present": true,
+        "all_three_enable_zmq": true,
+        "camera_related_process_found": false,
+        "expected_port_listener_found": false,
+        "all_three_frames_available": false,
+        "source_color_order": "BGR",
+        "true_simultaneous_snapshot": false
+      },
+      "next_action": "Audit and start only the camera image-server entrypoint after proving it contains no robot publisher or mode switch; rerun the fixed three-frame probe.",
+      "permission_after_pass": "real_visual_observation_only"
+    },
+    {
+      "id": "H2",
+      "name": "real_joint_fk_source_parity",
+      "status": "PARTIAL_PROJECT_NUMERIC_ROUNDTRIP_PASSED",
+      "completed": false,
+      "evidence": [
+        "results/g1_lowstate_current_pose_sample_20260824.json",
+        "g1_real_lowstate_offline_parity.py",
+        "results/g1_real_lowstate_offline_parity_20260824.json"
+      ],
+      "observed": {
+        "real_joint_to_mujoco_mapping_passed": true,
+        "numeric_frame_roundtrip_passed": true,
+        "numeric_current_pose_ik_passed": true,
+        "maximum_final_position_error_m": 0.00004455816717115267,
+        "maximum_final_orientation_error_deg": 0.00004304479769151365,
+        "physical_eef_parity_verified": false,
+        "yuhao_pinocchio_direct_comparison_completed": false,
+        "measured_waist_is_exactly_zero": false
+      },
+      "next_action": "Run pinned Yuhao Pinocchio FK on the same q14 and compare against MuJoCo with waist forced to zero and measured waist retained.",
+      "permission_after_pass": "freeze_shadow_fk_boundary_only"
+    },
+    {
+      "id": "H3",
+      "name": "dds_freshness_and_stale_threshold",
+      "status": "PARTIAL_CAPTURED_NOT_QUALIFIED",
+      "completed": false,
+      "evidence": [
+        "results/g1_lowstate_readonly_capture_300_20260824.json"
+      ],
+      "observed": {
+        "captured_samples": 300,
+        "callback_overflow": 0,
+        "reader_errors": 18,
+        "unique_ticks": 291,
+        "duplicate_ticks": 9,
+        "tick_decreases": 0,
+        "maximum_positive_tick_increment": 15,
+        "median_callback_gap_ms": 1.397231,
+        "maximum_callback_gap_ms": 3.228279
+      },
+      "next_action": "Repeat bounded captures with error/tick/gap correlation, resolve tick semantics, and preregister warning/hold/disconnect thresholds.",
+      "permission_after_pass": "freeze_watchdog_timing_only"
+    },
+    {
+      "id": "H4",
+      "name": "real_15_hz_policy_shadow",
+      "status": "LOCKED_BY_H1_H2_H3",
+      "completed": false,
+      "next_action": "Wait for H1-H3; then run frozen LGG100 with real observations into a mock sink only.",
+      "permission_after_pass": "real_observation_action_evidence_only"
+    },
+    {
+      "id": "H5",
+      "name": "watchdog_and_fail_closed_mock_adapter",
+      "status": "LOCKED_BY_H4",
+      "completed": false,
+      "required_faults": [
+        "lowstate_stop",
+        "camera_freeze",
+        "policy_timeout",
+        "nan_or_inf",
+        "ik_or_collision_failure",
+        "dds_disconnect"
+      ],
+      "required_decision": {
+        "publish_allowed": false,
+        "hold": true,
+        "robot_command_sent": false
+      },
+      "permission_after_pass": "first_motion_review_only"
+    },
+    {
+      "id": "H6",
+      "name": "first_hardware_motion_review",
+      "status": "LOCKED_BY_H1_TO_H5",
+      "completed": false,
+      "constraints_if_later_approved": [
+        "mechanically_supported",
+        "single_arm",
+        "free_space",
+        "very_low_speed",
+        "very_small_displacement",
+        "no_grasp",
+        "no_table_contact",
+        "estop_operator_continuously_ready"
+      ],
+      "motion_authorized": false
+    }
+  ],
+  "decision": {
+    "continue_with_h1_camera_only_audit": true,
+    "zero_motion_policy_shadow_eligible": false,
+    "robot_motion_allowed": false,
+    "reason": "The six gates are now explicitly tracked. H1 camera runtime is blocked, H2/H3 are partial, and H4-H6 remain locked."
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}
