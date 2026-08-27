@@ -1,0 +1,145 @@
+{
+  "schema_version": "g1_settling_bottleneck_diagnostic_v1",
+  "scope": "Offline 13 cm deterministic tracking/settling diagnostic; no neural policy, physical dynamics, or hardware evidence.",
+  "completion_contract": {
+    "position_tolerance_m": 0.005,
+    "orientation_tolerance_deg": 3.0,
+    "continuous_hold_s": 0.25,
+    "threshold_relaxed": false
+  },
+  "offset_m": 0.13,
+  "baseline": {
+    "action_sha256": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+    "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+    "nominal_path_duration_s": 2.066666666666667,
+    "task_completed": true,
+    "task_completion_time_s": 2.556,
+    "settling_after_path_s": 0.4893333333333332,
+    "first_tolerance_entry_s": 2.308,
+    "first_tolerance_entry_after_path_s": 0.24133333333333296,
+    "completion_hold_reset_count": 0,
+    "maximum_consecutive_completion_hold_s": 0.25,
+    "endpoint_position_error_m": 0.004334087749169309,
+    "endpoint_orientation_error_deg": 0.8468225327014092,
+    "actual_joint_jerk_rad_s3": 18134.2450472056,
+    "maximum_actual_to_filtered_position_error_m": 0.04242216574570069,
+    "maximum_desired_to_filtered_position_lag_m": 0.01674912677487539,
+    "hard_command_limits_pass": true,
+    "manipulation_contact_step_rate": 0.0,
+    "worst_actual_joint_jerk_event": {
+      "time_s": 0.0,
+      "joint": "right_shoulder_roll_joint",
+      "jerk_rad_s3": 18134.2450472056,
+      "acceleration_rad_s2": -60.90223920333849,
+      "velocity_rad_s": -0.12180447840667698,
+      "free_space_contact_reasons": [],
+      "manipulation_contact_reasons": []
+    }
+  },
+  "previous_single_fixture_candidate": {
+    "config": {
+      "min_scale": 0.95,
+      "max_scale": 1.65,
+      "near_distance": 0.015,
+      "far_distance": 0.08,
+      "max_scale_rate": 6.0,
+      "max_eef_speed": 0.65,
+      "safety_floor": 0.2
+    },
+    "run": {
+      "action_sha256": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+      "timestamp_sha256": "7af2f930a78f2c1c8724f84b5e5d76299dbfd59132b3badcda19061acc9bb2d4",
+      "nominal_path_duration_s": 1.6434456662503767,
+      "task_completed": true,
+      "task_completion_time_s": 3.4299999999999997,
+      "settling_after_path_s": 1.786554333749623,
+      "first_tolerance_entry_s": 2.4499999999999997,
+      "first_tolerance_entry_after_path_s": 0.806554333749623,
+      "completion_hold_reset_count": 1,
+      "maximum_consecutive_completion_hold_s": 0.25,
+      "endpoint_position_error_m": 0.0030677300030371923,
+      "endpoint_orientation_error_deg": 0.5754282691171986,
+      "actual_joint_jerk_rad_s3": 171561.3121510894,
+      "maximum_actual_to_filtered_position_error_m": 0.0549509792786155,
+      "maximum_desired_to_filtered_position_lag_m": 0.022220925820104206,
+      "hard_command_limits_pass": true,
+      "manipulation_contact_step_rate": 0.0,
+      "worst_actual_joint_jerk_event": {
+        "time_s": 1.37,
+        "joint": "right_shoulder_roll_joint",
+        "jerk_rad_s3": 171561.3121510894,
+        "acceleration_rad_s2": -34.61747001741239,
+        "velocity_rad_s": 0.6043461339245666,
+        "free_space_contact_reasons": [],
+        "manipulation_contact_reasons": []
+      }
+    },
+    "stable_duration_reduction_fraction": -0.3419405320813771
+  },
+  "best_observed_30_screen_candidate": {
+    "config": {
+      "min_scale": 0.9,
+      "max_scale": 1.6,
+      "near_distance": 0.015,
+      "far_distance": 0.13,
+      "max_scale_rate": 4.0,
+      "max_eef_speed": 0.65,
+      "safety_floor": 0.2
+    },
+    "run": {
+      "action_sha256": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+      "timestamp_sha256": "a85ed89f29c6d756d2b23f9ac53c2fc0145729b99c430ea6d6f534ee40135f30",
+      "nominal_path_duration_s": 1.8150341727353627,
+      "task_completed": true,
+      "task_completion_time_s": 2.502,
+      "settling_after_path_s": 0.6869658272646371,
+      "first_tolerance_entry_s": 2.254,
+      "first_tolerance_entry_after_path_s": 0.4389658272646373,
+      "completion_hold_reset_count": 0,
+      "maximum_consecutive_completion_hold_s": 0.25,
+      "endpoint_position_error_m": 0.0045099321361005374,
+      "endpoint_orientation_error_deg": 0.6638520129427727,
+      "actual_joint_jerk_rad_s3": 18134.2450472056,
+      "maximum_actual_to_filtered_position_error_m": 0.04999183422323715,
+      "maximum_desired_to_filtered_position_lag_m": 0.018287856093041007,
+      "hard_command_limits_pass": true,
+      "manipulation_contact_step_rate": 0.0,
+      "worst_actual_joint_jerk_event": {
+        "time_s": 0.0,
+        "joint": "right_shoulder_roll_joint",
+        "jerk_rad_s3": 18134.2450472056,
+        "acceleration_rad_s2": -60.90223920333849,
+        "velocity_rad_s": -0.12180447840667698,
+        "free_space_contact_reasons": [],
+        "manipulation_contact_reasons": []
+      }
+    },
+    "stable_duration_reduction_fraction": 0.021126760563380365
+  },
+  "comparison": {
+    "previous_action_samples_match_baseline": true,
+    "best_action_samples_match_baseline": true,
+    "previous_timestamp_changed": true,
+    "best_timestamp_changed": true,
+    "previous_path_time_reduction_s": 0.4232210004162902,
+    "previous_settling_time_increase_s": 1.2972210004162898,
+    "best_path_time_reduction_s": 0.25163249393130416,
+    "best_settling_time_increase_s": 0.1976324939313039
+  },
+  "decision": {
+    "bottleneck_is_schedule_duration_only": false,
+    "settling_aware_optimization_required": true,
+    "previous_candidate_stable_10_percent_gate_passed": false,
+    "best_observed_candidate_stable_10_percent_gate_passed": false,
+    "mujoco_result_requires_real_shadow_validation": true,
+    "production_adaptive_enabled": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "publisher_created": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

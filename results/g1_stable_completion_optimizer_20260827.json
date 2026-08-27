@@ -1,0 +1,1349 @@
+{
+  "schema_version": "g1_stable_completion_optimizer_v1",
+  "scope": "Deterministic timestamp-only development screen using stable 5 mm / 3 degree continuous-250-ms completion; not exhaustive, neural, or hardware evidence.",
+  "completion_contract": {
+    "position_tolerance_m": 0.005,
+    "orientation_tolerance_deg": 3.0,
+    "continuous_hold_s": 0.25,
+    "minimum_duration_reduction_fraction": 0.1,
+    "maximum_actual_joint_jerk_regression_fraction": 0.0,
+    "threshold_relaxed": false
+  },
+  "input": {
+    "lift_offsets_m": [
+      0.1,
+      0.13,
+      0.15,
+      0.17,
+      0.19
+    ],
+    "grid_candidate_count": 811,
+    "analytically_feasible_candidate_count": 463,
+    "dynamics_candidate_count": 30,
+    "screen_offset_m": 0.13,
+    "selection": "even deterministic coverage over maximin theoretical rank plus feasible prior anchors",
+    "preflight_all_offsets_accepted": true
+  },
+  "baselines": {
+    "0.1": {
+      "task_completed": true,
+      "completion_time_s": 2.484,
+      "endpoint_position_error_m": 0.0038664138513443617,
+      "endpoint_orientation_error_rad": 0.01881409904180372,
+      "actual_joint_jerk_rad_s3": 18134.2450472056
+    },
+    "0.13": {
+      "task_completed": true,
+      "completion_time_s": 2.556,
+      "endpoint_position_error_m": 0.004334087749169309,
+      "endpoint_orientation_error_rad": 0.01477984137571694,
+      "actual_joint_jerk_rad_s3": 18134.2450472056
+    },
+    "0.15": {
+      "task_completed": true,
+      "completion_time_s": 3.56,
+      "endpoint_position_error_m": 0.0004537409003936214,
+      "endpoint_orientation_error_rad": 0.009078581528595149,
+      "actual_joint_jerk_rad_s3": 178857.33641118757
+    },
+    "0.17": {
+      "task_completed": true,
+      "completion_time_s": 3.892,
+      "endpoint_position_error_m": 0.0010033355149547416,
+      "endpoint_orientation_error_rad": 0.018863013951770227,
+      "actual_joint_jerk_rad_s3": 178482.30478818176
+    },
+    "0.19": {
+      "task_completed": true,
+      "completion_time_s": 4.172,
+      "endpoint_position_error_m": 0.0023138083370099517,
+      "endpoint_orientation_error_rad": 0.011299012956879106,
+      "actual_joint_jerk_rad_s3": 178319.91679095122
+    }
+  },
+  "evaluated_candidates": [
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.65,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 6.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.21679446774621003,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "7af2f930a78f2c1c8724f84b5e5d76299dbfd59132b3badcda19061acc9bb2d4",
+        "nominal_path_duration_s": 1.6434456662503767,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4299999999999997,
+        "duration_reduction_fraction": -0.3419405320813771,
+        "effective_speedup_fraction": -0.2548104956268221,
+        "endpoint_position_error_m": 0.0030677300030371923,
+        "endpoint_orientation_error_rad": 0.01004311790514712,
+        "actual_joint_jerk_regression_fraction": 8.460626108475697,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": false,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 2.0,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 4.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.27534273760717876,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "e50b269cf8c247d12b602c9698037afe3221c44623f239aa99ad1aa29107eb98",
+        "nominal_path_duration_s": 1.493031910850832,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.472,
+        "duration_reduction_fraction": -0.3583724569640063,
+        "effective_speedup_fraction": -0.26382488479262667,
+        "endpoint_position_error_m": 0.0035127948689291826,
+        "endpoint_orientation_error_rad": 0.011101670012364138,
+        "actual_joint_jerk_regression_fraction": 8.449570427982062,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": false,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 2.0,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 2.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.23798844110603745,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "fc217c298d8fa9c1a6326258d473a4f19e8225cb7d99736e2b3d8c7e46eab308",
+        "nominal_path_duration_s": 1.5605348312340832,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.468,
+        "duration_reduction_fraction": -0.35680751173708924,
+        "effective_speedup_fraction": -0.26297577854671284,
+        "endpoint_position_error_m": 0.003546828514755738,
+        "endpoint_orientation_error_rad": 0.010763614886397127,
+        "actual_joint_jerk_regression_fraction": 8.46450504783174,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": false,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 1.8,
+        "near_distance": 0.025,
+        "far_distance": 0.1,
+        "max_scale_rate": 4.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.22301036978895505,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "acb6f54ab99791b430d4a592a26798ad16feead9be17b532fde47d4480633567",
+        "nominal_path_duration_s": 1.6105075926906498,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.424,
+        "duration_reduction_fraction": -0.3395931142410016,
+        "effective_speedup_fraction": -0.25350467289719625,
+        "endpoint_position_error_m": 0.002972266698646037,
+        "endpoint_orientation_error_rad": 0.010102926740752185,
+        "actual_joint_jerk_regression_fraction": 8.465254740758573,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": false,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.8,
+        "near_distance": 0.025,
+        "far_distance": 0.08,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.21559517328097277,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "8c5678ca9b48948386b7d7e10d2abe5d66261fe794bfd9857bcde82faf802d7b",
+        "nominal_path_duration_s": 1.6027577253326422,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4939999999999998,
+        "duration_reduction_fraction": -0.36697965571204993,
+        "effective_speedup_fraction": -0.26846021751574123,
+        "endpoint_position_error_m": 0.0032975583716226002,
+        "endpoint_orientation_error_rad": 0.009653218263425247,
+        "actual_joint_jerk_regression_fraction": 8.471743922278575,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": false,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 2.0,
+        "near_distance": 0.025,
+        "far_distance": 0.13,
+        "max_scale_rate": 4.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.20835008058481252,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "7f4860d196043abac5eacbe8947c298c2012afdd94d700304353b287f0760a33",
+        "nominal_path_duration_s": 1.614363279901592,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4099999999999997,
+        "duration_reduction_fraction": -0.3341158059467917,
+        "effective_speedup_fraction": -0.25043988269794715,
+        "endpoint_position_error_m": 0.002648514787887707,
+        "endpoint_orientation_error_rad": 0.010118495400309666,
+        "actual_joint_jerk_regression_fraction": 8.463783691790931,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": false,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 1.65,
+        "near_distance": 0.025,
+        "far_distance": 0.08,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.20295826344386636,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "93b5c6b0ea57391f2c4eadac40cbe6ba2141f703a03c7ecc21bd64ec864c1da4",
+        "nominal_path_duration_s": 1.6569295756104143,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.472,
+        "duration_reduction_fraction": -0.3583724569640063,
+        "effective_speedup_fraction": -0.26382488479262667,
+        "endpoint_position_error_m": 0.003124303655028323,
+        "endpoint_orientation_error_rad": 0.009299660314847486,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.6,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 2.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.19599219717683547,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "d0be760854a695378246f6389c94e74ce3421d666058ebc0e0600edf871f0a64",
+        "nominal_path_duration_s": 1.6970898026999461,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.428,
+        "duration_reduction_fraction": -0.34115805946791866,
+        "effective_speedup_fraction": -0.2543757292882147,
+        "endpoint_position_error_m": 0.0029384036944490825,
+        "endpoint_orientation_error_rad": 0.00947456587658489,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 1.45,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 2.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.1921752008394778,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "9048c2f4689ba1189cc555462011fd104dec9129f9b7fc5a38a7627c78e2753c",
+        "nominal_path_duration_s": 1.7194595678520677,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.416,
+        "duration_reduction_fraction": -0.3364632237871674,
+        "effective_speedup_fraction": -0.2517564402810304,
+        "endpoint_position_error_m": 0.0024271564968468347,
+        "endpoint_orientation_error_rad": 0.009029177651068416,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 1.65,
+        "near_distance": 0.015,
+        "far_distance": 0.13,
+        "max_scale_rate": 4.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.18745407018214721,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "b78c50a682ad9f3f8d9ba5535d00ce8a3b362223e33c9f6ff59261121118851e",
+        "nominal_path_duration_s": 1.68827743233444,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.388,
+        "duration_reduction_fraction": -0.3255086071987481,
+        "effective_speedup_fraction": -0.24557260920897284,
+        "endpoint_position_error_m": 0.0022020466911347354,
+        "endpoint_orientation_error_rad": 0.00987814186122822,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 1.4,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 2.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.1831973203663091,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "8b83921bf962a9dc9fd39f1e563220c1349f1951214b8bb9eaad3466d482ff13",
+        "nominal_path_duration_s": 1.7445269410110817,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4059999999999997,
+        "duration_reduction_fraction": -0.3325508607198746,
+        "effective_speedup_fraction": -0.24955960070463878,
+        "endpoint_position_error_m": 0.002186608024930638,
+        "endpoint_orientation_error_rad": 0.009070238624974263,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.45,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 4.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.17842263786893697,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "477b219592f33533f24d8f724ed9c1cc5e2b8f42a501d04ca6dc0a6cb09cda81",
+        "nominal_path_duration_s": 1.7476562030964942,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4019999999999997,
+        "duration_reduction_fraction": -0.3309859154929575,
+        "effective_speedup_fraction": -0.2486772486772486,
+        "endpoint_position_error_m": 0.0023857684944708296,
+        "endpoint_orientation_error_rad": 0.0092686930937573,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 2.0,
+        "near_distance": 0.025,
+        "far_distance": 0.13,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.17433181883041193,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "c40aa7f8552f4de6446fdf972aff402cbcea2bac331c2ce1fdb9a52074aa3e40",
+        "nominal_path_duration_s": 1.6868471547555173,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4579999999999997,
+        "duration_reduction_fraction": -0.35289514866979643,
+        "effective_speedup_fraction": -0.26084441873915554,
+        "endpoint_position_error_m": 0.0029840192800904596,
+        "endpoint_orientation_error_rad": 0.009110341223849391,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 1.45,
+        "near_distance": 0.05,
+        "far_distance": 0.08,
+        "max_scale_rate": 4.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.17102371468834177,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "abee8f953b868ce6a434349affc68b89816eb804ea76163bdacc3de09eede26c",
+        "nominal_path_duration_s": 1.7575865620370223,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.3699999999999997,
+        "duration_reduction_fraction": -0.3184663536776211,
+        "effective_speedup_fraction": -0.2415430267062314,
+        "endpoint_position_error_m": 0.0018654386058223151,
+        "endpoint_orientation_error_rad": 0.01001912135138517,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.8,
+        "near_distance": 0.05,
+        "far_distance": 0.08,
+        "max_scale_rate": 2.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.16689881996705624,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "464605c24bc5f25526d579667937232e2ac14b5f841767a6159201c38a924ac2",
+        "nominal_path_duration_s": 1.7027067010182502,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4259999999999997,
+        "duration_reduction_fraction": -0.34037558685446,
+        "effective_speedup_fraction": -0.253940455341506,
+        "endpoint_position_error_m": 0.0032255300559099836,
+        "endpoint_orientation_error_rad": 0.010021238902938812,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.6,
+        "near_distance": 0.025,
+        "far_distance": 0.08,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.16395327558531525,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "577b444b7e49b5bedd6f2928e665d2e2b1f8486ce54e9a380d084c190e4e7007",
+        "nominal_path_duration_s": 1.7377710568736435,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4579999999999997,
+        "duration_reduction_fraction": -0.35289514866979643,
+        "effective_speedup_fraction": -0.26084441873915554,
+        "endpoint_position_error_m": 0.0029994864180561466,
+        "endpoint_orientation_error_rad": 0.009084937658857994,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 1.4,
+        "near_distance": 0.015,
+        "far_distance": 0.1,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.16022605738100515,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "82fb87dfb9341a60abd95142c0fdf2f788ccc6706e1ed945deece8b8f945378d",
+        "nominal_path_duration_s": 1.7932739772751096,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.3939999999999997,
+        "duration_reduction_fraction": -0.3278560250391236,
+        "effective_speedup_fraction": -0.24690630524454915,
+        "endpoint_position_error_m": 0.0019142333944663246,
+        "endpoint_orientation_error_rad": 0.009148640659123972,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.65,
+        "near_distance": 0.025,
+        "far_distance": 0.1,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.15603141537185838,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "03b665d58670b3815286b0a3a146ccd6d6d363e88f79782b571ddb2c3dae4776",
+        "nominal_path_duration_s": 1.745591820429897,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4379999999999997,
+        "duration_reduction_fraction": -0.34507042253521103,
+        "effective_speedup_fraction": -0.25654450261780093,
+        "endpoint_position_error_m": 0.0027567340059648318,
+        "endpoint_orientation_error_rad": 0.00887117160035695,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.4,
+        "near_distance": 0.015,
+        "far_distance": 0.08,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.15303953623593125,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "7731263127ff243702a823acfa45275d3e701e384ed127167a093dc935b4132a",
+        "nominal_path_duration_s": 1.8097050080822248,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.408,
+        "duration_reduction_fraction": -0.33333333333333326,
+        "effective_speedup_fraction": -0.25,
+        "endpoint_position_error_m": 0.0021483236111578185,
+        "endpoint_orientation_error_rad": 0.008804189555818152,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.6,
+        "near_distance": 0.015,
+        "far_distance": 0.13,
+        "max_scale_rate": 2.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.14927503575336332,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "447a60c6732bb5d80c32893890a39f482e18ab0083523cd60b63e1dd38d83551",
+        "nominal_path_duration_s": 1.7817776515505277,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.368,
+        "duration_reduction_fraction": -0.3176838810641627,
+        "effective_speedup_fraction": -0.24109263657957236,
+        "endpoint_position_error_m": 0.0019116996176512917,
+        "endpoint_orientation_error_rad": 0.009986575650636464,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 1.0,
+        "max_scale": 2.0,
+        "near_distance": 0.05,
+        "far_distance": 0.13,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.14488601005948254,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "b15b158b3b4aaff9fe790732c363435b77d6d12a3985b930272dbd21d96e9d53",
+        "nominal_path_duration_s": 1.7321742434083571,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.4299999999999997,
+        "duration_reduction_fraction": -0.3419405320813771,
+        "effective_speedup_fraction": -0.2548104956268221,
+        "endpoint_position_error_m": 0.002573736686103615,
+        "endpoint_orientation_error_rad": 0.008790207756603066,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.6,
+        "near_distance": 0.025,
+        "far_distance": 0.1,
+        "max_scale_rate": 2.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.14123593105366883,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "09bd2b029808e8eca9c846c3fba7036da0f1ea97f155343fda37b3896833a37f",
+        "nominal_path_duration_s": 1.8069703925565124,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.3739999999999997,
+        "duration_reduction_fraction": -0.3200312989045382,
+        "effective_speedup_fraction": -0.24244220509780667,
+        "endpoint_position_error_m": 0.002192083079014129,
+        "endpoint_orientation_error_rad": 0.009663274531085179,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.4,
+        "near_distance": 0.015,
+        "far_distance": 0.1,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.1382135557833789,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "7c35610613dae286d5792b799c9d3f5bbc70f3ba496c336b5914d527fcc47b86",
+        "nominal_path_duration_s": 1.8406352528647754,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.38,
+        "duration_reduction_fraction": -0.3223787167449139,
+        "effective_speedup_fraction": -0.2437869822485207,
+        "endpoint_position_error_m": 0.0018346170180450004,
+        "endpoint_orientation_error_rad": 0.00943332750182122,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.45,
+        "near_distance": 0.025,
+        "far_distance": 0.1,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.13497114105053776,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "6ef44c6536562e029748273cf2aa57638bf79244702c63bb52f9736c416f3a1e",
+        "nominal_path_duration_s": 1.8359340612902357,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.38,
+        "duration_reduction_fraction": -0.3223787167449139,
+        "effective_speedup_fraction": -0.2437869822485207,
+        "endpoint_position_error_m": 0.001902877986352419,
+        "endpoint_orientation_error_rad": 0.009368977213816753,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.6,
+        "near_distance": 0.015,
+        "far_distance": 0.13,
+        "max_scale_rate": 4.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.12907912265143684,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "a85ed89f29c6d756d2b23f9ac53c2fc0145729b99c430ea6d6f534ee40135f30",
+        "nominal_path_duration_s": 1.8150341727353627,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 2.502,
+        "duration_reduction_fraction": 0.021126760563380365,
+        "effective_speedup_fraction": 0.021582733812949728,
+        "endpoint_position_error_m": 0.0045099321361005374,
+        "endpoint_orientation_error_rad": 0.011586403371843395,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.95,
+        "max_scale": 1.6,
+        "near_distance": 0.025,
+        "far_distance": 0.13,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.1251791765702197,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "7ae726fe9a7f95318b7d2b58a806cc39bbfe508eebae05ac0547259c3a6f5bce",
+        "nominal_path_duration_s": 1.8481672109565075,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.3619999999999997,
+        "duration_reduction_fraction": -0.31533646322378694,
+        "effective_speedup_fraction": -0.23973825104104696,
+        "endpoint_position_error_m": 0.0017157827452010832,
+        "endpoint_orientation_error_rad": 0.0099284307301064,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.45,
+        "near_distance": 0.015,
+        "far_distance": 0.1,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.12048187441195046,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "692138f09899dbd6faf830a3bdbf7b78d0881e24c66e1ac5686d5d6be069e9fc",
+        "nominal_path_duration_s": 1.8705291266355006,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.38,
+        "duration_reduction_fraction": -0.3223787167449139,
+        "effective_speedup_fraction": -0.2437869822485207,
+        "endpoint_position_error_m": 0.00195639982351283,
+        "endpoint_orientation_error_rad": 0.009318733368870024,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.65,
+        "near_distance": 0.015,
+        "far_distance": 0.13,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.1141992579344433,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "4b0f9e28c1e9b4923c2a79bdddd6ee3f6504838018a597addff1548a7d75e352",
+        "nominal_path_duration_s": 1.867699381469999,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.3739999999999997,
+        "duration_reduction_fraction": -0.3200312989045382,
+        "effective_speedup_fraction": -0.24244220509780667,
+        "endpoint_position_error_m": 0.001946245335206991,
+        "endpoint_orientation_error_rad": 0.009454542152071836,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.45,
+        "near_distance": 0.025,
+        "far_distance": 0.1,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.10929904423774672,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "59901f3b0f28824e0559bbcc4458ab280c09461ed734e6e63dc73a4c8bb902c2",
+        "nominal_path_duration_s": 1.8833006156786447,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.3699999999999997,
+        "duration_reduction_fraction": -0.3184663536776211,
+        "effective_speedup_fraction": -0.2415430267062314,
+        "endpoint_position_error_m": 0.0018519549857285423,
+        "endpoint_orientation_error_rad": 0.009592882241302055,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    },
+    {
+      "config": {
+        "min_scale": 0.9,
+        "max_scale": 1.65,
+        "near_distance": 0.025,
+        "far_distance": 0.13,
+        "max_scale_rate": 1.0,
+        "max_eef_speed": 0.65,
+        "safety_floor": 0.2
+      },
+      "minimum_theoretical_reduction": 0.10068660686301412,
+      "screen_offset_m": 0.13,
+      "screen": {
+        "action_sha256_off": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "action_sha256_on": "3021e3bc6b26b3c2e2c1af1fb0dc6b5adbd59c485b14b653311d999f15bbdd6a",
+        "timestamp_sha256_off": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+        "timestamp_sha256_on": "7dff7e5e4795d5708bd16f47097c61755d873f02c695c094f294a40caf974da3",
+        "nominal_path_duration_s": 1.8861900127047053,
+        "baseline_completion_time_s": 2.556,
+        "adaptive_completion_time_s": 3.36,
+        "duration_reduction_fraction": -0.3145539906103285,
+        "effective_speedup_fraction": -0.2392857142857142,
+        "endpoint_position_error_m": 0.0017656446338804046,
+        "endpoint_orientation_error_rad": 0.009917724809061133,
+        "actual_joint_jerk_regression_fraction": 0.0,
+        "criteria": {
+          "action_samples_byte_identical": true,
+          "baseline_completed": true,
+          "adaptive_completed": true,
+          "stable_completion_reduction_at_least_10_percent": false,
+          "endpoint_position_within_5mm": true,
+          "endpoint_orientation_within_3deg": true,
+          "actual_joint_jerk_noninferior": true,
+          "hard_command_limits_pass": true,
+          "no_manipulation_contact": true,
+          "finite": true
+        },
+        "passed": false
+      },
+      "all_offsets": null,
+      "passed": false
+    }
+  ],
+  "summary": {
+    "screen_pass_count": 0,
+    "maximum_observed_screen_duration_reduction_fraction": 0.021126760563380365,
+    "full_scenario_evaluated_count": 0,
+    "full_scenario_pass_count": 0,
+    "selected": null
+  },
+  "decision": {
+    "stable_multi_scenario_candidate_found": false,
+    "minimum_30_candidate_development_screen_completed": true,
+    "search_is_exhaustive": false,
+    "production_adaptive_enabled": false,
+    "real_lgg100_task_speedup_passed": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "action_samples_modified": false,
+    "publisher_created": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

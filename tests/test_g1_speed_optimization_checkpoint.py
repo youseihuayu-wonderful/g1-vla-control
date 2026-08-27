@@ -33,6 +33,9 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
             "g1_fast_preflight_correctness_corpus.py",
             "g1_yuhao_fast_layered_benchmark.py",
             "g1_offline_compensated_shadow_replay.py",
+            "g1_stable_completion_optimizer.py",
+            "g1_settling_bottleneck_diagnostic.py",
+            "g1_fast_preflight_30_trajectory_corpus.py",
         ]
         forbidden = ("unitree_sdk", "arm_controller", "gripper_controller")
         for filename in files:
@@ -98,6 +101,8 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
             np.rad2deg(result["completion_orientation_tolerance_rad"]), 3.0
         )
         self.assertEqual(result["completion_hold_s"], 0.250)
+        self.assertIsNotNone(result["first_completion_tolerance_entry_s"])
+        self.assertGreaterEqual(result["maximum_consecutive_completion_hold_s"], 0.250)
 
     def test_formal_microbenchmark_passes_but_is_not_yuhao_or_task_evidence(self):
         report = json.loads((
@@ -167,6 +172,72 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
         self.assertFalse(
             report["decision"]["minimum_30_trajectory_corpus_completed"]
         )
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_stable_optimizer_reports_no_passing_candidate_without_relaxation(self):
+        report = json.loads((
+            ROOT / "results" / "g1_stable_completion_optimizer_20260827.json"
+        ).read_text())
+        self.assertEqual(report["input"]["grid_candidate_count"], 811)
+        self.assertEqual(report["input"]["dynamics_candidate_count"], 30)
+        self.assertEqual(report["summary"]["screen_pass_count"], 0)
+        self.assertLess(
+            report["summary"][
+                "maximum_observed_screen_duration_reduction_fraction"
+            ],
+            0.10,
+        )
+        self.assertIsNone(report["summary"]["selected"])
+        self.assertFalse(
+            report["decision"]["stable_multi_scenario_candidate_found"]
+        )
+        self.assertTrue(
+            report["decision"][
+                "minimum_30_candidate_development_screen_completed"
+            ]
+        )
+        self.assertFalse(report["decision"]["search_is_exhaustive"])
+        self.assertFalse(report["decision"]["production_adaptive_enabled"])
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_30_trajectory_fast_preflight_corpus_has_no_dangerous_accept(self):
+        report = json.loads((
+            ROOT / "results" / "g1_fast_preflight_30_trajectory_corpus_20260827.json"
+        ).read_text())
+        self.assertEqual(report["summary"]["trajectory_count"], 30)
+        self.assertEqual(report["summary"]["passed_count"], 30)
+        self.assertEqual(report["summary"]["acceptance_concordance_rate"], 1.0)
+        self.assertEqual(report["summary"]["dangerous_fast_accept_count"], 0)
+        self.assertTrue(report["summary"]["all_30_passed"])
+        self.assertTrue(
+            report["decision"]["minimum_30_trajectory_development_corpus_completed"]
+        )
+        self.assertFalse(
+            report["decision"]["randomized_near_limit_coverage_completed"]
+        )
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_settling_diagnostic_explains_schedule_gain_loss(self):
+        report = json.loads((
+            ROOT / "results" / "g1_settling_bottleneck_diagnostic_20260827.json"
+        ).read_text())
+        comparison = report["comparison"]
+        previous = report["previous_single_fixture_candidate"]
+        best = report["best_observed_30_screen_candidate"]
+        self.assertTrue(comparison["previous_action_samples_match_baseline"])
+        self.assertTrue(comparison["best_action_samples_match_baseline"])
+        self.assertGreater(comparison["previous_path_time_reduction_s"], 0.0)
+        self.assertGreater(
+            comparison["previous_settling_time_increase_s"],
+            comparison["previous_path_time_reduction_s"],
+        )
+        self.assertLess(previous["stable_duration_reduction_fraction"], 0.0)
+        self.assertGreater(best["stable_duration_reduction_fraction"], 0.0)
+        self.assertLess(best["stable_duration_reduction_fraction"], 0.10)
+        self.assertTrue(
+            report["decision"]["settling_aware_optimization_required"]
+        )
+        self.assertFalse(report["decision"]["production_adaptive_enabled"])
         self.assertFalse(report["decision"]["robot_motion_allowed"])
 
     def test_compensated_shadow_preserves_canonical_action_and_holds_on_collision(self):

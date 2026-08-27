@@ -105,11 +105,53 @@
       "real_camera_used": false,
       "frozen_lgg100_inference_executed": false,
       "real_shadow_passed": false
+    },
+    "stable_completion_candidate_screen": {
+      "completed": true,
+      "evidence": "results/g1_stable_completion_optimizer_20260827.json",
+      "grid_candidates": 811,
+      "analytically_feasible_candidates": 463,
+      "dynamics_screen_candidates": 30,
+      "screen_offset_m": 0.13,
+      "screen_passed_candidates": 0,
+      "maximum_observed_screen_duration_reduction_fraction": 0.021126760563380365,
+      "full_scenario_candidates_evaluated": 0,
+      "search_exhaustive": false,
+      "stable_multi_scenario_candidate_found": false
+    },
+    "settling_bottleneck_diagnostic": {
+      "completed": true,
+      "evidence": "results/g1_settling_bottleneck_diagnostic_20260827.json",
+      "offset_m": 0.13,
+      "previous_candidate_path_time_reduction_s": 0.4232210004162902,
+      "previous_candidate_settling_time_increase_s": 1.2972210004162898,
+      "previous_candidate_stable_duration_reduction_fraction": -0.3419405320813771,
+      "best_screen_candidate_path_time_reduction_s": 0.25163249393130416,
+      "best_screen_candidate_settling_time_increase_s": 0.1976324939313039,
+      "best_screen_candidate_stable_duration_reduction_fraction": 0.021126760563380365,
+      "settling_aware_optimization_required": true
+    },
+    "fast_preflight_30_trajectory_corpus": {
+      "completed": true,
+      "evidence": "results/g1_fast_preflight_30_trajectory_corpus_20260827.json",
+      "trajectories": "30/30",
+      "categories": {
+        "reachable": 18,
+        "unreachable": 8,
+        "gripper_transition": 3,
+        "initial_collision": 1
+      },
+      "acceptance_concordance_rate": 1.0,
+      "dangerous_fast_accept_count": 0,
+      "fast_p50_ms": 15.327438,
+      "fast_p95_ms": 37.552181399999995,
+      "randomized_near_limit_coverage_completed": false,
+      "saved_initial_collision_physically_qualified": false
     }
   },
   "remaining_offline": [
-    "joint multi-scenario phase-scale optimization using stable 5 mm/3 degree continuous-250-ms completion with at least 30 development pairs",
-    "expand the 7-verdict/3-fault development corpus to at least 30 reachable/rejected/collision/near-limit trajectories",
+    "replace simple distance-only scales with tracking/settling-aware semantic-phase optimization and run at least 30 complete multi-scenario pairs under stable completion",
+    "add randomized near-limit and collision-boundary fuzzing plus full-29-joint real-pose cases to the passing 30-trajectory deterministic corpus",
     "repeat layered benchmark on deployment compute and separately benchmark the pinned Yuhao selected-tick production loop without conflating missing swept collision",
     "replace synthetic camera/hold-policy fixtures with streaming LowState, three real cameras, DDS watchdog, and frozen LGG100 while retaining mock sink"
   ],
@@ -143,7 +185,11 @@
     "fast_preflight_development_correctness_corpus_passed": true,
     "offline_layered_yuhao_compute_comparison_completed": true,
     "offline_compensated_shadow_fixture_integrated": true,
-    "initial_collision_resolved": false
+    "initial_collision_resolved": false,
+    "minimum_30_stable_candidate_screen_completed": true,
+    "stable_multi_scenario_candidate_found": false,
+    "settling_aware_optimization_required": true,
+    "minimum_30_trajectory_fast_preflight_corpus_passed": true
   },
   "safety": {
     "offline_only": true,

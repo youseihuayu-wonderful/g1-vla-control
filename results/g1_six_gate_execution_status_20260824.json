@@ -217,7 +217,9 @@
     "stable_completion_metric_frozen": true,
     "current_adaptive_candidate_generalized": false,
     "offline_layered_yuhao_compute_comparison_completed": true,
-    "offline_compensated_shadow_fixture_integrated": true
+    "offline_compensated_shadow_fixture_integrated": true,
+    "stable_multi_scenario_candidate_found": false,
+    "minimum_30_trajectory_fast_preflight_corpus_passed": true
   },
   "g1_execution_enabled": false,
   "hardware_execution_performed": false,
@@ -256,6 +258,21 @@
     "compensated_hold_ik_passed": true,
     "compensated_swept_path_passed": false,
     "initial_collision_resolved": false,
-    "real_shadow_passed": false
+    "real_shadow_passed": false,
+    "stable_candidate_screen_evidence": "results/g1_stable_completion_optimizer_20260827.json",
+    "stable_candidate_dynamics_screen_count": 30,
+    "stable_candidate_screen_pass_count": 0,
+    "maximum_observed_bottleneck_reduction_fraction": 0.021126760563380365,
+    "stable_multi_scenario_candidate_found": false,
+    "settling_diagnostic_evidence": "results/g1_settling_bottleneck_diagnostic_20260827.json",
+    "previous_candidate_path_reduction_s": 0.4232210004162902,
+    "previous_candidate_settling_increase_s": 1.2972210004162898,
+    "best_screen_stable_reduction_fraction": 0.021126760563380365,
+    "settling_aware_optimization_required": true,
+    "fast_preflight_30_trajectory_evidence": "results/g1_fast_preflight_30_trajectory_corpus_20260827.json",
+    "fast_preflight_30_trajectory_passed": "30/30",
+    "fast_preflight_acceptance_concordance_rate": 1.0,
+    "fast_preflight_dangerous_accept_count": 0,
+    "fast_preflight_30_trajectory_p95_ms": 37.552181399999995
   }
 }

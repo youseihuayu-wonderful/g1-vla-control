@@ -106,14 +106,48 @@ MuJoCo：继续用于算法优化和安全筛选
 
 证据：`results/g1_offline_compensated_shadow_replay_20260827.json`
 
+### S8 · Stable-completion多场景候选筛选
+
+- 生成811组timestamp-only参数；
+- 463组理论上可能在五距离均达到10%；
+- 从maximin理论排序中确定性覆盖30组，并保留可行历史anchor；
+- 先在13 cm瓶颈执行真实dynamics + continuous-250-ms Gate；
+- 0/30达到10%，观察到的最大stable reduction仅 `2.11%`；
+- 因瓶颈无通过项，没有候选进入完整五距离评估；搜索不是穷举。
+
+因此当前distance-only Near/Far retimer没有合格的多场景stable candidate，保持`production_adaptive_enabled=false`。13 cm诊断进一步表明：
+
+- 旧候选减少path时间 `0.423 s`，但settling增加 `1.297 s`，最终反而慢 `34.19%`；
+- 30-screen内最佳候选减少path时间 `0.252 s`，settling增加 `0.198 s`，净完成时间只降低 `2.11%`；
+- 瓶颈不是schedule长度本身，而是跟踪误差和settling。
+
+下一步不能继续追逐schedule缩短，需要研究控制跟踪/settling与更细的phase-aware策略，并最终在真实LGG100 chunks上验证。
+
+证据：
+
+- `results/g1_stable_completion_optimizer_20260827.json`
+- `results/g1_settling_bottleneck_diagnostic_20260827.json`
+
+### S9 · Fast preflight 30-trajectory corpus
+
+扩展为30条确定性trajectory：18条0–20 cm reachable vertical、8条unreachable、3条gripper transition、1条保存姿态initial collision。
+
+- 30/30 Legacy/Fast预期判定通过；
+- acceptance concordance `100%`；
+- dangerous Fast accept `0`；
+- Fast P50 `15.33 ms`、P95 `37.55 ms`；
+- randomized near-limit与真实完整29关节collision仍未覆盖。
+
+证据：`results/g1_fast_preflight_30_trajectory_corpus_20260827.json`
+
 ## 仍需继续的离线工作
 
 ### O1 · 多场景鲁棒 scale 优化
 
-不能继续使用只对17 cm最优的参数。下一轮将5个距离联合进入目标函数，并且必须使用冻结的 `5 mm/3° continuous 250 ms hold` 稳定完成时间，而不是固定settle proxy。增加：
+不能继续使用只对17 cm最优的参数。第一批30候选瓶颈筛选已完成且0/30通过；搜索并非穷举。下一轮必须使用冻结的 `5 mm/3° continuous 250 ms hold`，并从简单distance-only Near/Far升级为控制跟踪与语义phase共同优化：
 
-- minimum 30 deterministic/randomized pairs；
-- Far/Approach/Near/Grasp/Lift/Place/Retreat 独立 scale；
+- minimum 30完整多场景 deterministic/randomized pairs；
+- Far/Approach/Near/Grasp/Lift/Place/Retreat 独立 scale与settling-aware目标；
 - 所有 pair stable completion duration reduction `≥10%`；
 - endpoint regression `≤5 mm`；
 - jerk/contact/limits 非劣；
@@ -121,12 +155,7 @@ MuJoCo：继续用于算法优化和安全筛选
 
 ### O2 · 多场景 IK/collision 正确性 corpus
 
-增加 reachable、near-limit、unreachable、collision、gripper transition、NaN/Inf。要求：
-
-- Fast 危险地接受 Legacy rejection 的次数为0；
-- Fast residual 始终在内部 `4 mm/2.5°`；
-- fault 全部 hold；
-- P95 仍小于333 ms。
+30条确定性trajectory以及NaN/Inf schema faults已通过。仍需增加randomized near-limit、collision-boundary fuzzing和完整29关节真实姿态。继续要求危险Fast accept为0、accepted residual在内部 `4 mm/2.5°`、fault全部hold、P95小于333 ms。
 
 ### O3 · Yuhao生产loop和真实计算机复测
 

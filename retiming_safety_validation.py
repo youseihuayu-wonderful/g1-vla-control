@@ -154,6 +154,9 @@ def _run_scale(
     aborted_on_phase_aware_contact = False
     completion_hold_steps = int(np.ceil(completion_hold_s / dt))
     consecutive_completion_steps = 0
+    maximum_consecutive_completion_steps = 0
+    completion_hold_reset_count = 0
+    first_completion_tolerance_entry_s: float | None = None
     task_completed: bool | None = None if not stop_when_settled else False
     task_completion_time_s: float | None = None
     endpoint_orientation_error_rad = float("inf")
@@ -281,7 +284,15 @@ def _run_scale(
                 and completion_orientation_error <= completion_orientation_tolerance_rad
             ):
                 consecutive_completion_steps += 1
+                if first_completion_tolerance_entry_s is None:
+                    first_completion_tolerance_entry_s = elapsed + dt
+                maximum_consecutive_completion_steps = max(
+                    maximum_consecutive_completion_steps,
+                    consecutive_completion_steps,
+                )
             else:
+                if consecutive_completion_steps:
+                    completion_hold_reset_count += 1
                 consecutive_completion_steps = 0
             if consecutive_completion_steps >= completion_hold_steps:
                 task_completed = True
@@ -410,6 +421,11 @@ def _run_scale(
         "maximum_settle_s": maximum_settle_s,
         "task_completed": task_completed,
         "task_completion_time_s": task_completion_time_s,
+        "first_completion_tolerance_entry_s": first_completion_tolerance_entry_s,
+        "completion_hold_reset_count": completion_hold_reset_count,
+        "maximum_consecutive_completion_hold_s": (
+            maximum_consecutive_completion_steps * dt
+        ),
         "endpoint_orientation_error_rad": endpoint_orientation_error_rad,
         "hard_command_limits_pass": bool(
             hard_limits_pass and (joint_hard_limits_pass if use_joint_filter else True)

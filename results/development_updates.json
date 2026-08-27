@@ -1579,5 +1579,96 @@
       "results/g1_offline_compensated_shadow_replay_20260827.json",
       "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
     ]
+  },
+  {
+    "time": "2026-08-27 20:10 EDT",
+    "title": "完成30候选stable-completion瓶颈筛选并拒绝distance-only retimer",
+    "status": "blocked",
+    "summary": "811组timestamp-only网格中463组理论上可能在五距离达到10%；确定性覆盖30组并先运行13 cm瓶颈。0/30达到continuous-250-ms stable reduction 10%，观察最大仅2.11%，没有候选进入完整五距离。",
+    "done": [
+      "用path duration+250 ms计算理论最早完成下界，排除不可能达到10%的候选。",
+      "从maximin理论排序中覆盖激进/保守参数并保留可行历史anchor。",
+      "30组全部使用相同5 mm/3 deg、hard limits、contact和jerk非劣标准。"
+    ],
+    "conclusions": [
+      "简单distance-only Near/Far retimer尚未产生稳定完成时间合格候选。",
+      "观察最大瓶颈reduction为2.11%，远低于10%。",
+      "搜索不是穷举，因此结论是当前screen未找到，而非数学上证明不存在。",
+      "production_adaptive_enabled=false，真实任务速度未通过。"
+    ],
+    "fixes": [
+      "用理论下界+瓶颈dynamics短路，避免在必败候选上运行全部五距离。"
+    ],
+    "remaining": [
+      "研究控制跟踪/settling造成的13 cm瓶颈。",
+      "升级为语义phase独立scale和settling-aware目标。",
+      "在quarantined LGG100 chunks上运行完整多chunk paired A/B。"
+    ],
+    "next": [
+      "保留Fast安全计算；暂停将当前retimer当作production候选。"
+    ],
+    "evidence": [
+      "results/g1_stable_completion_optimizer_20260827.json",
+      "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
+    ]
+  },
+  {
+    "time": "2026-08-27 20:35 EDT",
+    "title": "定位13 cm速度瓶颈为tracking/settling而非schedule长度",
+    "status": "partial",
+    "summary": "新增continuous-hold telemetry并对baseline、旧候选、30-screen最佳候选进行13 cm分解。旧候选节省0.423 s path但增加1.297 s settling，最终慢34.19%；最佳screen候选节省0.252 s path但增加0.198 s settling，净快仅2.11%。",
+    "done": [
+      "记录首次进入5 mm/3 deg时间、hold reset次数、最长连续hold和settling时长。",
+      "绑定相同action hashes，分别比较baseline和两个timestamp profiles。"
+    ],
+    "conclusions": [
+      "当前瓶颈不是nominal schedule长度，而是加速后跟踪误差和settling。",
+      "继续增大Far scale会缩短path但不保证缩短稳定任务时间。",
+      "下一轮目标函数必须直接优化stable completion和tracking telemetry。"
+    ],
+    "fixes": [
+      "停止以path+fixed settle作为主要优化目标。"
+    ],
+    "remaining": [
+      "设计settling-aware semantic-phase retimer。",
+      "在真实无Publisher Shadow测量实际tracking/compute；MuJoCo诊断不能证明真机动态。"
+    ],
+    "next": [
+      "保留现有candidate禁用状态，先做控制跟踪敏感性与真实只读Shadow。"
+    ],
+    "evidence": [
+      "results/g1_settling_bottleneck_diagnostic_20260827.json",
+      "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
+    ]
+  },
+  {
+    "time": "2026-08-27 21:05 EDT",
+    "title": "Fast preflight 30-trajectory development corpus通过",
+    "status": "pass",
+    "summary": "完成18 reachable vertical、8 unreachable、3 gripper transition和1 saved-pose initial collision共30条Legacy/Fast对照。30/30通过，acceptance concordance 100%，dangerous Fast accept=0，Fast P95 37.55 ms。",
+    "done": [
+      "0–20 cm reachable vertical覆盖18条。",
+      "forward/down/up/cross-body unreachable覆盖8条。",
+      "三种Dex1 target和保存姿态initial collision纳入对照。"
+    ],
+    "conclusions": [
+      "确定性30-trajectory development corpus通过。",
+      "Fast P50 15.33 ms、P95 37.55 ms，仍低于333 ms。",
+      "该结果不包含randomized near-limit或物理qualified collision。"
+    ],
+    "fixes": [
+      "将单fixture benchmark扩展为接受/拒绝多类别trajectory判定。"
+    ],
+    "remaining": [
+      "randomized near-limit和collision-boundary fuzzing。",
+      "完整29关节真实姿态collision和真实机器人计算机复测。"
+    ],
+    "next": [
+      "保持真机只读Shadow为下一硬件阶段。"
+    ],
+    "evidence": [
+      "results/g1_fast_preflight_30_trajectory_corpus_20260827.json",
+      "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
+    ]
   }
 ]
