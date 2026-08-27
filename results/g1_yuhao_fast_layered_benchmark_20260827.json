@@ -1,0 +1,1219 @@
+{
+  "schema_version": "g1_yuhao_fast_layered_benchmark_v1",
+  "scope": "Same-input 32-target offline solver throughput plus linked complete preflight evidence. Yuhao production solves selected ticks and has no project swept collision Gate; no cross-layer total-speed ratio is claimed.",
+  "environment": {
+    "python": "3.12.13",
+    "platform": "Darwin",
+    "machine": "arm64",
+    "pinocchio": "3.9.0",
+    "mujoco": "3.12.0",
+    "numpy": "2.3.5"
+  },
+  "source": {
+    "yuhao_repository": "https://github.com/leihao100/g1-client",
+    "yuhao_commit": "1422e8d6ef674aa047cfb2878bc7dae54b118fbe",
+    "eef_kinematics_sha256": "1653c374535505738755872c64899b42ae99c576be3838487f8dc222137980e2",
+    "urdf_sha256": "8bbf006633fc50b616f665c7a970780cc296577a0adfd7d28b049e751c238735",
+    "project_preflight_report_sha256": "ce1da819c962abac2a5da6a83635ade5f4879f3a939580e2b78f84d0bd597024"
+  },
+  "input": {
+    "action_sha256": "db7d034f47cee780a4c85e7796f31fa15419c6a43fc62376dbae92ef9c69b93e",
+    "action_shape": [
+      32,
+      16
+    ],
+    "source_q14_sha256": "f06c109dd24217a3d350e30c26de96aa3417923dc1374a8ecb251601ddf9b860",
+    "pairs": 50,
+    "warmups_per_branch": 5,
+    "order_seed": 20260827,
+    "waist_assumption": "zero_for_same_input_software_comparison"
+  },
+  "layers": {
+    "yuhao_pinocchio_ik_only": {
+      "official_max_iterations_per_target": 20,
+      "swept_collision_included": false,
+      "latency_ms": {
+        "count": 50,
+        "min": 2.547,
+        "p50": 2.710938,
+        "p95": 3.59398575,
+        "p99": 5.0970589199999985,
+        "max": 5.460292,
+        "mean": 2.8488441,
+        "std": 0.5049271217342657
+      },
+      "all_runs_pass_project_5mm_3deg_outer_gate": true,
+      "maximum_position_error_m": 3.374417056644673e-06,
+      "maximum_orientation_error_rad": 4.814712530793969e-06
+    },
+    "project_fast_mujoco_ik_only": {
+      "maximum_iterations_per_target": 60,
+      "internal_stop": "4 mm / 2.5 deg",
+      "swept_collision_included": false,
+      "latency_ms": {
+        "count": 50,
+        "min": 23.128416,
+        "p50": 24.493812,
+        "p95": 35.3093295,
+        "p99": 69.9451920899999,
+        "max": 94.604667,
+        "mean": 27.250402460000004,
+        "std": 10.328609375596113
+      },
+      "all_runs_pass_project_5mm_3deg_outer_gate": true,
+      "maximum_position_error_m": 0.003990713569174458,
+      "maximum_orientation_error_rad": 0.00024104143580099048,
+      "total_iterations_per_run": [
+        122
+      ]
+    },
+    "project_legacy_mujoco_ik_plus_swept": {
+      "linked_not_rerun": true,
+      "fixed_iterations_per_target": 250,
+      "swept_collision_included": true,
+      "latency_ms": {
+        "count": 50,
+        "min": 1117.700208,
+        "p50": 1134.210104,
+        "p95": 1160.85795655,
+        "p99": 1202.2052480799998,
+        "max": 1217.014375,
+        "mean": 1138.2795391999998,
+        "std": 15.902411138082256
+      }
+    },
+    "project_fast_mujoco_ik_plus_swept": {
+      "linked_not_rerun": true,
+      "swept_collision_included": true,
+      "latency_ms": {
+        "count": 50,
+        "min": 34.085083,
+        "p50": 35.009021,
+        "p95": 36.7256628,
+        "p99": 37.4241545,
+        "max": 37.980917,
+        "mean": 35.17612838,
+        "std": 0.7335531505781676
+      },
+      "prefetch_gate_passed": true
+    }
+  },
+  "runs": [
+    {
+      "pair": 0,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.673375,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.047042,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 1,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.511458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 3.069291,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 2,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.624708,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 94.604667,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 3,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 5.460292,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 26.543959,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 4,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.781666,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 26.666417,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 5,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.760541,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 25.493209,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 6,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.337875,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.651791,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 7,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.2975,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.626458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 8,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.657625,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.003333,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 9,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.476166,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.595333,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 10,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.660291,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.821333,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 11,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.909291,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.119875,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 12,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 26.531458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.72725,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 13,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.599167,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.250458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 14,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.661333,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.780458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 15,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 25.21325,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.740417,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 16,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.547,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.1595,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 17,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.584541,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.128416,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 18,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.032625,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.641,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 19,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.355458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.689333,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 20,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.30975,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.674167,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 21,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.532208,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.77775,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 22,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.595625,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.78325,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 23,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.670375,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.501042,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 24,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 23.687292,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 3.635667,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 25,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 25.597167,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.757458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 26,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 25.745125,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.747042,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 27,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.658709,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 25.677166,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 28,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.092708,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.747,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 29,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 26.459375,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 3.018625,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 30,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.85125,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 35.551542,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 31,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 4.719,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 33.718542,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 32,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.719417,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.683583,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 33,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.620375,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.781834,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 34,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.647541,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 44.279208,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 35,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.803666,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 29.688542,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 36,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 3.543042,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 26.621291,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 37,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 28.291916,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.763334,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 38,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.603208,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.711084,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 39,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.668458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.465458,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 40,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.710792,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.19325,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 41,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.722834,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.863709,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 42,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.098875,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.706333,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 43,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.624167,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.278291,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 44,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.746,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 25.682208,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 45,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.167125,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.7265,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 46,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.630875,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 25.5785,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    },
+    {
+      "pair": 47,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 24.011792,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.84575,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 48,
+      "order": [
+        "project_fast_mujoco_ik_only",
+        "yuhao_pinocchio_ik_only"
+      ],
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 27.152583,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      },
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.980167,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      }
+    },
+    {
+      "pair": 49,
+      "order": [
+        "yuhao_pinocchio_ik_only",
+        "project_fast_mujoco_ik_only"
+      ],
+      "yuhao_pinocchio_ik_only": {
+        "elapsed_ms": 2.794333,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 3.374417056644673e-06,
+        "maximum_orientation_error_rad": 4.814712530793969e-06,
+        "checked_targets": 32
+      },
+      "project_fast_mujoco_ik_only": {
+        "elapsed_ms": 35.013292,
+        "accepted_by_project_outer_gate": true,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048,
+        "checked_targets": 32,
+        "total_iterations": 122
+      }
+    }
+  ],
+  "decision": {
+    "same_input_solver_layer_comparison_completed": true,
+    "complete_preflight_layer_linked": true,
+    "yuhao_ik_only_to_project_complete_preflight_ratio_claimed": false,
+    "yuhao_production_loop_benchmarked": false,
+    "real_robot_compute_benchmark_completed": false,
+    "task_level_speedup_passed": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "publisher_created": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

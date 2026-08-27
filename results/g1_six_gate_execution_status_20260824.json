@@ -213,7 +213,11 @@
     "reason": "All five planned offline work packages are complete, but no live gate is promoted: H1 camera runtime, H2 physical parity, H3 live freshness, H4 real Shadow, H5 integrated watchdog, and H6 authorization remain incomplete.",
     "offline_five_task_plan_completed": true,
     "offline_speed_checkpoint_ready_for_commit": true,
-    "real_task_speedup_passed": false
+    "real_task_speedup_passed": false,
+    "stable_completion_metric_frozen": true,
+    "current_adaptive_candidate_generalized": false,
+    "offline_layered_yuhao_compute_comparison_completed": true,
+    "offline_compensated_shadow_fixture_integrated": true
   },
   "g1_execution_enabled": false,
   "hardware_execution_performed": false,
@@ -232,6 +236,26 @@
     "multi_scenario_adaptive_speed_gate_passed": false,
     "real_task_speedup_passed": false,
     "production_adaptive_enabled": false,
-    "robot_motion_allowed": false
+    "robot_motion_allowed": false,
+    "stable_completion_evidence": "results/g1_stable_completion_validation_20260827.json",
+    "stable_completion_pairs": 5,
+    "stable_completion_passed_pairs": 1,
+    "stable_completion_median_duration_reduction_fraction": 0.024152106885919844,
+    "fixed_settle_proxy_accepted_as_task_speed_metric": false,
+    "fast_preflight_correctness_corpus_evidence": "results/g1_fast_preflight_correctness_corpus_20260827.json",
+    "fast_preflight_verdict_cases_passed": "7/7",
+    "fast_preflight_schema_faults_passed": "3/3",
+    "dangerous_fast_accept_count": 0,
+    "yuhao_layered_benchmark_evidence": "results/g1_yuhao_fast_layered_benchmark_20260827.json",
+    "yuhao_pinocchio_ik_only_p50_ms": 2.710938,
+    "yuhao_pinocchio_ik_only_p95_ms": 3.59398575,
+    "yuhao_swept_collision_included": false,
+    "cross_layer_total_speed_ratio_claimed": false,
+    "compensated_shadow_evidence": "results/g1_offline_compensated_shadow_replay_20260827.json",
+    "canonical_action_identity_preserved": true,
+    "compensated_hold_ik_passed": true,
+    "compensated_swept_path_passed": false,
+    "initial_collision_resolved": false,
+    "real_shadow_passed": false
   }
 }

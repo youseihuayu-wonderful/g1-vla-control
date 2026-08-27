@@ -47,6 +47,21 @@ class ActionSchemaTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             EEFActionChunk(np.array([0.0, 1.0]), np.zeros((2, 15)))
 
+    def test_chunk_rejects_nonfinite_timestamps_and_actions_before_normalization(self):
+        timestamps = np.array([0.0, 1.0])
+        actions = np.zeros((2, 16), dtype=np.float64)
+        actions[:, 3] = 1.0
+        actions[:, 10] = 1.0
+        bad_timestamps = timestamps.copy()
+        bad_timestamps[1] = np.nan
+        with self.assertRaisesRegex(ValueError, "timestamps must be finite"):
+            EEFActionChunk(bad_timestamps, actions)
+        for value in (np.nan, np.inf):
+            bad_actions = actions.copy()
+            bad_actions[0, 0] = value
+            with self.assertRaisesRegex(ValueError, "actions must be finite"):
+                EEFActionChunk(timestamps, bad_actions)
+
     def test_repeated_chunk_construction_preserves_canonical_actions_bytewise(self):
         timestamps = np.arange(3, dtype=np.float64) / 30.0
         actions = np.zeros((3, 16), dtype=np.float64)

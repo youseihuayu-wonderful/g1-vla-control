@@ -28,7 +28,10 @@
       "fast_p50_ms": 35.009021,
       "fast_p95_ms": 36.7256628,
       "paired_median_speedup": 32.474826800798915,
-      "paired_median_speedup_95ci": [32.292907554159115, 32.55226056569566],
+      "paired_median_speedup_95ci": [
+        32.292907554159115,
+        32.55226056569566
+      ],
       "prefetch_window_ms": 333.3333333333333,
       "legacy_is_yuhao_pinocchio": false,
       "multi_scenario_correctness_passed": false
@@ -50,13 +53,65 @@
       "all_action_hashes_paired": true,
       "candidate_generalized": false,
       "formal_minimum_30_pair_ab_completed": false
+    },
+    "stable_completion_validation": {
+      "completed": true,
+      "evidence": "results/g1_stable_completion_validation_20260827.json",
+      "completion_position_tolerance_m": 0.005,
+      "completion_orientation_tolerance_deg": 3.0,
+      "continuous_hold_s": 0.25,
+      "pair_count": 5,
+      "passed_pairs": 1,
+      "duration_reduction_range_fraction": [
+        -0.3419405320813771,
+        0.18679549114331717
+      ],
+      "median_duration_reduction_fraction": 0.024152106885919844,
+      "fixed_settle_proxy_accepted_as_task_speed": false,
+      "current_candidate_generalized": false
+    },
+    "fast_preflight_development_correctness_corpus": {
+      "completed": true,
+      "evidence": "results/g1_fast_preflight_correctness_corpus_20260827.json",
+      "verdict_cases_passed": "7/7",
+      "schema_faults_passed": "3/3",
+      "acceptance_concordance_rate": 1.0,
+      "dangerous_fast_accept_count": 0,
+      "minimum_30_trajectory_corpus_completed": false
+    },
+    "yuhao_project_layered_compute_comparison": {
+      "completed": true,
+      "evidence": "results/g1_yuhao_fast_layered_benchmark_20260827.json",
+      "pairs": 50,
+      "yuhao_pinocchio_ik_only_p50_ms": 2.710938,
+      "yuhao_pinocchio_ik_only_p95_ms": 3.59398575,
+      "yuhao_swept_collision_included": false,
+      "project_fast_mujoco_ik_only_p50_ms": 24.493812,
+      "project_fast_mujoco_ik_only_p95_ms": 35.3093295,
+      "project_fast_complete_preflight_p50_ms": 35.009021,
+      "project_fast_complete_preflight_p95_ms": 36.7256628,
+      "cross_layer_total_speed_ratio_claimed": false,
+      "yuhao_production_loop_benchmarked": false
+    },
+    "waist_compensated_shadow_fixture_integration": {
+      "completed": true,
+      "evidence": "results/g1_offline_compensated_shadow_replay_20260827.json",
+      "canonical_action_identity_preserved": true,
+      "compensated_ik_targets_passed": "32/32",
+      "fast_swept_path_passed": false,
+      "fast_swept_rejection_reason": "initial_configuration_collision",
+      "initial_collision_physically_qualified": false,
+      "mock_sink_all_hold": true,
+      "real_camera_used": false,
+      "frozen_lgg100_inference_executed": false,
+      "real_shadow_passed": false
     }
   },
   "remaining_offline": [
-    "joint multi-scenario phase-scale optimization with at least 30 development pairs",
-    "multi-scenario reachable/rejected/collision/near-limit fast-preflight correctness corpus",
-    "Yuhao Pinocchio IK-only versus project legacy and fast layered comparison",
-    "integrate waist compensation and fast preflight into real-observation mock-sink Shadow"
+    "joint multi-scenario phase-scale optimization using stable 5 mm/3 degree continuous-250-ms completion with at least 30 development pairs",
+    "expand the 7-verdict/3-fault development corpus to at least 30 reachable/rejected/collision/near-limit trajectories",
+    "repeat layered benchmark on deployment compute and separately benchmark the pinned Yuhao selected-tick production loop without conflating missing swept collision",
+    "replace synthetic camera/hold-policy fixtures with streaming LowState, three real cameras, DDS watchdog, and frozen LGG100 while retaining mock sink"
   ],
   "first_real_robot_requirement": {
     "when": "as soon as robot connectivity returns after current offline regression is committed",
@@ -81,7 +136,14 @@
     "real_shadow_passed": false,
     "real_task_speedup_passed": false,
     "production_adaptive_enabled": false,
-    "robot_motion_allowed": false
+    "robot_motion_allowed": false,
+    "fixed_settle_proxy_accepted_as_task_speed_metric": false,
+    "stable_completion_metric_frozen": true,
+    "current_candidate_stable_completion_gate_passed": false,
+    "fast_preflight_development_correctness_corpus_passed": true,
+    "offline_layered_yuhao_compute_comparison_completed": true,
+    "offline_compensated_shadow_fixture_integrated": true,
+    "initial_collision_resolved": false
   },
   "safety": {
     "offline_only": true,

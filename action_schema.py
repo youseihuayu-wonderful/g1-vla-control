@@ -112,6 +112,10 @@ class EEFActionChunk:
             raise ValueError("timestamps must contain at least two samples")
         if actions.shape != (len(timestamps), ACTION_DIM):
             raise ValueError(f"actions must have shape (T, {ACTION_DIM})")
+        if not np.all(np.isfinite(timestamps)):
+            raise ValueError("timestamps must be finite")
+        if not np.all(np.isfinite(actions)):
+            raise ValueError("actions must be finite")
         if not np.all(np.diff(timestamps) > 0):
             raise ValueError("timestamps must be strictly increasing")
         actions = actions.copy()

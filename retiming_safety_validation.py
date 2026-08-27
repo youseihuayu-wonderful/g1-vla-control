@@ -68,6 +68,11 @@ def _run_scale(
     phase_schedule: tuple[str, ...] | list[str] | None = None,
     abort_on_phase_aware_contact: bool = False,
     cube_translation_m: np.ndarray | None = None,
+    stop_when_settled: bool = False,
+    completion_position_tolerance_m: float = 0.005,
+    completion_orientation_tolerance_rad: float = np.deg2rad(3.0),
+    completion_hold_s: float = 0.250,
+    maximum_settle_s: float = 3.0,
 ) -> dict:
     model = build_model()
     data = mujoco.MjData(model)
@@ -94,7 +99,13 @@ def _run_scale(
     joint_filter.reset(data.qpos[arm_qpos])
     dt = model.opt.timestep
     path_duration = float(chunk.timestamps[-1] / scale)
-    total_duration = path_duration + 2.0
+    if completion_position_tolerance_m <= 0.0:
+        raise ValueError("completion_position_tolerance_m must be positive")
+    if not 0.0 < completion_orientation_tolerance_rad <= np.pi:
+        raise ValueError("completion_orientation_tolerance_rad must be in (0,pi]")
+    if completion_hold_s <= 0.0 or maximum_settle_s <= 0.0:
+        raise ValueError("completion hold and maximum settle must be positive")
+    total_duration = path_duration + (maximum_settle_s if stop_when_settled else 2.0)
     if phase_schedule is not None:
         if len(phase_schedule) != len(chunk.timestamps):
             raise ValueError("phase_schedule must match the action horizon")
@@ -141,6 +152,11 @@ def _run_scale(
     phase_step_counts: Counter = Counter()
     first_phase_aware_contact_event: dict = {}
     aborted_on_phase_aware_contact = False
+    completion_hold_steps = int(np.ceil(completion_hold_s / dt))
+    consecutive_completion_steps = 0
+    task_completed: bool | None = None if not stop_when_settled else False
+    task_completion_time_s: float | None = None
+    endpoint_orientation_error_rad = float("inf")
     minimum_pelvis = float(data.xpos[pelvis, 2])
     step_count = int(np.ceil(total_duration / dt))
     command = initial.copy()
@@ -250,6 +266,26 @@ def _run_scale(
             np.linalg.norm(left_actual[0] - command[0:3]),
             np.linalg.norm(right_actual[0] - command[7:10]),
         )
+        completion_position_error = float(max(
+            np.linalg.norm(left_actual[0] - desired[0:3]),
+            np.linalg.norm(right_actual[0] - desired[7:10]),
+        ))
+        completion_orientation_error = max(
+            _quat_step_angle(left_actual[1], desired[3:7]),
+            _quat_step_angle(right_actual[1], desired[10:14]),
+        )
+        endpoint_orientation_error_rad = completion_orientation_error
+        if stop_when_settled and elapsed + dt >= path_duration:
+            if (
+                completion_position_error <= completion_position_tolerance_m
+                and completion_orientation_error <= completion_orientation_tolerance_rad
+            ):
+                consecutive_completion_steps += 1
+            else:
+                consecutive_completion_steps = 0
+            if consecutive_completion_steps >= completion_hold_steps:
+                task_completed = True
+                task_completion_time_s = elapsed + dt
         maxima["actual_to_filtered_position_error_m"] = max(
             maxima["actual_to_filtered_position_error_m"], float(actual_error)
         )
@@ -335,6 +371,8 @@ def _run_scale(
         if abort_on_phase_aware_contact and phase_aware_violations:
             aborted_on_phase_aware_contact = True
             break
+        if task_completed:
+            break
 
     left_final = solver.pose("left")
     right_final = solver.pose("right")
@@ -365,6 +403,14 @@ def _run_scale(
         "joint_filter_enabled": use_joint_filter,
         "nominal_path_duration_s": path_duration,
         "simulated_duration_s": executed_step_count * dt,
+        "completion_gate_enabled": stop_when_settled,
+        "completion_position_tolerance_m": completion_position_tolerance_m,
+        "completion_orientation_tolerance_rad": completion_orientation_tolerance_rad,
+        "completion_hold_s": completion_hold_s,
+        "maximum_settle_s": maximum_settle_s,
+        "task_completed": task_completed,
+        "task_completion_time_s": task_completion_time_s,
+        "endpoint_orientation_error_rad": endpoint_orientation_error_rad,
         "hard_command_limits_pass": bool(
             hard_limits_pass and (joint_hard_limits_pass if use_joint_filter else True)
         ),

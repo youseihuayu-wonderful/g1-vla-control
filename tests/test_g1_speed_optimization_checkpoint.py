@@ -14,8 +14,9 @@ sys.path.insert(0, str(ROOT))
 from g1_adaptive_phase_validation import FAR_LIFT_OFFSET_M
 from g1_fast_sequential_ik import solve_sequential_ik
 from g1_fast_swept_path_preflight import G1FastSweptPathPreflight
+from retiming_safety_validation import _run_scale
 from run_simulation import build_contract_fixture
-from stack_scene import build_model, reset_to_reference_pose
+from stack_scene import REFERENCE_EP0_STATE, build_model, reset_to_reference_pose
 
 
 class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
@@ -28,6 +29,10 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
             "g1_waist_compensation.py",
             "g1_waist_compensation_diagnostic.py",
             "g1_deterministic_speed_paired_ab.py",
+            "g1_stable_completion_validation.py",
+            "g1_fast_preflight_correctness_corpus.py",
+            "g1_yuhao_fast_layered_benchmark.py",
+            "g1_offline_compensated_shadow_replay.py",
         ]
         forbidden = ("unitree_sdk", "arm_controller", "gripper_controller")
         for filename in files:
@@ -75,6 +80,25 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
         self.assertLessEqual(result.maximum_position_error_m, 0.004)
         self.assertLessEqual(result.maximum_orientation_error_rad, np.deg2rad(2.5))
 
+    def test_stable_completion_requires_continuous_unchanged_gate(self):
+        chunk, _, _ = build_contract_fixture(FAR_LIFT_OFFSET_M)
+        result = _run_scale(
+            chunk,
+            REFERENCE_EP0_STATE[14:16],
+            scale=1.0,
+            use_filter=True,
+            use_joint_filter=True,
+            stop_when_settled=True,
+        )
+        self.assertTrue(result["completion_gate_enabled"])
+        self.assertTrue(result["task_completed"])
+        self.assertIsNotNone(result["task_completion_time_s"])
+        self.assertEqual(result["completion_position_tolerance_m"], 0.005)
+        self.assertAlmostEqual(
+            np.rad2deg(result["completion_orientation_tolerance_rad"]), 3.0
+        )
+        self.assertEqual(result["completion_hold_s"], 0.250)
+
     def test_formal_microbenchmark_passes_but_is_not_yuhao_or_task_evidence(self):
         report = json.loads((
             ROOT / "results" / "g1_fast_preflight_paired_benchmark_20260827.json"
@@ -111,6 +135,84 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
         self.assertFalse(report["hashes"]["canonical_input_mutated"])
         self.assertFalse(report["collision"]["full_body_state_available"])
         self.assertFalse(report["decision"]["initial_collision_resolved"])
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_stable_completion_rejects_fixed_settle_speed_proxy(self):
+        report = json.loads((
+            ROOT / "results" / "g1_stable_completion_validation_20260827.json"
+        ).read_text())
+        self.assertEqual(report["summary"]["pair_count"], 5)
+        self.assertEqual(report["summary"]["passed_pair_count"], 1)
+        self.assertTrue(report["summary"]["all_actions_byte_identical"])
+        self.assertFalse(
+            report["decision"]["fixed_settle_duration_is_accepted_task_speed_metric"]
+        )
+        self.assertTrue(
+            report["decision"]["stable_completion_metric_frozen_for_future_search"]
+        )
+        self.assertFalse(
+            report["decision"]["current_candidate_stable_completion_gate_passed"]
+        )
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_development_correctness_corpus_has_no_dangerous_fast_accept(self):
+        report = json.loads((
+            ROOT / "results" / "g1_fast_preflight_correctness_corpus_20260827.json"
+        ).read_text())
+        self.assertEqual(report["summary"]["verdict_case_pass_count"], 7)
+        self.assertEqual(report["summary"]["schema_fault_pass_count"], 3)
+        self.assertEqual(report["summary"]["dangerous_fast_accept_count"], 0)
+        self.assertEqual(report["summary"]["acceptance_concordance_rate"], 1.0)
+        self.assertTrue(report["summary"]["development_corpus_passed"])
+        self.assertFalse(
+            report["decision"]["minimum_30_trajectory_corpus_completed"]
+        )
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_compensated_shadow_preserves_canonical_action_and_holds_on_collision(self):
+        report = json.loads((
+            ROOT / "results" / "g1_offline_compensated_shadow_replay_20260827.json"
+        ).read_text())
+        boundary = report["action_boundary"]
+        self.assertEqual(
+            boundary["canonical_policy_action_sha256"],
+            boundary["canonical_after_adapter_sha256"],
+        )
+        self.assertFalse(boundary["canonical_input_mutated"])
+        self.assertTrue(boundary["ik_target_is_separate_artifact"])
+        self.assertTrue(report["fast_sequential_ik"]["accepted"])
+        self.assertEqual(report["fast_sequential_ik"]["checked_targets"], 32)
+        self.assertFalse(report["fast_swept_path"]["accepted"])
+        self.assertEqual(
+            report["fast_swept_path"]["reason"],
+            "initial_configuration_collision",
+        )
+        self.assertTrue(report["mock_sink"]["all_hold_true"])
+        self.assertTrue(report["mock_sink"]["all_robot_command_sent_false"])
+        self.assertFalse(report["decision"]["real_15_hz_policy_shadow_passed"])
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_yuhao_comparison_is_layered_and_does_not_claim_total_ratio(self):
+        report = json.loads((
+            ROOT / "results" / "g1_yuhao_fast_layered_benchmark_20260827.json"
+        ).read_text())
+        yuhao = report["layers"]["yuhao_pinocchio_ik_only"]
+        fast = report["layers"]["project_fast_mujoco_ik_plus_swept"]
+        self.assertEqual(report["input"]["pairs"], 50)
+        self.assertTrue(yuhao["all_runs_pass_project_5mm_3deg_outer_gate"])
+        self.assertFalse(yuhao["swept_collision_included"])
+        self.assertTrue(fast["swept_collision_included"])
+        self.assertTrue(fast["prefetch_gate_passed"])
+        self.assertTrue(
+            report["decision"]["same_input_solver_layer_comparison_completed"]
+        )
+        self.assertFalse(
+            report["decision"][
+                "yuhao_ik_only_to_project_complete_preflight_ratio_claimed"
+            ]
+        )
+        self.assertFalse(report["decision"]["yuhao_production_loop_benchmarked"])
+        self.assertFalse(report["decision"]["task_level_speedup_passed"])
         self.assertFalse(report["decision"]["robot_motion_allowed"])
 
     def test_five_distance_ab_rejects_non_generalizing_candidate(self):

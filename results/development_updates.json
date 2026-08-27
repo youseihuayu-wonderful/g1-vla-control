@@ -1480,5 +1480,104 @@
       "results/g1_speed_optimization_checkpoint_20260827.json",
       "publisher_created=false; robot_command_sent=false; hardware_execution_performed=false"
     ]
+  },
+  {
+    "time": "2026-08-27 18:20 EDT",
+    "title": "冻结稳定任务完成时间并拒绝fixed-settle速度代理",
+    "status": "partial",
+    "summary": "发现旧simulated duration等于retimed path加固定2秒，不能代表实际达到并稳定保持目标。新增不放宽5 mm/3 deg的连续250 ms完成Gate；当前candidate仅1/5距离通过，median duration reduction 2.42%，因此不升级为任务速度。Fast development correctness corpus 7/7 verdict和3/3 schema fault通过。",
+    "done": [
+      "扩展_run_scale可选stable completion Gate：最终action后双EEF在5 mm/3 deg内连续250 ms，最多settle 3 s。",
+      "在10、13、15、17、19 cm运行相同action-hash OFF/ON稳定完成测试。",
+      "建立reachable hold/far/gripper、三类unreachable和保存姿态initial collision共7个Legacy/Fast verdict cases。",
+      "在EEFActionChunk边界立即拒绝NaN/Inf action和NaN timestamp。"
+    ],
+    "conclusions": [
+      "当前candidate stable completion仅1/5通过；reduction范围-34.19%到+18.68%，median +2.42%。",
+      "17 cm fixed-settle 11.46%不能作为任务级速度结论。",
+      "7/7 verdict concordant、3/3 schema faults rejected、dangerous fast accept=0。",
+      "开发corpus通过不等于minimum-30 corpus、真实Shadow或运动授权。"
+    ],
+    "fixes": [
+      "用连续稳定Gate替代固定2秒终点采样，避免对振荡相位过拟合。",
+      "对非有限action/timestamp在quaternion normalization和IK前fail-closed。"
+    ],
+    "remaining": [
+      "使用稳定完成时间重新做多场景联合优化；当前candidate保持禁用。",
+      "将正确性corpus扩展到至少30条并覆盖near-limit和更多collision边界。",
+      "完成Yuhao Pinocchio三分支benchmark、waist-integrated Shadow和真实只读采集。"
+    ],
+    "next": [
+      "不追求fixed schedule缩短；优化目标改为稳定任务完成时间。",
+      "继续离线corpus与控制/retiming协同分析，不连接Publisher。"
+    ],
+    "evidence": [
+      "results/g1_stable_completion_validation_20260827.json",
+      "results/g1_fast_preflight_correctness_corpus_20260827.json",
+      "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
+    ]
+  },
+  {
+    "time": "2026-08-27 19:05 EDT",
+    "title": "完成Yuhao Pinocchio与项目安全preflight分层计算对照",
+    "status": "partial",
+    "summary": "在相同zero-waist 32-target输入上运行50 pairs。Yuhao Pinocchio IK-only P50 2.71 ms/P95 3.59 ms；项目Fast MuJoCo IK-only P50 24.49 ms/P95 35.31 ms；链接的完整Fast IK+swept P50 35.01 ms/P95 36.73 ms。分层结果通过，但不跨越缺失collision的边界计算总速度比。",
+    "done": [
+      "校验Yuhao commit、eef_kinematics.py和URDF pinned hashes。",
+      "50个interleaved pairs运行Yuhao official max-20-iteration sequential IK和项目Fast IK。",
+      "绑定相同action hash并链接既有50-pair Legacy/Fast完整preflight。"
+    ],
+    "conclusions": [
+      "Yuhao Pinocchio IK-only本身很快且在该fixture上通过项目5 mm/3 deg外层Gate。",
+      "项目贡献是把新增32-step IK+swept安全preflight压到333 ms内，不是声称IK比Yuhao快。",
+      "Yuhao层无swept collision且生产loop不是32-target预检，因此不报告误导性的cross-layer ratio。"
+    ],
+    "fixes": [
+      "将Yuhao IK-only、项目IK-only和项目完整preflight分层显示。"
+    ],
+    "remaining": [
+      "在部署计算机复测各层latency。",
+      "单独审计/benchmark Yuhao selected-tick生产loop，不运行其硬件入口。",
+      "任务速度仍需真实paired A/B。"
+    ],
+    "next": [
+      "继续waist-integrated离线Shadow和稳定完成多场景优化。"
+    ],
+    "evidence": [
+      "results/g1_yuhao_fast_layered_benchmark_20260827.json",
+      "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
+    ]
+  },
+  {
+    "time": "2026-08-27 19:35 EDT",
+    "title": "将waist compensation和Fast preflight接入离线Shadow fixture",
+    "status": "partial",
+    "summary": "完成zero-waist canonical action到独立measured-waist IK target的离线Shadow集成。canonical hash保持不变，compensated hold IK 32/32通过；Fast swept仍因保存姿态initial collision拒绝，mock sink全部hold。",
+    "done": [
+      "保持policy observation和canonical action为Yuhao zero-waist contract view。",
+      "生成独立waist-compensated measured-waist IK targets且gripper channels不变。",
+      "运行Fast sequential IK、Fast swept preflight和FailClosedMockAdapter。"
+    ],
+    "conclusions": [
+      "waist frame residual已在离线hold fixture中数值解决：32/32、0 iterations、约7.1e-9 m。",
+      "canonical policy action adapter前后SHA-256相同。",
+      "Fast swept因initial_configuration_collision fail-closed；缺失12腿关节使其不能物理定性。",
+      "32/32 mock records hold且无robot command。"
+    ],
+    "fixes": [
+      "不再把zero-waist canonical target直接送入measured-waist IK。"
+    ],
+    "remaining": [
+      "读取完整29关节重判初始碰撞。",
+      "将synthetic cameras替换为真实三相机并接入DDS freshness。",
+      "将deterministic hold fixture替换为冻结LGG100 inference。"
+    ],
+    "next": [
+      "联网后先执行subscriber-only full-body/camera/DDS，不创建Publisher。"
+    ],
+    "evidence": [
+      "results/g1_offline_compensated_shadow_replay_20260827.json",
+      "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
+    ]
   }
 ]

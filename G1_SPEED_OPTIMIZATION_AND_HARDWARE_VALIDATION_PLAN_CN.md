@@ -66,15 +66,55 @@ MuJoCo：继续用于算法优化和安全筛选
 
 证据：`results/g1_deterministic_speed_paired_ab_20260827.json`
 
+### S5 · 稳定完成时间与Fast正确性corpus
+
+旧 `simulated_duration = retimed path + 固定2秒` 只能作为schedule proxy，不能作为任务完成时间。后续速度搜索冻结为：最终action生效后，双EEF在原始 `5 mm/3°` Gate内连续保持250 ms，最多等待3秒。
+
+- 当前候选在五距离稳定完成测试中仅1/5通过；
+- stable duration reduction范围 `-34.19%–+18.68%`，median仅 `+2.42%`；
+- 因此此前单fixture `11.46%` 不升级为任务速度结论；
+- Fast correctness development corpus：7/7 verdict cases、3/3 schema faults通过；
+- Legacy/Fast acceptance concordance `100%`，危险Fast accept为0；
+- NaN/Inf action和NaN timestamp现在在`EEFActionChunk`边界立即拒绝。
+
+证据：
+
+- `results/g1_stable_completion_validation_20260827.json`
+- `results/g1_fast_preflight_correctness_corpus_20260827.json`
+
+### S6 · Yuhao/项目分层计算对照
+
+相同zero-waist 32-target输入，50个pairs：
+
+- Yuhao Pinocchio IK-only P50 `2.71 ms`、P95 `3.59 ms`，全部通过项目外层 `5 mm/3°`；
+- 项目Fast MuJoCo IK-only P50 `24.49 ms`、P95 `35.31 ms`，全部通过；
+- 已链接完整Fast IK+swept P50 `35.01 ms`、P95 `36.73 ms`；
+- Yuhao层不包含swept collision，且其生产loop每tick选择目标，因此不报告Yuhao IK-only到项目完整preflight的总速度比；
+- 这说明Yuhao原始Pinocchio IK本身很快，项目Fast工作的价值是把新增的32-step完整安全preflight压进333 ms，而不是声称IK比Yuhao快。
+
+证据：`results/g1_yuhao_fast_layered_benchmark_20260827.json`
+
+### S7 · Waist-compensated离线Shadow集成
+
+已把zero-waist canonical policy action与measured-waist kinematic IK target分离接入完整离线dataflow：
+
+- canonical action adapter前后SHA-256相同，输入未被修改；
+- compensated hold IK 32/32通过、0 iterations、最大位置误差约 `7.1e-9 m`；
+- Fast swept fail-closed拒绝保存姿态的`initial_configuration_collision`；
+- mock sink 32/32均hold，原因为`collision_failure`和`waist_divergence`；
+- synthetic cameras、deterministic hold policy、缺失腿关节仍不能升级为真实Shadow。
+
+证据：`results/g1_offline_compensated_shadow_replay_20260827.json`
+
 ## 仍需继续的离线工作
 
 ### O1 · 多场景鲁棒 scale 优化
 
-不能继续使用只对17 cm最优的参数。下一轮将5个距离联合进入目标函数，并增加：
+不能继续使用只对17 cm最优的参数。下一轮将5个距离联合进入目标函数，并且必须使用冻结的 `5 mm/3° continuous 250 ms hold` 稳定完成时间，而不是固定settle proxy。增加：
 
 - minimum 30 deterministic/randomized pairs；
 - Far/Approach/Near/Grasp/Lift/Place/Retreat 独立 scale；
-- 所有 pair duration reduction `≥10%`；
+- 所有 pair stable completion duration reduction `≥10%`；
 - endpoint regression `≤5 mm`；
 - jerk/contact/limits 非劣；
 - action samples byte-identical。
@@ -88,19 +128,13 @@ MuJoCo：继续用于算法优化和安全筛选
 - fault 全部 hold；
 - P95 仍小于333 ms。
 
-### O3 · Yuhao 三分支计算对照
+### O3 · Yuhao生产loop和真实计算机复测
 
-```text
-A：Yuhao Pinocchio IK-only
-B：项目 Legacy MuJoCo IK+swept
-C：项目 Fast MuJoCo IK+swept
-```
-
-必须分开报告 IK-only 与完整安全 preflight，不能把 Yuhao 缺少 collision Gate 当成公平的总延迟。
+离线同输入三层对照已经完成；仍需在部署计算机复测，并区分Yuhao实际selected-tick生产loop与项目32-step安全preflight。不能把Yuhao缺少collision Gate当成公平的总延迟。
 
 ### O4 · 真实 Shadow harness 集成
 
-将 waist compensation、Fast IK、swept path、DDS watchdog、三相机 freshness 和 mock sink 合并；仍无 Publisher。
+waist compensation、Fast IK、swept path和mock sink的离线fixture集成已经完成；仍需接入真实streaming LowState、三相机freshness、DDS watchdog和冻结LGG100 inference。全过程仍无Publisher。
 
 ## 什么时候需要真机器
 

@@ -1,0 +1,323 @@
+{
+  "schema_version": "g1_fast_preflight_correctness_corpus_v1",
+  "scope": "Seven deterministic MuJoCo verdict cases plus three schema faults; development corpus, not physical collision or task evidence.",
+  "comparison_contract": {
+    "registered_position_tolerance_m": 0.005,
+    "registered_orientation_tolerance_deg": 3.0,
+    "fast_internal_position_stop_m": 0.004,
+    "fast_internal_orientation_stop_deg": 2.5,
+    "maximum_arm_interpolation_step_rad": 0.01,
+    "maximum_finger_interpolation_step_m": 0.001,
+    "collision_classifier_identical": true,
+    "threshold_relaxed": false
+  },
+  "cases": [
+    {
+      "name": "reachable_hold",
+      "expected_accepted": true,
+      "expectation": "reference hold must pass",
+      "action_sha256": "d2dcb159a3517dc59d862895154a72fc67ed24597791dd5c60703c4ef394bb95",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "legacy": {
+        "elapsed_ms": 1052.294125,
+        "accepted": true,
+        "reason": "accepted",
+        "collision_reasons": [],
+        "checked_targets": 32,
+        "checked_interpolated_configurations": 33,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 6.194625,
+        "accepted": true,
+        "reason": "accepted",
+        "collision_reasons": [],
+        "checked_targets": 32,
+        "checked_interpolated_configurations": 33,
+        "maximum_position_error_m": 5.3348829943201364e-09,
+        "maximum_orientation_error_rad": 7.024925004063878e-09
+      },
+      "criteria": {
+        "legacy_matches_expected_acceptance": true,
+        "fast_matches_expected_acceptance": true,
+        "acceptance_concordant": true,
+        "fast_does_not_accept_legacy_rejection": true,
+        "accepted_fast_residual_within_internal_4mm_2_5deg": true
+      },
+      "passed": true
+    },
+    {
+      "name": "reachable_far_lift",
+      "expected_accepted": true,
+      "expectation": "validated reach must pass",
+      "action_sha256": "db7d034f47cee780a4c85e7796f31fa15419c6a43fc62376dbae92ef9c69b93e",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "legacy": {
+        "elapsed_ms": 1103.606833,
+        "accepted": true,
+        "reason": "accepted",
+        "collision_reasons": [],
+        "checked_targets": 32,
+        "checked_interpolated_configurations": 146,
+        "maximum_position_error_m": 1.5720173522848287e-09,
+        "maximum_orientation_error_rad": 1.7620176552439677e-08
+      },
+      "fast": {
+        "elapsed_ms": 34.623291,
+        "accepted": true,
+        "reason": "accepted",
+        "collision_reasons": [],
+        "checked_targets": 32,
+        "checked_interpolated_configurations": 146,
+        "maximum_position_error_m": 0.003990713569174458,
+        "maximum_orientation_error_rad": 0.00024104143580099048
+      },
+      "criteria": {
+        "legacy_matches_expected_acceptance": true,
+        "fast_matches_expected_acceptance": true,
+        "acceptance_concordant": true,
+        "fast_does_not_accept_legacy_rejection": true,
+        "accepted_fast_residual_within_internal_4mm_2_5deg": true
+      },
+      "passed": true
+    },
+    {
+      "name": "reachable_gripper_transition",
+      "expected_accepted": true,
+      "expectation": "finger interpolation must remain collision-free",
+      "action_sha256": "0cc3ea2d45de709ab0b3883f1deb7526cc9ea19ff978d7e21c7c90baf39101ec",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "legacy": {
+        "elapsed_ms": 1041.885291,
+        "accepted": true,
+        "reason": "accepted",
+        "collision_reasons": [],
+        "checked_targets": 32,
+        "checked_interpolated_configurations": 34,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 6.157542,
+        "accepted": true,
+        "reason": "accepted",
+        "collision_reasons": [],
+        "checked_targets": 32,
+        "checked_interpolated_configurations": 34,
+        "maximum_position_error_m": 5.3348829943201364e-09,
+        "maximum_orientation_error_rad": 7.024925004063878e-09
+      },
+      "criteria": {
+        "legacy_matches_expected_acceptance": true,
+        "fast_matches_expected_acceptance": true,
+        "acceptance_concordant": true,
+        "fast_does_not_accept_legacy_rejection": true,
+        "accepted_fast_residual_within_internal_4mm_2_5deg": true
+      },
+      "passed": true
+    },
+    {
+      "name": "unreachable_forward",
+      "expected_accepted": false,
+      "expectation": "unreachable EEF target must reject",
+      "action_sha256": "919f970f6c51197ec86c3131ed1d7e339d70e716e4a4692dda21931cad71c71e",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "legacy": {
+        "elapsed_ms": 34.123667,
+        "accepted": false,
+        "reason": "unreachable",
+        "collision_reasons": [],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.8547836799556261,
+        "maximum_orientation_error_rad": 0.05855381297094704
+      },
+      "fast": {
+        "elapsed_ms": 11.623583,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.8721661361485838,
+        "maximum_orientation_error_rad": 0.8559619331429611
+      },
+      "criteria": {
+        "legacy_matches_expected_acceptance": true,
+        "fast_matches_expected_acceptance": true,
+        "acceptance_concordant": true,
+        "fast_does_not_accept_legacy_rejection": true,
+        "accepted_fast_residual_within_internal_4mm_2_5deg": true
+      },
+      "passed": true
+    },
+    {
+      "name": "unreachable_downward",
+      "expected_accepted": false,
+      "expectation": "unreachable EEF target must reject",
+      "action_sha256": "632ffc2f57ffe0ee674fdef4f28eaaf140dc139465c41840c73017ce6411be47",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "legacy": {
+        "elapsed_ms": 43.140125,
+        "accepted": false,
+        "reason": "unreachable",
+        "collision_reasons": [],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.3011014545675284,
+        "maximum_orientation_error_rad": 0.06286206116989757
+      },
+      "fast": {
+        "elapsed_ms": 12.718208,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.3016807119714853,
+        "maximum_orientation_error_rad": 0.056938605375886256
+      },
+      "criteria": {
+        "legacy_matches_expected_acceptance": true,
+        "fast_matches_expected_acceptance": true,
+        "acceptance_concordant": true,
+        "fast_does_not_accept_legacy_rejection": true,
+        "accepted_fast_residual_within_internal_4mm_2_5deg": true
+      },
+      "passed": true
+    },
+    {
+      "name": "unreachable_cross_body",
+      "expected_accepted": false,
+      "expectation": "unreachable EEF target must reject",
+      "action_sha256": "609ef2a1d8822ebbd62452d16933f8813c2c44782c61c7b11b5a66370012d8d5",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "legacy": {
+        "elapsed_ms": 43.8605,
+        "accepted": false,
+        "reason": "unreachable",
+        "collision_reasons": [],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.1425304271606065,
+        "maximum_orientation_error_rad": 0.01769329089466981
+      },
+      "fast": {
+        "elapsed_ms": 13.330625,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.14270460481637298,
+        "maximum_orientation_error_rad": 0.019538765304108245
+      },
+      "criteria": {
+        "legacy_matches_expected_acceptance": true,
+        "fast_matches_expected_acceptance": true,
+        "acceptance_concordant": true,
+        "fast_does_not_accept_legacy_rejection": true,
+        "accepted_fast_residual_within_internal_4mm_2_5deg": true
+      },
+      "passed": true
+    },
+    {
+      "name": "saved_incomplete_pose_initial_collision",
+      "expected_accepted": false,
+      "expectation": "both implementations must reject the modeled initial collision; this does not physically qualify it",
+      "action_sha256": "5708009076793a52a70b0962f10a599a5e3c09e8c8e0e4b862714fddd3e41e71",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "legacy": {
+        "elapsed_ms": 1.038292,
+        "accepted": false,
+        "reason": "initial_configuration_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 0,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.0,
+        "maximum_orientation_error_rad": 0.0
+      },
+      "fast": {
+        "elapsed_ms": 0.898125,
+        "accepted": false,
+        "reason": "initial_configuration_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 0,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.0,
+        "maximum_orientation_error_rad": 0.0
+      },
+      "criteria": {
+        "legacy_matches_expected_acceptance": true,
+        "fast_matches_expected_acceptance": true,
+        "acceptance_concordant": true,
+        "fast_does_not_accept_legacy_rejection": true,
+        "accepted_fast_residual_within_internal_4mm_2_5deg": true,
+        "initial_collision_reason_concordant": true
+      },
+      "passed": true
+    }
+  ],
+  "schema_faults": [
+    {
+      "name": "nan_action",
+      "rejected": true,
+      "exception": {
+        "type": "ValueError",
+        "message": "actions must be finite"
+      },
+      "expected_message": "actions must be finite",
+      "passed": true
+    },
+    {
+      "name": "inf_action",
+      "rejected": true,
+      "exception": {
+        "type": "ValueError",
+        "message": "actions must be finite"
+      },
+      "expected_message": "actions must be finite",
+      "passed": true
+    },
+    {
+      "name": "nan_timestamp",
+      "rejected": true,
+      "exception": {
+        "type": "ValueError",
+        "message": "timestamps must be finite"
+      },
+      "expected_message": "timestamps must be finite",
+      "passed": true
+    }
+  ],
+  "summary": {
+    "verdict_case_count": 7,
+    "verdict_case_pass_count": 7,
+    "schema_fault_count": 3,
+    "schema_fault_pass_count": 3,
+    "dangerous_fast_accept_count": 0,
+    "acceptance_concordance_rate": 1.0,
+    "fast_elapsed_ms_p50": 11.623583,
+    "fast_elapsed_ms_p95": 28.235491199999984,
+    "development_corpus_passed": true
+  },
+  "decision": {
+    "development_correctness_corpus_passed": true,
+    "minimum_30_trajectory_corpus_completed": false,
+    "saved_initial_collision_physically_qualified": false,
+    "real_robot_compute_benchmark_completed": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "publisher_created": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}
