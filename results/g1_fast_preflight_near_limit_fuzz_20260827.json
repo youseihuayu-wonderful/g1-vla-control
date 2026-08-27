@@ -1,0 +1,1751 @@
+{
+  "schema_version": "g1_fast_preflight_near_limit_fuzz_v1",
+  "scope": "Thirty deterministic FK-generated near-limit/boundary trajectories. Software-model fuzzing only; not physical limits, randomized property proof, torque/current qualification, or hardware evidence.",
+  "input": {
+    "seed": 20260827,
+    "case_count": 30,
+    "near_limit_two_joint_cases": 20,
+    "boundary_one_joint_cases": 10
+  },
+  "comparison_contract": {
+    "registered_position_tolerance_m": 0.005,
+    "registered_orientation_tolerance_deg": 3.0,
+    "fast_internal_position_stop_m": 0.004,
+    "fast_internal_orientation_stop_deg": 2.5,
+    "maximum_arm_interpolation_step_rad": 0.01,
+    "maximum_finger_interpolation_step_m": 0.001,
+    "collision_classifier_identical": true,
+    "threshold_relaxed": false
+  },
+  "cases": [
+    {
+      "case": 0,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.9332933539232943,
+          "target_rad": 1.3990435787487678,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        },
+        {
+          "joint": "right_shoulder_pitch_joint",
+          "fraction_of_joint_range": 0.9511875719557648,
+          "target_rad": 2.389259939436423,
+          "range_rad": [
+            -3.0892,
+            2.6704
+          ]
+        }
+      ],
+      "target_qpos_sha256": "4932756e132bc7bbcd21ed53e0eeb51a0939adc1f553af524b6e4ed8e62c5335",
+      "action_sha256": "173974cf59d2e41d078bb0cacbb21215e58c39f2a0fc6b00ed6d0071de4a5b65",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact",
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 43.139125,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 39.404458,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 12,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.024320114147828628,
+        "maximum_orientation_error_rad": 0.256290645450611
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 1,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.9402684518813006,
+          "target_rad": 1.3588487746886297,
+          "range_rad": [
+            -2.2515,
+            1.5882
+          ]
+        },
+        {
+          "joint": "left_elbow_joint",
+          "fraction_of_joint_range": 0.0303775884874038,
+          "target_rad": -0.9517657680079722,
+          "range_rad": [
+            -1.0472,
+            2.0944
+          ]
+        }
+      ],
+      "target_qpos_sha256": "b11d85dc5987aa479a2702935bafc03cf9cecde98d69c73b6dff722fabf7eae8",
+      "action_sha256": "84cfd48a352c4cd9e808fdb93b29c0693e13aff480b63289802a66e606be0498",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 37.936958,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 49.4315,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003727695760001467,
+        "maximum_orientation_error_rad": 0.043398532978062225
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 2,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_wrist_yaw_joint",
+          "fraction_of_joint_range": 0.8849913248844842,
+          "target_rad": 1.2430830892665155,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        },
+        {
+          "joint": "right_wrist_roll_joint",
+          "fraction_of_joint_range": 0.051486349726413805,
+          "target_rad": -1.7691351826851445,
+          "range_rad": [
+            -1.97222,
+            1.97222
+          ]
+        }
+      ],
+      "target_qpos_sha256": "8c1cddbccdb97c07d9994b55c6337ec319c9689e955c5971e50185c2cf162136",
+      "action_sha256": "bf90e565f1a14dccc17a0ef980d5c82b91dc0852fbadad1c1bf6b0afa42cdd71",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [],
+      "legacy": {
+        "elapsed_ms": 37.712208,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 55.386875,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.000992840709804112,
+        "maximum_orientation_error_rad": 0.041432327130084004
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 3,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.09365799870292953,
+          "target_rad": -1.2285813823803615,
+          "range_rad": [
+            -1.5882,
+            2.2515
+          ]
+        },
+        {
+          "joint": "left_wrist_roll_joint",
+          "fraction_of_joint_range": 0.9360311493433245,
+          "target_rad": 1.719898706715783,
+          "range_rad": [
+            -1.97222,
+            1.97222
+          ]
+        }
+      ],
+      "target_qpos_sha256": "b0c63b44383bfc2c08cae12b513604931af24fdf12fcfc09cdae919039f96b57",
+      "action_sha256": "b3aba16481a533973dc37bb69946acda40370f727e7967ee65b0f8622f92a7ba",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 37.090166,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 40.634875,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003951074595141041,
+        "maximum_orientation_error_rad": 0.024870374285224147
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 4,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_wrist_roll_joint",
+          "fraction_of_joint_range": 0.07672853230152951,
+          "target_rad": -1.669568908048555,
+          "range_rad": [
+            -1.97222,
+            1.97222
+          ]
+        },
+        {
+          "joint": "right_elbow_joint",
+          "fraction_of_joint_range": 0.8853762387171796,
+          "target_rad": 1.734297991553891,
+          "range_rad": [
+            -1.0472,
+            2.0944
+          ]
+        }
+      ],
+      "target_qpos_sha256": "e43cea116a8d3fa3c63f9c0a809c4c8557dab30736b7981909d008ff6539a4aa",
+      "action_sha256": "967368daaa85f913d8b9ff6e8355621b4d33f7ce24f67b0b0eeff2b3bfad4a80",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "dex_cube_outside_manipulation_phase",
+        "nonadjacent_self_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.835417,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 62.961,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0036568228903604075,
+        "maximum_orientation_error_rad": 0.04150913174027363
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 5,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_wrist_yaw_joint",
+          "fraction_of_joint_range": 0.9057450131501297,
+          "target_rad": 1.3100938431599278,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        },
+        {
+          "joint": "right_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.8808890844932482,
+          "target_rad": 1.2298375293568693,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "ba8ad6bda3038173253f9f99233fc1fece37894cbd862ed75c6cc2790afd0c1e",
+      "action_sha256": "18a6dfc9a8127059ad8eaf0d317248360cd76cb5a553805fca45f16a285dade8",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.096541,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 52.952125,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003332845664313405,
+        "maximum_orientation_error_rad": 0.04356997604909692
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 6,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_elbow_joint",
+          "fraction_of_joint_range": 0.9528885766110637,
+          "target_rad": 1.9463947522813176,
+          "range_rad": [
+            -1.0472,
+            2.0944
+          ]
+        },
+        {
+          "joint": "left_shoulder_pitch_joint",
+          "fraction_of_joint_range": 0.11533885910647114,
+          "target_rad": -2.424894307090369,
+          "range_rad": [
+            -3.0892,
+            2.6704
+          ]
+        }
+      ],
+      "target_qpos_sha256": "ec0d43e413a2dc08dcabf12d58a41cd40153a39b96991cd9d9cb7d4d1a146bc3",
+      "action_sha256": "b97ca7fa211cb7b5a93affbf957809fda09333d872627063a0bcbf268a65f398",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "nonadjacent_self_contact",
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 37.090792,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 67.896083,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 18,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.0059364881704449,
+        "maximum_orientation_error_rad": 0.05914366043694796
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 7,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_wrist_yaw_joint",
+          "fraction_of_joint_range": 0.039666583319101584,
+          "target_rad": -1.4863521557842856,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        },
+        {
+          "joint": "left_shoulder_pitch_joint",
+          "fraction_of_joint_range": 0.041082889501180435,
+          "target_rad": -2.8525789896290012,
+          "range_rad": [
+            -3.0892,
+            2.6704
+          ]
+        }
+      ],
+      "target_qpos_sha256": "ad54ecbb8305be4f9a58b109026d6d3d25e03a98e6a408b119287ec0f20f7946",
+      "action_sha256": "2a812657926fd706e3e8e9fddff1e22b2cfdc6babd550d4763e45f49a0d404bd",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 39.189292,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 54.936083,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 15,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.007326391061244363,
+        "maximum_orientation_error_rad": 0.07169310910575487
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 8,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_wrist_yaw_joint",
+          "fraction_of_joint_range": 0.8903153992823613,
+          "target_rad": 1.260273780126845,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        },
+        {
+          "joint": "right_wrist_roll_joint",
+          "fraction_of_joint_range": 0.10582029973571881,
+          "target_rad": -1.5548181769104414,
+          "range_rad": [
+            -1.97222,
+            1.97222
+          ]
+        }
+      ],
+      "target_qpos_sha256": "f2363f52b872b6d5fc6546ff519370ac5252eafa1ece5b1ce26a08b0d37d64ab",
+      "action_sha256": "c248601ebd329db011ad09aa40badb1c9bd39b474870cbd09f9c7744432e3dcd",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 42.924459,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 77.323708,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.000648879984378082,
+        "maximum_orientation_error_rad": 0.042972815674468104
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 9,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.9616546447461745,
+          "target_rad": 1.490618216235133,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        },
+        {
+          "joint": "right_wrist_roll_joint",
+          "fraction_of_joint_range": 0.9147044309746296,
+          "target_rad": 1.6357767457135681,
+          "range_rad": [
+            -1.97222,
+            1.97222
+          ]
+        }
+      ],
+      "target_qpos_sha256": "45b7fd90d18b5ced8e4b55929ab4caeb6d459f59c13d676096471373728a9961",
+      "action_sha256": "405a6d68a5643826e38d4465383c56fdf7227491f45528625328e6a30257a18b",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 41.976,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 72.012917,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.002390588736426334,
+        "maximum_orientation_error_rad": 0.04227859703836724
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 10,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_elbow_joint",
+          "fraction_of_joint_range": 0.9355370322656504,
+          "target_rad": 1.8918831405657672,
+          "range_rad": [
+            -1.0472,
+            2.0944
+          ]
+        },
+        {
+          "joint": "left_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.029968244062021546,
+          "target_rad": -1.5176667354779012,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "22f90c30ba90c94d61d1a5d6f07e162deede67a86905eb649db7624eb6537509",
+      "action_sha256": "a920b4b93b875f5ec603698e914708e9de5e86c6e8554711fbf6ee25ecbaff70",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 65.166709,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 39.75975,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003990258104198179,
+        "maximum_orientation_error_rad": 0.021181053343116367
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 11,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_yaw_joint",
+          "fraction_of_joint_range": 0.04516519382244314,
+          "target_rad": -2.3815150451456875,
+          "range_rad": [
+            -2.618,
+            2.618
+          ]
+        },
+        {
+          "joint": "right_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.11190213875671746,
+          "target_rad": -1.821829357815832,
+          "range_rad": [
+            -2.2515,
+            1.5882
+          ]
+        }
+      ],
+      "target_qpos_sha256": "2e6e1255737c6ca370046a2f9b999b535b5f8de3f21d65821cf96a7cd78fb329",
+      "action_sha256": "71ca626d6280b85824f8b926b1342336fae224d14ad87f945728b9114440c0cd",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 56.911667,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 87.257334,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003269854980669176,
+        "maximum_orientation_error_rad": 0.04114225522865306
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 12,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_elbow_joint",
+          "fraction_of_joint_range": 0.03991898130862207,
+          "target_rad": -0.9217905283208329,
+          "range_rad": [
+            -1.0472,
+            2.0944
+          ]
+        },
+        {
+          "joint": "right_wrist_yaw_joint",
+          "fraction_of_joint_range": 0.8986948268010223,
+          "target_rad": 1.2873297784647488,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "1b897300289adb16d289b58cada69f843f07a133ef7f126ba6e3384027fdf190",
+      "action_sha256": "12ae4f149f3bb1de227cc53f59fa73718959161f0db56f07924389eaceff7715",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 43.499125,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 53.20625,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0035725296573461485,
+        "maximum_orientation_error_rad": 0.043426200015569266
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 13,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_yaw_joint",
+          "fraction_of_joint_range": 0.9588557428195477,
+          "target_rad": 2.4025686694031516,
+          "range_rad": [
+            -2.618,
+            2.618
+          ]
+        },
+        {
+          "joint": "left_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.8889214056461426,
+          "target_rad": 1.255772769834604,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "f195deb52985f8e02d5a48dcff996d00a2fcb56d68ddedcca16e45e914a3c73b",
+      "action_sha256": "51a0ccad5e39a2fb27054d5541f46a13cbb0ae215686ea111aceae7d2921cb63",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [],
+      "legacy": {
+        "elapsed_ms": 55.757041,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 100.302167,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.002242183262966855,
+        "maximum_orientation_error_rad": 0.041112400053890136
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 14,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_shoulder_pitch_joint",
+          "fraction_of_joint_range": 0.11240752668896882,
+          "target_rad": -2.441777609282215,
+          "range_rad": [
+            -3.0892,
+            2.6704
+          ]
+        },
+        {
+          "joint": "left_wrist_roll_joint",
+          "fraction_of_joint_range": 0.927929902688089,
+          "target_rad": 1.6879438253590058,
+          "range_rad": [
+            -1.97222,
+            1.97222
+          ]
+        }
+      ],
+      "target_qpos_sha256": "b3161c38d2a70354844ccd5de796ec0e82bb58cf3f66d86405901f0a93ecb4cf",
+      "action_sha256": "b5a0bad8c69fbe97c9d7a9ed30f1e633a0706e90774c6cec4a567d6b075a8dd2",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact",
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 41.9645,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 100.426625,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 29,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.029428877235588524,
+        "maximum_orientation_error_rad": 0.2543096983972237
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 15,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_yaw_joint",
+          "fraction_of_joint_range": 0.11602546264701975,
+          "target_rad": -2.0104906775802043,
+          "range_rad": [
+            -2.618,
+            2.618
+          ]
+        },
+        {
+          "joint": "left_wrist_yaw_joint",
+          "fraction_of_joint_range": 0.06577068727684376,
+          "target_rad": -1.4020656586792903,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "174ae3f891d9883f443fca67c23db9c397aa378ee40a001ba25a5d43ca925a1e",
+      "action_sha256": "858adec5e44b61e6bdf2ab4f59fb999176b27080ad122a23524d286c3a644d0b",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 41.218167,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 62.971417,
+        "accepted": false,
+        "reason": "ik_tolerance_not_reached",
+        "collision_reasons": [],
+        "checked_targets": 19,
+        "checked_interpolated_configurations": 1,
+        "maximum_position_error_m": 0.001980331634184383,
+        "maximum_orientation_error_rad": 0.04943910883014138
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 16,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_shoulder_yaw_joint",
+          "fraction_of_joint_range": 0.09469296776053882,
+          "target_rad": -2.1221876208058186,
+          "range_rad": [
+            -2.618,
+            2.618
+          ]
+        },
+        {
+          "joint": "left_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.023980690452523462,
+          "target_rad": -1.4961213428694458,
+          "range_rad": [
+            -1.5882,
+            2.2515
+          ]
+        }
+      ],
+      "target_qpos_sha256": "489e570e2d93946acc7c77b4fc4785765ff5357c86f882467000084d27d37adb",
+      "action_sha256": "0e4081fc4cafa7cd7e2286fc36495c72355b5bdc797a45a1e016e1718ea0c537",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.86625,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 77.144208,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0032613526801908432,
+        "maximum_orientation_error_rad": 0.0408546850287087
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 17,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_shoulder_pitch_joint",
+          "fraction_of_joint_range": 0.9218686058252767,
+          "target_rad": 2.220394422111264,
+          "range_rad": [
+            -3.0892,
+            2.6704
+          ]
+        },
+        {
+          "joint": "left_wrist_yaw_joint",
+          "fraction_of_joint_range": 0.9438958796078463,
+          "target_rad": 1.4332776498305906,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "6c602bf5945b9d4b559829851d51c9ae3b031051d5839444bfb4874da69b1419",
+      "action_sha256": "c6421ad7d47b82f53bcfdcafd4f0a58eec90421731dbf458d8247e39f4c3a1d7",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.8045,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 72.297916,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003485371825060922,
+        "maximum_orientation_error_rad": 0.04362129950802679
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 18,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_elbow_joint",
+          "fraction_of_joint_range": 0.9168492171388392,
+          "target_rad": 1.8331735005633767,
+          "range_rad": [
+            -1.0472,
+            2.0944
+          ]
+        },
+        {
+          "joint": "right_shoulder_yaw_joint",
+          "fraction_of_joint_range": 0.931045475287798,
+          "target_rad": 2.25695410860691,
+          "range_rad": [
+            -2.618,
+            2.618
+          ]
+        }
+      ],
+      "target_qpos_sha256": "0d1094f542ddf689b945c4571f4a57eef461d4a983f99fc49ba4a384211f4fc4",
+      "action_sha256": "a35f11c36bd91c7dab480f6ea4ee077f7e0ba13da39f63f60e00aa542ba0fe61",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "nonadjacent_self_contact",
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.682708,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 68.67975,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0022307505372638286,
+        "maximum_orientation_error_rad": 0.043628140959256344
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 19,
+      "category": "near_limit_two_joint",
+      "selected_joints": [
+        {
+          "joint": "right_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.8940790195390911,
+          "target_rad": 1.1814952113242483,
+          "range_rad": [
+            -2.2515,
+            1.5882
+          ]
+        },
+        {
+          "joint": "left_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.8808132461592114,
+          "target_rad": 1.2295926579936314,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "5fee3d8e8349e6365af25006d501a2088f90c689f4f8e662425d9cb3155c546d",
+      "action_sha256": "a01dbaf6680fbe194a2776407636c1f34145f01d0a48ee2e2648882c3f0ec51b",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "torso_contact",
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.241042,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 54.868208,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.00341506667905908,
+        "maximum_orientation_error_rad": 0.043251672680465536
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 20,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.2819946905546025,
+          "target_rad": -0.5054249866774927,
+          "range_rad": [
+            -1.5882,
+            2.2515
+          ]
+        }
+      ],
+      "target_qpos_sha256": "de6505a6525f3827e1887d9b790b740833ecaa709e3544415b9637e8be8e3ba3",
+      "action_sha256": "88136add7afa1aecd6d2f96fed6a5782228affac43e80b3345aaae57cbaf707d",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "cross_arm_contact",
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.558166,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 25.293208,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0036813650105916615,
+        "maximum_orientation_error_rad": 0.04357088409490931
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 21,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "left_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.748049728903328,
+          "target_rad": 0.8009178476667995,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "52a19fd3b9775a0773eecddaa3f15c453e5a1c71603474cd8d4282c703994fd3",
+      "action_sha256": "b1e59e13a4ba1b4819a57bca55ef5ed9a0444e09fb4ce3a2605744cddbeb170d",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 38.987125,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 40.188541,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0030982397405838955,
+        "maximum_orientation_error_rad": 0.04323884997327807
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 22,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "left_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.7456548998946303,
+          "target_rad": 0.793185280073776,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "520ae1678885df9f96d085296f5e15e32fe0663c257499210eb61dbe0b1e6337",
+      "action_sha256": "1bc86ef38a04f361573438396ee91f28bf74e2dd6ea7bfc9d5a1f23e5beeb840",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 36.579625,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 38.483,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0030775017236703136,
+        "maximum_orientation_error_rad": 0.043490307477166604
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 23,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "right_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.2976364965693593,
+          "target_rad": -1.1086651441226312,
+          "range_rad": [
+            -2.2515,
+            1.5882
+          ]
+        }
+      ],
+      "target_qpos_sha256": "7f330c3eaa4424badd2f1edb593391de6eccab656bb5cb77ac240536c3f6f6ef",
+      "action_sha256": "817810ef20a29f2c29c9db88851373f3ecb3706b1a8d7d61af63f5fde6a75e0f",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [],
+      "legacy": {
+        "elapsed_ms": 39.176375,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 44.758666,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0035699458176042093,
+        "maximum_orientation_error_rad": 0.041541936056673924
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 24,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_pitch_joint",
+          "fraction_of_joint_range": 0.20447181998338465,
+          "target_rad": -1.9115241056236978,
+          "range_rad": [
+            -3.0892,
+            2.6704
+          ]
+        }
+      ],
+      "target_qpos_sha256": "89ab162687f61e9ec5575751e86f6c8486e8fcfa49a1d27251f56bca82b86537",
+      "action_sha256": "6c501e8d8b37898e6c420ab5754d493b96b5a4ed94baa3253b14eae12ae8eba6",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [],
+      "legacy": {
+        "elapsed_ms": 37.711166,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 58.648709,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003753471165584396,
+        "maximum_orientation_error_rad": 0.043593895109019926
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 25,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "right_shoulder_yaw_joint",
+          "fraction_of_joint_range": 0.7306259764982648,
+          "target_rad": 1.2075576129449144,
+          "range_rad": [
+            -2.618,
+            2.618
+          ]
+        }
+      ],
+      "target_qpos_sha256": "23e3699efeb9ed95f8cd1fb490805dc8fc84fb3ef09ed212267450e1d73ec7e8",
+      "action_sha256": "1f3910b2c1d81a82b85785b8f7032c6a17254283f5d388bca5950e9a552839e5",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "cross_arm_contact",
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 41.363917,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 57.59725,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0038978169619045553,
+        "maximum_orientation_error_rad": 0.04346031339177531
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 26,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "right_wrist_pitch_joint",
+          "fraction_of_joint_range": 0.7210859802518491,
+          "target_rad": 0.7138556781959857,
+          "range_rad": [
+            -1.61443,
+            1.61443
+          ]
+        }
+      ],
+      "target_qpos_sha256": "6724e3158ad9aac06fad211b2b5ccc6e56fe54e1e559caa8144cb1b084790411",
+      "action_sha256": "c4aef628bd025114bf2ad3ad60dfb4968c7318684cc4e0c444f7e0517f1acd29",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "workspace_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 42.528334,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 41.2325,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0028757034126398826,
+        "maximum_orientation_error_rad": 0.04284370356900236
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 27,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_roll_joint",
+          "fraction_of_joint_range": 0.27654152424131656,
+          "target_rad": -0.5263635093706169,
+          "range_rad": [
+            -1.5882,
+            2.2515
+          ]
+        }
+      ],
+      "target_qpos_sha256": "e0d6b81ffb8991cc97fdb86997bafe360c06627572b662e76bec787f6ffa1ee5",
+      "action_sha256": "2dcdbe5a054ef7642045b885f50f09f727d537f5e738727970ed2b1b0b936ffa",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "cross_arm_contact",
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 40.367209,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 27.019209,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0038404390999745345,
+        "maximum_orientation_error_rad": 0.0434750809896227
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 28,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "right_elbow_joint",
+          "fraction_of_joint_range": 0.20262187911253007,
+          "target_rad": -0.4106431045800756,
+          "range_rad": [
+            -1.0472,
+            2.0944
+          ]
+        }
+      ],
+      "target_qpos_sha256": "3352f2333fef034355fa4f0be0b3684d7180fdf558593b6ec0dc6636c71b651a",
+      "action_sha256": "bd9c75abd98ccc91e572aeb86154c47478fa586775c280d0068aaca1db101745",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [],
+      "legacy": {
+        "elapsed_ms": 38.43425,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 23.151125,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.0039853826127756375,
+        "maximum_orientation_error_rad": 0.04354364715908125
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    },
+    {
+      "case": 29,
+      "category": "boundary_one_joint",
+      "selected_joints": [
+        {
+          "joint": "left_shoulder_yaw_joint",
+          "fraction_of_joint_range": 0.28420717348642766,
+          "target_rad": -1.1298912396250647,
+          "range_rad": [
+            -2.618,
+            2.618
+          ]
+        }
+      ],
+      "target_qpos_sha256": "93cb29a4e4ea5fc247f1cccb131bb5fea18016ea688f697f14039d98744c4b9a",
+      "action_sha256": "e9e9fa1da93d338bf945608409767ca1cffbd06a503cdf7b486a0f8df5669e2d",
+      "timestamp_sha256": "5e22c9c3c9587a21ad4cf347657ec738f8cfffcb46af4266f60bfb7d3e9033a6",
+      "target_configuration_collision_reasons": [
+        "cross_arm_contact",
+        "torso_contact"
+      ],
+      "legacy": {
+        "elapsed_ms": 37.086167,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 3.579312585268061e-15,
+        "maximum_orientation_error_rad": 7.519074740040087e-14
+      },
+      "fast": {
+        "elapsed_ms": 55.430833,
+        "accepted": false,
+        "reason": "swept_collision",
+        "collision_reasons": [
+          "nonadjacent_self_contact"
+        ],
+        "checked_targets": 1,
+        "checked_interpolated_configurations": 44,
+        "maximum_position_error_m": 0.003854136728598851,
+        "maximum_orientation_error_rad": 0.04362463656969975
+      },
+      "criteria": {
+        "acceptance_concordant": true,
+        "no_dangerous_fast_accept": true,
+        "accepted_fast_residual_within_internal_gate": true
+      },
+      "passed": true
+    }
+  ],
+  "summary": {
+    "case_count": 30,
+    "passed_count": 30,
+    "legacy_accepted_count": 0,
+    "fast_accepted_count": 0,
+    "acceptance_concordance_rate": 1.0,
+    "dangerous_fast_accept_count": 0,
+    "fast_elapsed_ms_p50": 55.161479,
+    "fast_elapsed_ms_p95": 94.43199214999996,
+    "all_cases_passed": true,
+    "accepted_case_coverage_observed": false
+  },
+  "decision": {
+    "deterministic_near_limit_fuzz_completed": true,
+    "deterministic_near_limit_rejection_concordance_passed": true,
+    "accepted_near_limit_coverage_passed": false,
+    "dangerous_fast_accept_observed": false,
+    "official_hardware_limits_qualified": false,
+    "physical_collision_qualified": false,
+    "real_robot_compute_benchmark_completed": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "publisher_created": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

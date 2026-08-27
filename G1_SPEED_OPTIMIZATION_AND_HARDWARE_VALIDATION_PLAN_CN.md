@@ -136,9 +136,13 @@ MuJoCo：继续用于算法优化和安全筛选
 - acceptance concordance `100%`；
 - dangerous Fast accept `0`；
 - Fast P50 `15.33 ms`、P95 `37.55 ms`；
-- randomized near-limit与真实完整29关节collision仍未覆盖。
+- 另运行30条FK-generated near-limit/boundary fuzz：Legacy/Fast均0条接受、rejection concordance `100%`、dangerous Fast accept `0`、Fast P95 `94.43 ms`；
+- near-limit fuzz为reject-only，尚没有accepted near-limit覆盖，也不是官方hardware limits资格。
 
-证据：`results/g1_fast_preflight_30_trajectory_corpus_20260827.json`
+证据：
+
+- `results/g1_fast_preflight_30_trajectory_corpus_20260827.json`
+- `results/g1_fast_preflight_near_limit_fuzz_20260827.json`
 
 ## 仍需继续的离线工作
 
@@ -155,7 +159,7 @@ MuJoCo：继续用于算法优化和安全筛选
 
 ### O2 · 多场景 IK/collision 正确性 corpus
 
-30条确定性trajectory以及NaN/Inf schema faults已通过。仍需增加randomized near-limit、collision-boundary fuzzing和完整29关节真实姿态。继续要求危险Fast accept为0、accepted residual在内部 `4 mm/2.5°`、fault全部hold、P95小于333 ms。
+30条确定性trajectory、30条near-limit/boundary rejection fuzz以及NaN/Inf schema faults已通过。near-limit fuzz全部被两分支拒绝，因此仍需accepted near-limit覆盖、更多collision-boundary fuzzing和完整29关节真实姿态。继续要求危险Fast accept为0、accepted residual在内部 `4 mm/2.5°`、fault全部hold、P95小于333 ms。
 
 ### O3 · Yuhao生产loop和真实计算机复测
 

@@ -1,7 +1,7 @@
 {
-  "passed": 164,
+  "passed": 165,
   "failed": 0,
-  "total": 164,
+  "total": 165,
   "success": true,
-  "scope": "Local tests including stable 5 mm/3 degree continuous-250-ms task completion, 30-candidate stable bottleneck rejection, settling-time telemetry, 30-trajectory Fast preflight corpus, finite action/timestamp schema rejection, 50-pair Yuhao/project layered compute evidence, waist-compensated offline Shadow fixture with canonical-action identity, 50-pair legacy/fast swept-preflight benchmark, retained MuJoCo/read-only-Shadow/hardware Gate plan, DDS watchdog, fail-closed injection, public redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including stable 5 mm/3 degree continuous-250-ms task completion, 30-candidate stable bottleneck rejection, settling-time telemetry, 30-trajectory Fast preflight corpus, 30-case reject-only near-limit fuzzing, finite action/timestamp schema rejection, 50-pair Yuhao/project layered compute evidence, waist-compensated offline Shadow fixture, retained MuJoCo/read-only-Shadow/hardware Gate plan, DDS watchdog, fail-closed injection, public redaction, and hardware safety gates; GitHub Actions rerun pending."
 }

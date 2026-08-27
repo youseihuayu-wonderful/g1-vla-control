@@ -273,6 +273,12 @@
     "fast_preflight_30_trajectory_passed": "30/30",
     "fast_preflight_acceptance_concordance_rate": 1.0,
     "fast_preflight_dangerous_accept_count": 0,
-    "fast_preflight_30_trajectory_p95_ms": 37.552181399999995
+    "fast_preflight_30_trajectory_p95_ms": 37.552181399999995,
+    "near_limit_fuzz_evidence": "results/g1_fast_preflight_near_limit_fuzz_20260827.json",
+    "near_limit_fuzz_rejection_concordance": "30/30",
+    "near_limit_fuzz_dangerous_accept_count": 0,
+    "near_limit_fuzz_accepted_case_count": 0,
+    "accepted_near_limit_coverage_passed": false,
+    "official_hardware_limits_qualified": false
   }
 }

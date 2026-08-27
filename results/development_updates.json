@@ -1670,5 +1670,35 @@
       "results/g1_fast_preflight_30_trajectory_corpus_20260827.json",
       "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
     ]
+  },
+  {
+    "time": "2026-08-27 21:40 EDT",
+    "title": "完成30条near-limit/collision-boundary rejection fuzz",
+    "status": "partial",
+    "summary": "通过FK-generated两关节near-limit和单关节boundary共30条确定性fuzz。Legacy/Fast均拒绝全部case，rejection concordance 100%，dangerous Fast accept=0，Fast P95 94.43 ms。由于0条accepted，该证据只支持拒绝一致性。",
+    "done": [
+      "20条2–12%/88–98% joint-range双关节目标。",
+      "10条20–30%/70–80% joint-range单关节boundary目标。",
+      "相同EEF trajectory和collision classifier下运行Legacy/Fast。"
+    ],
+    "conclusions": [
+      "30/30 rejection一致，未观察到危险Fast accept。",
+      "accepted near-limit coverage=false。",
+      "MuJoCo joint ranges不能替代官方torque/current/temperature hardware limits。"
+    ],
+    "fixes": [
+      "明确将reject-only fuzz与accepted near-limit资格分开。"
+    ],
+    "remaining": [
+      "构造collision-free accepted near-limit cases。",
+      "完整29关节真实姿态和官方硬件limits资格。"
+    ],
+    "next": [
+      "联网后只读full-body capture仍是关键阻塞项。"
+    ],
+    "evidence": [
+      "results/g1_fast_preflight_near_limit_fuzz_20260827.json",
+      "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
+    ]
   }
 ]

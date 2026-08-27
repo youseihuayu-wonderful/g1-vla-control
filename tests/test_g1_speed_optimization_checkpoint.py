@@ -36,6 +36,7 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
             "g1_stable_completion_optimizer.py",
             "g1_settling_bottleneck_diagnostic.py",
             "g1_fast_preflight_30_trajectory_corpus.py",
+            "g1_fast_preflight_near_limit_fuzz.py",
         ]
         forbidden = ("unitree_sdk", "arm_controller", "gripper_controller")
         for filename in files:
@@ -215,6 +216,26 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
         self.assertFalse(
             report["decision"]["randomized_near_limit_coverage_completed"]
         )
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_near_limit_fuzz_is_rejection_only_and_not_hardware_qualification(self):
+        report = json.loads((
+            ROOT / "results" / "g1_fast_preflight_near_limit_fuzz_20260827.json"
+        ).read_text())
+        self.assertEqual(report["summary"]["case_count"], 30)
+        self.assertEqual(report["summary"]["passed_count"], 30)
+        self.assertEqual(report["summary"]["dangerous_fast_accept_count"], 0)
+        self.assertEqual(report["summary"]["legacy_accepted_count"], 0)
+        self.assertFalse(report["summary"]["accepted_case_coverage_observed"])
+        self.assertTrue(
+            report["decision"][
+                "deterministic_near_limit_rejection_concordance_passed"
+            ]
+        )
+        self.assertFalse(
+            report["decision"]["accepted_near_limit_coverage_passed"]
+        )
+        self.assertFalse(report["decision"]["official_hardware_limits_qualified"])
         self.assertFalse(report["decision"]["robot_motion_allowed"])
 
     def test_settling_diagnostic_explains_schedule_gain_loss(self):

@@ -147,11 +147,23 @@
       "fast_p95_ms": 37.552181399999995,
       "randomized_near_limit_coverage_completed": false,
       "saved_initial_collision_physically_qualified": false
+    },
+    "fast_preflight_near_limit_rejection_fuzz": {
+      "completed": true,
+      "evidence": "results/g1_fast_preflight_near_limit_fuzz_20260827.json",
+      "cases": "30/30",
+      "legacy_accepted_count": 0,
+      "fast_accepted_count": 0,
+      "acceptance_concordance_rate": 1.0,
+      "dangerous_fast_accept_count": 0,
+      "fast_p95_ms": 94.43199214999996,
+      "accepted_near_limit_coverage_passed": false,
+      "official_hardware_limits_qualified": false
     }
   },
   "remaining_offline": [
     "replace simple distance-only scales with tracking/settling-aware semantic-phase optimization and run at least 30 complete multi-scenario pairs under stable completion",
-    "add randomized near-limit and collision-boundary fuzzing plus full-29-joint real-pose cases to the passing 30-trajectory deterministic corpus",
+    "add accepted near-limit coverage and more collision-boundary fuzzing plus full-29-joint real-pose cases; current 30 near-limit fuzz cases are rejection-only",
     "repeat layered benchmark on deployment compute and separately benchmark the pinned Yuhao selected-tick production loop without conflating missing swept collision",
     "replace synthetic camera/hold-policy fixtures with streaming LowState, three real cameras, DDS watchdog, and frozen LGG100 while retaining mock sink"
   ],
@@ -189,7 +201,9 @@
     "minimum_30_stable_candidate_screen_completed": true,
     "stable_multi_scenario_candidate_found": false,
     "settling_aware_optimization_required": true,
-    "minimum_30_trajectory_fast_preflight_corpus_passed": true
+    "minimum_30_trajectory_fast_preflight_corpus_passed": true,
+    "near_limit_rejection_concordance_passed": true,
+    "accepted_near_limit_coverage_passed": false
   },
   "safety": {
     "offline_only": true,
