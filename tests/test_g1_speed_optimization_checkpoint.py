@@ -1,0 +1,148 @@
+import ast
+import json
+from pathlib import Path
+import sys
+import unittest
+
+import mujoco
+import numpy as np
+
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from g1_adaptive_phase_validation import FAR_LIFT_OFFSET_M
+from g1_fast_sequential_ik import solve_sequential_ik
+from g1_fast_swept_path_preflight import G1FastSweptPathPreflight
+from run_simulation import build_contract_fixture
+from stack_scene import build_model, reset_to_reference_pose
+
+
+class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
+    def test_new_speed_modules_have_no_robot_sdk_or_controller_import(self):
+        files = [
+            "g1_phase_scale_optimizer.py",
+            "g1_fast_sequential_ik.py",
+            "g1_fast_swept_path_preflight.py",
+            "g1_fast_preflight_benchmark.py",
+            "g1_waist_compensation.py",
+            "g1_waist_compensation_diagnostic.py",
+            "g1_deterministic_speed_paired_ab.py",
+        ]
+        forbidden = ("unitree_sdk", "arm_controller", "gripper_controller")
+        for filename in files:
+            tree = ast.parse((ROOT / filename).read_text())
+            imports = []
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    imports.extend(alias.name for alias in node.names)
+                elif isinstance(node, ast.ImportFrom):
+                    imports.append(node.module or "")
+            self.assertFalse(
+                any(token in name.lower() for name in imports for token in forbidden),
+                filename,
+            )
+
+    def test_fast_ik_stops_inside_stricter_internal_tolerance(self):
+        model = build_model()
+        source = mujoco.MjData(model)
+        reset_to_reference_pose(model, source)
+        chunk, _, _ = build_contract_fixture(FAR_LIFT_OFFSET_M)
+        result = solve_sequential_ik(model, source, chunk.actions)
+        self.assertTrue(result.accepted)
+        self.assertEqual(len(result.targets), 32)
+        self.assertLess(result.total_iterations, 32 * 60)
+        self.assertLessEqual(
+            max(target.maximum_position_error_m for target in result.targets),
+            0.004,
+        )
+        self.assertLessEqual(
+            max(target.maximum_orientation_error_rad for target in result.targets),
+            np.deg2rad(2.5),
+        )
+
+    def test_fast_swept_preflight_preserves_interpolation_resolution(self):
+        model = build_model()
+        source = mujoco.MjData(model)
+        reset_to_reference_pose(model, source)
+        chunk, _, _ = build_contract_fixture(FAR_LIFT_OFFSET_M)
+        result = G1FastSweptPathPreflight(model).check(
+            source, chunk, phase="free_space"
+        )
+        self.assertTrue(result.accepted)
+        self.assertEqual(result.checked_targets, 32)
+        self.assertEqual(result.checked_interpolated_configurations, 146)
+        self.assertLessEqual(result.maximum_position_error_m, 0.004)
+        self.assertLessEqual(result.maximum_orientation_error_rad, np.deg2rad(2.5))
+
+    def test_formal_microbenchmark_passes_but_is_not_yuhao_or_task_evidence(self):
+        report = json.loads((
+            ROOT / "results" / "g1_fast_preflight_paired_benchmark_20260827.json"
+        ).read_text())
+        self.assertEqual(report["input"]["formal_pairs"], 50)
+        self.assertTrue(report["summary"]["benchmark_passed"])
+        self.assertLess(report["summary"]["fast_total_ms"]["p95"], 333.334)
+        self.assertGreater(
+            report["summary"]["paired_median_speedup_95ci"][0], 4.1
+        )
+        self.assertFalse(report["comparison_contract"]["legacy_is_yuhao_pinocchio"])
+        self.assertFalse(report["decision"]["task_level_speedup_passed"])
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+        self.assertEqual(len(report["runs"]), 50)
+
+    def test_single_fixture_scale_candidate_is_action_preserving(self):
+        report = json.loads((
+            ROOT / "results" / "g1_phase_scale_optimizer_20260827.json"
+        ).read_text())
+        selected = report["selected"]
+        self.assertTrue(selected["passed"])
+        self.assertGreaterEqual(selected["duration_reduction_fraction"], 0.10)
+        self.assertTrue(selected["criteria"]["path_actions_byte_identical"])
+        self.assertFalse(report["decision"]["real_lgg100_task_speedup_passed"])
+        self.assertFalse(report["decision"]["production_adaptive_enabled"])
+
+    def test_waist_adapter_resolves_numeric_hold_target_not_physical_collision(self):
+        report = json.loads((
+            ROOT / "results" / "g1_waist_compensation_diagnostic_20260827.json"
+        ).read_text())
+        self.assertTrue(report["decision"]["waist_transform_numeric_regression_passed"])
+        self.assertFalse(report["decision"]["uncompensated_zero_waist_target_passed"])
+        self.assertTrue(report["decision"]["compensated_hold_target_passed"])
+        self.assertFalse(report["hashes"]["canonical_input_mutated"])
+        self.assertFalse(report["collision"]["full_body_state_available"])
+        self.assertFalse(report["decision"]["initial_collision_resolved"])
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+
+    def test_five_distance_ab_rejects_non_generalizing_candidate(self):
+        report = json.loads((
+            ROOT / "results" / "g1_deterministic_speed_paired_ab_20260827.json"
+        ).read_text())
+        self.assertEqual(report["summary"]["development_pair_count"], 5)
+        self.assertEqual(report["summary"]["passed_pair_count"], 2)
+        self.assertTrue(report["summary"]["all_action_hashes_paired"])
+        self.assertFalse(report["summary"]["all_pairs_passed"])
+        self.assertFalse(report["decision"]["single_fixture_candidate_generalized"])
+        self.assertFalse(report["decision"]["formal_minimum_30_pair_ab_completed"])
+        self.assertFalse(report["decision"]["production_adaptive_enabled"])
+
+    def test_retained_method_and_hardware_boundary_are_explicit(self):
+        plan = (ROOT / "G1_SPEED_OPTIMIZATION_AND_HARDWARE_VALIDATION_PLAN_CN.md").read_text()
+        for text in (
+            "MuJoCo：继续用于算法优化和安全筛选",
+            "真机只读Shadow：联网后尽快开始",
+            "真机动作：H1–H5全部通过后才开始",
+            "任务速度结论：最终必须以真机paired A/B为准",
+        ):
+            self.assertIn(text, plan)
+        status = json.loads((
+            ROOT / "results" / "g1_speed_optimization_checkpoint_20260827.json"
+        ).read_text())
+        self.assertTrue(status["decision"]["offline_speed_checkpoint_ready_for_commit"])
+        self.assertFalse(status["decision"]["multi_scenario_adaptive_speed_gate_passed"])
+        self.assertFalse(status["decision"]["real_task_speedup_passed"])
+        self.assertFalse(status["decision"]["robot_motion_allowed"])
+        self.assertFalse(status["hardware_execution_performed"])
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -1430,5 +1430,55 @@
       "results/g1_offline_five_step_completion_20260824.json",
       "publisher_created=false; hardware_transport_present=false; robot_command_sent=false"
     ]
+  },
+  {
+    "time": "2026-08-27 16:46 EDT",
+    "title": "建立VLA速度优化检查点并冻结MuJoCo→只读Shadow→真机A/B方法",
+    "status": "partial",
+    "summary": "完成单fixture timestamp-only参数搜索、50-pair Legacy/Fast IK+swept microbenchmark、zero-waist到measured-waist数值adapter和五距离development A/B。计算链速度Gate通过，但候选仅2/5距离通过，真实任务速度、完整29关节碰撞和真机Shadow仍未通过。",
+    "done": [
+      "搜索270组near/far参数并对前12组运行完整MuJoCo dynamics；17 cm候选时间降低11.46%。",
+      "运行50个interleaved Legacy/Fast preflight pairs；Fast P50 35.01 ms、P95 36.73 ms，paired median speedup 32.47x。",
+      "保持5 mm/3 deg外层Gate与0.01 rad/0.001 m swept分辨率；Fast内部使用更严格4 mm/2.5 deg early-stop。",
+      "实现zero-waist policy frame到measured-waist IK frame的独立刚体adapter；canonical action未被修改。",
+      "运行10–19 cm五距离OFF/ON A/B；action hashes全部一致，速度范围10.06%–13.44%，但只有2/5满足全部非劣标准。",
+      "新增速度优化与真机验证计划，永久保留MuJoCo筛选、联网后只读Shadow、H1–H5后动作、真机paired A/B最终结论。"
+    ],
+    "conclusions": [
+      "32.47x是项目Legacy fixed-250 MuJoCo preflight到Fast preflight的计算加速，不是相对Yuhao任务速度。",
+      "Fast单fixture P95已低于333 ms prefetch window，但多场景正确性corpus尚未通过。",
+      "单fixture最优Near 0.95x/Far 1.65x没有泛化：13 cm出现jerk回归，19 cm出现endpoint和jerk回归。",
+      "waist compensation解决保存样本上的数值hold-target residual，但不证明physical EEF parity。",
+      "当前样本缺12个腿部关节，hip/hand初始碰撞继续判定为未解决。",
+      "robot_motion_allowed=false。"
+    ],
+    "fixes": [
+      "将早期约35x、较松停止条件替换为4 mm/2.5 deg内部阈值下的50-pair正式microbenchmark。",
+      "明确Legacy不是Yuhao Pinocchio，避免将计算链加速误报为相对Yuhao任务速度。",
+      "将canonical policy action与waist-compensated IK target分离并分别hash。",
+      "用五距离A/B拒绝只在17 cm成功的过拟合retimer候选。"
+    ],
+    "remaining": [
+      "联合优化至少30个多场景pairs的phase scales，使全部pair时间、endpoint、jerk/contact/limits非劣。",
+      "建立reachable、near-limit、unreachable、collision、gripper、NaN/Inf Fast preflight corpus。",
+      "完成Yuhao Pinocchio IK-only、Legacy和Fast三分支分层benchmark。",
+      "联网后subscriber-only读取完整29关节、三相机和instrumented DDS。",
+      "在机器人计算机运行无Publisher benchmark和真实15 Hz Policy Shadow。",
+      "H1–H5后才评审第一次动作，最终速度以真机paired A/B为准。"
+    ],
+    "next": [
+      "当前继续MuJoCo多场景鲁棒优化和安全筛选。",
+      "联网后立即进入只读full-body/camera/DDS/compute Shadow，不发送命令。",
+      "不直接使用当前2/5通过的candidate进入production或真机。"
+    ],
+    "evidence": [
+      "G1_SPEED_OPTIMIZATION_AND_HARDWARE_VALIDATION_PLAN_CN.md",
+      "results/g1_phase_scale_optimizer_20260827.json",
+      "results/g1_fast_preflight_paired_benchmark_20260827.json",
+      "results/g1_waist_compensation_diagnostic_20260827.json",
+      "results/g1_deterministic_speed_paired_ab_20260827.json",
+      "results/g1_speed_optimization_checkpoint_20260827.json",
+      "publisher_created=false; robot_command_sent=false; hardware_execution_performed=false"
+    ]
   }
 ]

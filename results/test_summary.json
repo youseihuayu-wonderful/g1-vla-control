@@ -1,7 +1,7 @@
 {
-  "passed": 147,
+  "passed": 155,
   "failed": 0,
-  "total": 147,
+  "total": 155,
   "success": true,
-  "scope": "Local tests including pinned Yuhao/MuJoCo zero-waist source parity, measured-waist dual-view decision, camera BGR/head-left/RGB224 boundary, provisional monotonic DDS watchdog, 8-case mock fault injection, offline 15 Hz replay non-promotion, first-motion authorization lock, official quaternion consumer post-processing, public redaction, and hardware safety gates; GitHub Actions rerun pending."
+  "scope": "Local tests including 50-pair legacy/fast swept-preflight benchmark, strict early-stop IK, timestamp-only phase-scale search, waist-compensation numeric regression, five-distance A/B non-generalization, retained MuJoCo/read-only-Shadow/hardware Gate plan, pinned Yuhao/MuJoCo source parity, DDS watchdog, fail-closed injection, public redaction, and hardware safety gates; GitHub Actions rerun pending."
 }

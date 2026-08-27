@@ -1,0 +1,92 @@
+{
+  "schema_version": "g1_waist_compensation_diagnostic_v1",
+  "scope": "Offline numeric adapter regression using one saved subscriber-only waist/arm sample; no physical EEF or full-body collision qualification.",
+  "input": {
+    "sample_sha256": "b31831cad07c0d7d63f8d7e5e072a691e6fb67f6eda0f6bf7391096701e188ef",
+    "captured_joint_count": 17,
+    "required_full_body_joint_count": 29,
+    "full_body_joint_state_available": false
+  },
+  "hashes": {
+    "canonical_policy_action_sha256": "b5670d2ba584beb3c9675aec8e6cf7e9dc7c03be669a6bd8e36a575c706d0541",
+    "canonical_policy_action_after_adapter_sha256": "b5670d2ba584beb3c9675aec8e6cf7e9dc7c03be669a6bd8e36a575c706d0541",
+    "kinematic_ik_target_sha256": "9607c21a9bf136e297b4c4873c0e5ff5cdf70b581fba9c0d14b8a1d9ea63ee2c",
+    "canonical_input_mutated": false,
+    "ik_target_is_separate_artifact": true
+  },
+  "transform": {
+    "pelvis_delta_transform": [
+      [
+        0.9994516324515412,
+        0.031909864564097265,
+        -0.008842789913276234,
+        0.0003889307970405126
+      ],
+      [
+        -0.032230025752335426,
+        0.9987270536267798,
+        -0.03880074476057334,
+        0.0017060604234987965
+      ],
+      [
+        0.00759340700563098,
+        0.03906447103791799,
+        0.9992078398774575,
+        6.49515140586851e-05
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "maximum_position_mapping_error_m": 1.2007255256554509e-08,
+    "maximum_orientation_mapping_error_deg": 3.4150945850063755e-06,
+    "maximum_allowed_mapping_position_error_m": 1e-07,
+    "maximum_allowed_mapping_orientation_error_deg": 1e-05,
+    "gripper_channels_preserved": true
+  },
+  "uncompensated_ik": {
+    "accepted": false,
+    "reason": "ik_tolerance_not_reached",
+    "checked_targets": 1,
+    "total_iterations": 60,
+    "elapsed_ms": 13.225209,
+    "final_position_error_m": 0.006189730442715318,
+    "final_orientation_error_deg": 0.014157974619893607
+  },
+  "compensated_ik": {
+    "accepted": true,
+    "reason": "accepted",
+    "checked_targets": 32,
+    "total_iterations": 0,
+    "elapsed_ms": 2.225875,
+    "maximum_position_error_m": 7.093657534543661e-09,
+    "maximum_orientation_error_deg": 5.558571775032274e-07
+  },
+  "collision": {
+    "initial_model_collision_reasons": [
+      "nonadjacent_self_contact"
+    ],
+    "full_body_state_available": false,
+    "initial_collision_physically_qualified": false,
+    "reason": "Saved state contains only waist and arms; hip/hand collision cannot be qualified without the real 12 leg joints and physical inspection."
+  },
+  "decision": {
+    "waist_transform_numeric_regression_passed": true,
+    "uncompensated_zero_waist_target_passed": false,
+    "compensated_hold_target_passed": true,
+    "physical_eef_parity_verified": false,
+    "initial_collision_resolved": false,
+    "live_full_body_capture_required": true,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "publisher_created": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

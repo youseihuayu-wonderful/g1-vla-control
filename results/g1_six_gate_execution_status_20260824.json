@@ -1,6 +1,6 @@
 {
   "schema_version": "g1_six_gate_execution_status_v2",
-  "timestamp": "2026-08-24T20:34:39-04:00",
+  "timestamp": "2026-08-27T16:46:08-04:00",
   "owner": "Shihua Yu",
   "state": "ACTIVE_READONLY_VALIDATION",
   "current_gate": "H1_REAL_THREE_CAMERA",
@@ -211,11 +211,27 @@
     "zero_motion_policy_shadow_eligible": false,
     "robot_motion_allowed": false,
     "reason": "All five planned offline work packages are complete, but no live gate is promoted: H1 camera runtime, H2 physical parity, H3 live freshness, H4 real Shadow, H5 integrated watchdog, and H6 authorization remain incomplete.",
-    "offline_five_task_plan_completed": true
+    "offline_five_task_plan_completed": true,
+    "offline_speed_checkpoint_ready_for_commit": true,
+    "real_task_speedup_passed": false
   },
   "g1_execution_enabled": false,
   "hardware_execution_performed": false,
   "offline_tasks_completed": 5,
   "offline_tasks_total": 5,
-  "offline_tasks_do_not_promote_live_gates": true
+  "offline_tasks_do_not_promote_live_gates": true,
+  "speed_optimization_checkpoint": {
+    "evidence": "results/g1_speed_optimization_checkpoint_20260827.json",
+    "fast_preflight_single_fixture_gate_passed": true,
+    "fast_preflight_p50_ms": 35.009021,
+    "fast_preflight_p95_ms": 36.7256628,
+    "legacy_to_fast_paired_median_speedup": 32.474826800798915,
+    "legacy_is_yuhao_pinocchio": false,
+    "five_distance_pairs": 5,
+    "five_distance_passed_pairs": 2,
+    "multi_scenario_adaptive_speed_gate_passed": false,
+    "real_task_speedup_passed": false,
+    "production_adaptive_enabled": false,
+    "robot_motion_allowed": false
+  }
 }

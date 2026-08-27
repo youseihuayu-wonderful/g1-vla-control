@@ -1,0 +1,94 @@
+{
+  "schema_version": "g1_speed_optimization_checkpoint_v1",
+  "timestamp": "2026-08-27T16:46:08-04:00",
+  "owner": "Shihua Yu",
+  "objective": "Improve complete-task speed over the frozen Yuhao 15 Hz baseline without changing checkpoint weights or action samples and without safety regression.",
+  "github_branch": "work/lgg100-semantic-speed-gates",
+  "retained_method": {
+    "mujoco": "continue_for_algorithm_optimization_and_safety_screening",
+    "real_robot_readonly_shadow": "start_as_soon_as_connectivity_returns",
+    "real_robot_motion": "prohibited_until_H1_through_H5_pass",
+    "final_task_speed_claim": "requires_real_robot_paired_AB"
+  },
+  "completed_offline_checkpoint": {
+    "single_fixture_scale_search": {
+      "completed": true,
+      "evidence": "results/g1_phase_scale_optimizer_20260827.json",
+      "selected_near_scale": 0.95,
+      "selected_far_scale": 1.65,
+      "duration_reduction_fraction": 0.11455260570304837,
+      "effective_speedup_fraction": 0.12937257079400344,
+      "real_lgg100_task_evidence": false
+    },
+    "fast_preflight_microbenchmark": {
+      "completed": true,
+      "evidence": "results/g1_fast_preflight_paired_benchmark_20260827.json",
+      "formal_pairs": 50,
+      "legacy_p50_ms": 1134.210104,
+      "fast_p50_ms": 35.009021,
+      "fast_p95_ms": 36.7256628,
+      "paired_median_speedup": 32.474826800798915,
+      "paired_median_speedup_95ci": [32.292907554159115, 32.55226056569566],
+      "prefetch_window_ms": 333.3333333333333,
+      "legacy_is_yuhao_pinocchio": false,
+      "multi_scenario_correctness_passed": false
+    },
+    "waist_compensation_numeric_regression": {
+      "completed": true,
+      "evidence": "results/g1_waist_compensation_diagnostic_20260827.json",
+      "canonical_action_mutated": false,
+      "uncompensated_ik_passed": false,
+      "compensated_hold_target_passed": true,
+      "physical_eef_parity_verified": false,
+      "initial_collision_resolved": false
+    },
+    "five_distance_development_paired_ab": {
+      "completed": true,
+      "evidence": "results/g1_deterministic_speed_paired_ab_20260827.json",
+      "pairs": 5,
+      "passed_pairs": 2,
+      "all_action_hashes_paired": true,
+      "candidate_generalized": false,
+      "formal_minimum_30_pair_ab_completed": false
+    }
+  },
+  "remaining_offline": [
+    "joint multi-scenario phase-scale optimization with at least 30 development pairs",
+    "multi-scenario reachable/rejected/collision/near-limit fast-preflight correctness corpus",
+    "Yuhao Pinocchio IK-only versus project legacy and fast layered comparison",
+    "integrate waist compensation and fast preflight into real-observation mock-sink Shadow"
+  ],
+  "first_real_robot_requirement": {
+    "when": "as soon as robot connectivity returns after current offline regression is committed",
+    "scope": [
+      "subscriber-only full 29-joint LowState capture",
+      "three-camera read-only capture",
+      "instrumented DDS exception and freshness capture",
+      "robot-compute latency benchmark without Publisher"
+    ],
+    "motion_allowed": false,
+    "publisher_allowed": false
+  },
+  "real_motion_requirement": {
+    "when": "only after H1-H5 all pass and independent approval is recorded",
+    "initial_scope": "mechanically supported single-arm very-low-speed very-small free-space no-contact trial",
+    "motion_authorized": false
+  },
+  "decision": {
+    "offline_speed_checkpoint_ready_for_commit": true,
+    "single_fixture_compute_speed_gate_passed": true,
+    "multi_scenario_adaptive_speed_gate_passed": false,
+    "real_shadow_passed": false,
+    "real_task_speedup_passed": false,
+    "production_adaptive_enabled": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "offline_only": true,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "hardware_execution_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}
