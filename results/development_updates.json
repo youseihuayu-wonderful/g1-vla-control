@@ -1700,5 +1700,35 @@
       "results/g1_fast_preflight_near_limit_fuzz_20260827.json",
       "publisher_created=false; robot_command_sent=false; robot_motion_allowed=false"
     ]
+  },
+  {
+    "time": "2026-08-27 21:55 EDT",
+    "title": "启动真机只读阶段受gateway连接超时阻塞",
+    "status": "blocked",
+    "summary": "按操作员要求开始真实G1只读阶段。仅执行本地3秒TCP连接探测；gateway端口超时，且无现存SSH连接。未提示密码、未执行远端命令、未导入Unitree SDK、未启动DDS/相机/Shadow。",
+    "done": [
+      "确认本地route lookup存在。",
+      "确认无现存gateway SSH session。",
+      "记录fail-closed连接证据并保持live Gate 0/6。"
+    ],
+    "conclusions": [
+      "当前无法开始完整29关节、三相机或真实Shadow。",
+      "连接超时不授予任何运动或Publisher权限。"
+    ],
+    "fixes": [
+      "将无返回的连接尝试替换为3秒硬超时socket probe，并在本地网段缺失时fail-closed停止。"
+    ],
+    "remaining": [
+      "恢复Mac到gateway网络路径。",
+      "重新确认机器人当日Damping、机械支撑和E-stop。",
+      "恢复后只执行subscriber-only full29、camera和DDS采集。"
+    ],
+    "next": [
+      "操作员恢复网络后重复connectivity-only probe；成功后再进入只读SSH inventory。"
+    ],
+    "evidence": [
+      "results/g1_robot_readonly_start_attempt_20260827.json",
+      "publisher_created=false; robot_command_sent=false; hardware_execution_performed=false"
+    ]
   }
 ]

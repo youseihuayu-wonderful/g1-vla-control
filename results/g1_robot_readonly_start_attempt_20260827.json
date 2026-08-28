@@ -1,0 +1,45 @@
+{
+  "schema_version": "g1_robot_readonly_start_attempt_v1",
+  "timestamp": "2026-08-27T21:55:00-04:00",
+  "scope": "Operator-requested start of the real-G1 read-only phase. Connectivity probe only; no authentication prompt, remote command, SDK import, DDS reader, camera process, Publisher, mode change, or robot command.",
+  "requested_stage": "subscriber-only full-29-joint, three-camera, DDS, and mock-sink Shadow preparation",
+  "probe": {
+    "method": "local TCP socket connect with 3 second hard timeout",
+    "gateway_tcp_22_reachable": false,
+    "result": "timeout",
+    "route_lookup_succeeded": true,
+    "existing_established_gateway_ssh": false,
+    "gateway_authenticated": false,
+    "inner_robot_connection_attempted": false,
+    "password_requested": false,
+    "remote_command_executed": false,
+    "route_interface_present": true,
+    "route_interface_up": true,
+    "local_robot_subnet_address_present": false
+  },
+  "execution": {
+    "full_29_joint_capture_started": false,
+    "three_camera_capture_started": false,
+    "instrumented_dds_capture_started": false,
+    "real_compute_benchmark_started": false,
+    "real_15_hz_policy_shadow_started": false
+  },
+  "decision": {
+    "readonly_start_succeeded": false,
+    "blocked_by": "gateway_tcp_timeout",
+    "required_operator_action": "Connect the Mac to the approved gateway/robot network path, verify a local route appropriate for the gateway, and confirm the robot remains in Damping with mechanical support and E-stop ready; then repeat the connectivity-only preflight.",
+    "live_gate_promoted": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "network_probe_only": true,
+    "unitree_sdk_imported": false,
+    "send_channel_created": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "hardware_execution_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

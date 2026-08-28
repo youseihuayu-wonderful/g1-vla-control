@@ -1,8 +1,8 @@
 {
   "schema_version": "g1_six_gate_execution_status_v2",
-  "timestamp": "2026-08-27T16:46:08-04:00",
+  "timestamp": "2026-08-27T21:55:00-04:00",
   "owner": "Shihua Yu",
-  "state": "ACTIVE_READONLY_VALIDATION",
+  "state": "BLOCKED_GATEWAY_CONNECTIVITY_READONLY_NOT_STARTED",
   "current_gate": "H1_REAL_THREE_CAMERA",
   "strict_order": [
     "H1",
@@ -207,10 +207,10 @@
     }
   ],
   "decision": {
-    "continue_with_h1_camera_only_audit": true,
+    "continue_with_h1_camera_only_audit": false,
     "zero_motion_policy_shadow_eligible": false,
     "robot_motion_allowed": false,
-    "reason": "All five planned offline work packages are complete, but no live gate is promoted: H1 camera runtime, H2 physical parity, H3 live freshness, H4 real Shadow, H5 integrated watchdog, and H6 authorization remain incomplete.",
+    "reason": "The operator requested the real read-only phase, but the gateway TCP probe timed out, no established SSH session exists, and no local address on the prior robot gateway subnet was detected. No remote command, SDK, Publisher, or robot command was attempted. Restore the approved network path, reconfirm trial-day Damping/support/E-stop, then resume subscriber-only capture.",
     "offline_five_task_plan_completed": true,
     "offline_speed_checkpoint_ready_for_commit": true,
     "real_task_speedup_passed": false,
@@ -219,7 +219,9 @@
     "offline_layered_yuhao_compute_comparison_completed": true,
     "offline_compensated_shadow_fixture_integrated": true,
     "stable_multi_scenario_candidate_found": false,
-    "minimum_30_trajectory_fast_preflight_corpus_passed": true
+    "minimum_30_trajectory_fast_preflight_corpus_passed": true,
+    "restore_gateway_connectivity_then_resume_readonly_only": true,
+    "latest_readonly_start_succeeded": false
   },
   "g1_execution_enabled": false,
   "hardware_execution_performed": false,
@@ -280,5 +282,18 @@
     "near_limit_fuzz_accepted_case_count": 0,
     "accepted_near_limit_coverage_passed": false,
     "official_hardware_limits_qualified": false
+  },
+  "latest_readonly_start_attempt": {
+    "evidence": "results/g1_robot_readonly_start_attempt_20260827.json",
+    "gateway_tcp_22_reachable": false,
+    "probe_result": "timeout",
+    "existing_established_gateway_ssh": false,
+    "inner_robot_connection_attempted": false,
+    "remote_command_executed": false,
+    "full_29_joint_capture_started": false,
+    "three_camera_capture_started": false,
+    "real_15_hz_policy_shadow_started": false,
+    "live_gate_promoted": false,
+    "local_robot_subnet_address_present": false
   }
 }
