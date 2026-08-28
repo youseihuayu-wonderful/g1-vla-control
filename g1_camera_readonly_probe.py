@@ -30,7 +30,17 @@ def _scalar_metadata(frame: Any) -> dict[str, Any]:
     return result
 
 
-def probe_three_cameras(host: str, request_port: int) -> dict[str, Any]:
+def probe_three_cameras(
+    host: str,
+    request_port: int,
+    *,
+    frame_timeout_s: float = 5.0,
+    retry_interval_s: float = 0.02,
+) -> dict[str, Any]:
+    if not 0.1 <= frame_timeout_s <= 30.0:
+        raise ValueError("frame_timeout_s must be in [0.1,30]")
+    if not 0.001 <= retry_interval_s <= 0.5:
+        raise ValueError("retry_interval_s must be in [0.001,0.5]")
     try:
         from teleimager import ImageClient
     except ImportError:
@@ -77,9 +87,18 @@ def probe_three_cameras(host: str, request_port: int) -> dict[str, Any]:
             ("right_wrist", client.get_right_wrist_frame),
         ):
             request_start = time.monotonic_ns()
-            frame = getter()
+            deadline_ns = request_start + int(frame_timeout_s * 1_000_000_000)
+            attempts = 0
+            frame = None
+            image = None
+            while time.monotonic_ns() < deadline_ns:
+                attempts += 1
+                frame = getter()
+                image = frame.bgr
+                if image is not None:
+                    break
+                time.sleep(retry_interval_s)
             received_monotonic_ns = time.monotonic_ns()
-            image = frame.bgr
             frames[name] = {
                 "success": image is not None,
                 "shape": list(image.shape) if image is not None else None,
@@ -88,13 +107,15 @@ def probe_three_cameras(host: str, request_port: int) -> dict[str, Any]:
                 "request_ms": (
                     received_monotonic_ns - request_start
                 ) / 1_000_000.0,
+                "attempts": attempts,
+                "frame_timeout_s": frame_timeout_s,
                 "received_unix_ns": time.time_ns(),
                 "received_monotonic_ns": received_monotonic_ns,
                 "sha256": (
                     hashlib.sha256(np.ascontiguousarray(image).tobytes()).hexdigest()
                     if image is not None else None
                 ),
-                "source_metadata": _scalar_metadata(frame),
+                "source_metadata": _scalar_metadata(frame) if frame is not None else {},
             }
         result["frames"] = frames
         result["all_three_frames_available"] = all(
@@ -124,9 +145,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", required=True)
     parser.add_argument("--request-port", type=int, default=60000)
+    parser.add_argument("--frame-timeout-s", type=float, default=5.0)
+    parser.add_argument("--retry-interval-s", type=float, default=0.02)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    report = probe_three_cameras(args.host, args.request_port)
+    report = probe_three_cameras(
+        args.host,
+        args.request_port,
+        frame_timeout_s=args.frame_timeout_s,
+        retry_interval_s=args.retry_interval_s,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
     print(args.output)

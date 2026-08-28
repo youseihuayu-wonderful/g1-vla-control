@@ -1,0 +1,66 @@
+{
+  "schema_version": "g1_robot_ssh_inventory_v1",
+  "scope": "Read-only SSH inventory before subscriber and camera work; no SDK import, DDS participant, service start, sudo, Publisher, mode change, or robot command.",
+  "system": {
+    "hostname_sha256": "5b8c5e44977a3ef749dc24f94af36581f23aae1933114253f429a42595e716f9",
+    "os": "Ubuntu 22.04",
+    "kernel": "Linux 5.15.148-tegra",
+    "machine": "aarch64",
+    "cpu_logical": 8,
+    "memory_kib": 16031296,
+    "gpu": "Jetson Orin",
+    "nvidia_driver": "540.4.0"
+  },
+  "network": {
+    "interfaces_observed": ["can0", "enP8p1s0", "l4tbr0", "lo", "usb0", "usb1", "wlx94ba06f829c3"],
+    "active_carrier_interfaces": ["enP8p1s0", "wlx94ba06f829c3"],
+    "initial_tcp_listener_ports": [22, 53, 111],
+    "camera_ports_initially_present": false
+  },
+  "camera": {
+    "video_device_count": 10,
+    "teleimager_version": "1.6.0",
+    "teleimager_commit": "57cf2a40572227273fa001cd17833b755331ec97",
+    "teleimager_python": "3.10.20",
+    "teleimager_config_present": true,
+    "image_server_process_initially_present": false,
+    "camera_service_initially_present": false,
+    "upstream_image_server_attempts_sudo_uvc_reload": true,
+    "upstream_autostart_script_executed": false
+  },
+  "lowstate": {
+    "readonly_root_present": true,
+    "pinned_sdk_commit": "65691c8a8bc53b98d3976dba4dbf9d5d20b2e7f5",
+    "cyclonedds_isolated_version": "0.10.2",
+    "adapter_sha256_at_inventory": "77ef92236aab603d9398240e195b9e9aa18758a01ef125ab1b5d77e9641edf70",
+    "adapter_matches_local_source": true,
+    "subscriber_started_during_inventory": false
+  },
+  "source_audit": {
+    "camera_probe_sha256": "1d1a5f0744b5a286bad3d6ac00b8a2161fcd882504962e270bf4e24a1adb9a91",
+    "camera_probe_contains_robot_publisher": false,
+    "lowstate_adapter_contains_robot_publisher": false,
+    "lowstate_adapter_contains_motion_client": false,
+    "sdk_examples_contain_forbidden_command_apis": true,
+    "sdk_examples_executed": false
+  },
+  "decision": {
+    "ssh_inventory_completed": true,
+    "subscriber_only_smoke_eligible": true,
+    "direct_upstream_camera_server_eligible": false,
+    "reason": "The pinned subscriber-only source matched local evidence. The upstream camera server was not eligible for direct execution because CameraFinder unconditionally attempts sudo UVC-driver reload; an independently tested wrapper was required.",
+    "live_gate_promoted": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "sudo_invoked": false,
+    "unitree_sdk_imported": false,
+    "dds_participant_created": false,
+    "send_channel_created": false,
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": "g1_camera_server_readonly_status_v1",
+  "scope": "Audited user-space camera-only server start and one sequential finite frame per camera; no Unitree DDS or robot command path.",
+  "source": {
+    "wrapper_sha256": "c3f16c5a2a6c1b6ef5e30a8c2ce10e9a7e2f3ae861684063e0697a82ed074e2e",
+    "teleimager_image_server_sha256": "61fd77cdf5d6b7e69b5e12fdf7c4be0802795ab39267f38d97b56583c4f42406",
+    "teleimager_image_client_sha256": "ac1404b48faa29573c3c8cf1a12db803f1291572d462088790093900d71ccafe",
+    "camera_config_sha256": "a76de3f98e435bb48d097e15f85f6c7307519cfa4bb641e60f8bf4d2048337d9"
+  },
+  "start": {
+    "server_start_returned": true,
+    "head_ready": true,
+    "left_wrist_ready": true,
+    "right_wrist_ready": true,
+    "camera_zmq_listener_ports": [55555, 55556, 55557, 60000],
+    "camera_webrtc_enabled": false,
+    "uvc_driver_reload_skipped": true,
+    "sudo_invoked": false,
+    "unitree_dds_imported": false,
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "single_frame_probe": {
+    "evidence": "results/g1_three_camera_readonly_probe_20260828.json",
+    "all_three_frames_available": true,
+    "source_color_order": "BGR",
+    "frame_shapes": {
+      "head": [480, 640, 3],
+      "left_wrist": [480, 640, 3],
+      "right_wrist": [480, 640, 3]
+    },
+    "sequential_capture_span_ms": 7.823808,
+    "true_simultaneous_snapshot": false,
+    "continuous_freshness_soak_completed": false
+  },
+  "shutdown": {
+    "sigterm_requested_after_operator_left": true,
+    "termination_verified": false,
+    "next_connection_cleanup_required": true,
+    "evidence": "results/g1_unattended_shutdown_status_20260828.json"
+  },
+  "decision": {
+    "single_frame_camera_core_passed": true,
+    "h1_continuous_freshness_passed": false,
+    "next_connection_cleanup_verified": false,
+    "live_gate_promoted": false,
+    "robot_motion_allowed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

@@ -1,0 +1,164 @@
+{
+  "schema_version": "g1_full29_readonly_analysis_v1",
+  "scope": "Offline analysis of one real subscriber-only 29-joint LowState capture and software-model contact reconstruction. No physical EEF/contact qualification and no command path.",
+  "input": {
+    "raw_capture_sha256": "c5590a8520d63394b1a6dae8400abfd40e05219946ee0f76d2aefdbf09b33153",
+    "adapter_sha256": "3407dafa753af943357791fe442fde647c5f72525508c65352c67bdd70e78e0c",
+    "ssh_inventory_sha256": "93df1b5bdbf489b9234a5fead44dbb0a2e539d8b712a0d546865971682d32fe7",
+    "console_log_sha256": "e44515c57b2fd71fd79d134edd6b5389f9c0ee3cf50d090fb540e58bfc77ebce",
+    "raw_capture_committed_to_public_git": false,
+    "operator_damping_support_estop_confirmed": true
+  },
+  "capture": {
+    "success": true,
+    "requested_samples": 1000,
+    "captured_samples": 1000,
+    "full_body_joint_count": 29,
+    "full_body_complete_all_samples": true,
+    "all_motor_values_finite": true,
+    "q29_sha256": "83ea7f58bbd063264adff8a75e0aaf0b69bd7158062d4bf6f9a67609a36167ea",
+    "q_min_rad": -0.45614442229270935,
+    "q_max_rad": 1.2535020112991333,
+    "maximum_abs_dq_rad_s": 0.05313904583454132,
+    "maximum_abs_tau_est": 0.439453125,
+    "maximum_temperature": 45,
+    "mode_pr_values": [
+      0
+    ],
+    "mode_machine_values": [
+      5
+    ]
+  },
+  "dds": {
+    "reader_take_sample_error_count": 1,
+    "tick_first": 1908104,
+    "tick_last": 1911489,
+    "unique_tick_count": 961,
+    "duplicate_tick_count": 39,
+    "tick_decrease_count": 0,
+    "positive_tick_increment_min": 1,
+    "positive_tick_increment_max": 104,
+    "receive_gap_ms": {
+      "minimum": 0.035201,
+      "median": 3.654302,
+      "p95": 5.856003899999998,
+      "p99": 7.30606578,
+      "maximum": 54.397147
+    },
+    "provisional_thresholds_ms": {
+      "warning": 20.0,
+      "stale_hold": 50.0,
+      "disconnect": 200.0
+    },
+    "gaps_exceeding_provisional_stale_hold": 1
+  },
+  "collision_model": {
+    "missing_model_joints": [],
+    "samples_with_free_space_violation": 1000,
+    "sample_count": 1000,
+    "all_samples_initial_collision_free": false,
+    "body_pair_distance_summary": {
+      "left_dex1_Link1_1 <-> left_hip_roll_link": {
+        "contact_count": 2000,
+        "minimum_distance_mm": -2.208699829948422,
+        "median_distance_mm": -2.1465023637170986,
+        "maximum_distance_mm": -2.086189970921747
+      },
+      "left_dex1_base_link <-> left_hip_pitch_link": {
+        "contact_count": 4000,
+        "minimum_distance_mm": -9.02408087879208,
+        "median_distance_mm": -8.905455248049021,
+        "maximum_distance_mm": -8.81873644136312
+      },
+      "right_dex1_base_link <-> right_hip_pitch_link": {
+        "contact_count": 2000,
+        "minimum_distance_mm": -7.868446397348607,
+        "median_distance_mm": -7.790583158144659,
+        "maximum_distance_mm": -7.71164578379759
+      },
+      "right_dex1_base_link <-> right_hip_roll_link": {
+        "contact_count": 4000,
+        "minimum_distance_mm": -5.612450721297379,
+        "median_distance_mm": -5.493590882122138,
+        "maximum_distance_mm": -5.379421466541966
+      },
+      "right_hip_pitch_link <-> right_wrist_yaw_link": {
+        "contact_count": 4000,
+        "minimum_distance_mm": -2.94900024720103,
+        "median_distance_mm": -2.895856304885123,
+        "maximum_distance_mm": -2.8310380554109167
+      }
+    },
+    "representatives": [
+      {
+        "sample_index": 0,
+        "tick": 1908104,
+        "contact_count": 16,
+        "free_space_violations": [
+          "nonadjacent_self_contact"
+        ],
+        "contact_body_pairs": [
+          "left_dex1_Link1_1 <-> left_hip_roll_link",
+          "left_dex1_base_link <-> left_hip_pitch_link",
+          "right_dex1_base_link <-> right_hip_pitch_link",
+          "right_dex1_base_link <-> right_hip_roll_link",
+          "right_hip_pitch_link <-> right_wrist_yaw_link"
+        ]
+      },
+      {
+        "sample_index": 500,
+        "tick": 1909577,
+        "contact_count": 16,
+        "free_space_violations": [
+          "nonadjacent_self_contact"
+        ],
+        "contact_body_pairs": [
+          "left_dex1_Link1_1 <-> left_hip_roll_link",
+          "left_dex1_base_link <-> left_hip_pitch_link",
+          "right_dex1_base_link <-> right_hip_pitch_link",
+          "right_dex1_base_link <-> right_hip_roll_link",
+          "right_hip_pitch_link <-> right_wrist_yaw_link"
+        ]
+      },
+      {
+        "sample_index": 999,
+        "tick": 1911489,
+        "contact_count": 16,
+        "free_space_violations": [
+          "nonadjacent_self_contact"
+        ],
+        "contact_body_pairs": [
+          "left_dex1_Link1_1 <-> left_hip_roll_link",
+          "left_dex1_base_link <-> left_hip_pitch_link",
+          "right_dex1_base_link <-> right_hip_pitch_link",
+          "right_dex1_base_link <-> right_hip_roll_link",
+          "right_hip_pitch_link <-> right_wrist_yaw_link"
+        ]
+      }
+    ],
+    "physical_contact_verified": false
+  },
+  "decision": {
+    "subscriber_only_full29_capture_passed": true,
+    "missing_leg_state_blocker_resolved": true,
+    "initial_model_collision_resolved": false,
+    "initial_collision_allowlist_authorized": false,
+    "physical_contact_inspection_required": true,
+    "dds_freshness_fully_qualified": false,
+    "provisional_50ms_stale_hold_would_trigger": true,
+    "real_three_camera_passed": false,
+    "real_15_hz_policy_shadow_passed": false,
+    "live_gate_promoted": false,
+    "robot_motion_allowed": false,
+    "reason": "Full 29-joint state is now available, but every reconstructed sample has non-adjacent hand/wrist-to-hip model contact and physical contact has not been inspected. DDS also has a Reader error, duplicate ticks, and a receive gap above the provisional stale-hold threshold."
+  },
+  "safety": {
+    "subscriber_only": true,
+    "send_channel_created": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

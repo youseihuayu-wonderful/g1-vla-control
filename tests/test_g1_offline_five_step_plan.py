@@ -186,9 +186,14 @@ class OfflineFiveStepPlanTests(unittest.TestCase):
         ).read_text())
         self.assertEqual(status["offline_tasks_completed"], 5)
         self.assertEqual(status["offline_tasks_total"], 5)
-        self.assertEqual(status["resolved_gate_count"], 0)
+        self.assertEqual(status["resolved_gate_count"], 1)
         self.assertTrue(status["offline_tasks_do_not_promote_live_gates"])
-        self.assertTrue(all(not gate["completed"] for gate in status["gates"]))
+        self.assertTrue(status["gates"][0]["completed"])
+        self.assertIn(
+            "results/g1_three_camera_freshness_soak_10s_15hz_20260828.json",
+            status["gates"][0]["evidence"],
+        )
+        self.assertTrue(all(not gate["completed"] for gate in status["gates"][1:]))
         self.assertFalse(status["decision"]["robot_motion_allowed"])
 
 

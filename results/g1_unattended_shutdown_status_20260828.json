@@ -1,0 +1,41 @@
+{
+  "schema_version": "g1_unattended_shutdown_status_v1",
+  "timestamp": "2026-08-28T12:08:59-04:00",
+  "trigger": "Operator reported leaving the physical robot area.",
+  "actions": {
+    "new_hardware_work_stopped": true,
+    "lowstate_subscriber_had_already_closed_after_fixed_capture": true,
+    "camera_only_server_sigterm_requested": true,
+    "camera_only_server_termination_verified": false,
+    "robot_ssh_session_closed": true,
+    "gateway_reuse_verification_succeeded": false,
+    "additional_reconnection_attempted_after_network_loss": false
+  },
+  "connection": {
+    "robot_control_master_available": false,
+    "gateway_control_master_available": false,
+    "herdr_robot_pane_returned_to_local_shell": true,
+    "network_path_available_for_final_remote_verification": false
+  },
+  "residual_uncertainty": {
+    "camera_zmq_process_may_still_be_running": true,
+    "camera_process_contains_unitree_dds_or_robot_command_path": false,
+    "camera_process_started_with_sudo": false,
+    "camera_process_reloaded_uvc_driver": false,
+    "required_first_action_on_next_connection": "Check the saved camera PID and ports 55555/55556/55557/60000; terminate the camera-only process if still alive before any new capture."
+  },
+  "decision": {
+    "unattended_hardware_work_allowed": false,
+    "real_policy_shadow_started": false,
+    "live_gate_promoted": false,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "hardware_motion_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

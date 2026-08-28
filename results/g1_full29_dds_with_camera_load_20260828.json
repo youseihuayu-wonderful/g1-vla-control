@@ -1,0 +1,66 @@
+{
+  "schema_version": "g1_full29_dds_with_camera_load_v1",
+  "scope": "Subscriber-only 1000-sample full29 DDS diagnostic while audited three-camera ZMQ server was active.",
+  "capture": {
+    "success": true,
+    "captured_samples": 1000,
+    "full29_all_samples": true,
+    "finite_q_all_samples": true,
+    "callback_overflow": 0,
+    "mode_pr_values": [
+      0
+    ],
+    "mode_machine_values": [
+      5
+    ],
+    "camera_load_active": true
+  },
+  "tick": {
+    "unique_count": 963,
+    "duplicate_transition_count": 37,
+    "decreasing_transition_count": 0,
+    "positive_increment_minimum": 1,
+    "positive_increment_maximum": 109,
+    "duplicate_tick_q29_identical_count": 0,
+    "duplicate_tick_q29_changed_count": 37,
+    "duplicate_tick_max_abs_q_delta_rad": 4.25875186920166e-05,
+    "tick_is_unique_sample_identity": false
+  },
+  "receive_gap_ms": {
+    "minimum": 0.007744,
+    "median": 3.785045,
+    "p95": 6.169753,
+    "maximum": 56.241959,
+    "over_provisional_50ms_count": 1
+  },
+  "reader": {
+    "stderr_line_count": 0,
+    "reader_error_line_count": 0,
+    "previous_reader_error_reproduced": false
+  },
+  "raw_evidence": {
+    "private_not_public_git": true,
+    "capture_sha256": "618ea936dfd01e5fb657dae0cf2f27ed5bc5e9451718a13075ac9092d28505dd",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "decision": {
+    "subscriber_capture_passed": true,
+    "dds_freshness_fully_qualified": false,
+    "provisional_50ms_stale_hold_triggered": true,
+    "duplicate_tick_origin_identified": false,
+    "reader_error_cause_identified": false,
+    "real_policy_shadow_allowed": false,
+    "robot_motion_allowed": false,
+    "reason": "The Reader error did not recur, but one 56.24 ms receive gap exceeded the provisional 50 ms stale-hold threshold. All repeated ticks had changed q29 payloads, so tick alone is not a unique sample identity."
+  },
+  "safety": {
+    "subscriber_only": true,
+    "send_channel_created": false,
+    "robot_command_sent": false,
+    "mode_change_requested": false,
+    "robot_command_publisher_created": false,
+    "hardware_motion_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

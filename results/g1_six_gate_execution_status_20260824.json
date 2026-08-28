@@ -1,9 +1,9 @@
 {
   "schema_version": "g1_six_gate_execution_status_v2",
-  "timestamp": "2026-08-27T21:55:00-04:00",
+  "timestamp": "2026-08-28T14:25:43-04:00",
   "owner": "Shihua Yu",
-  "state": "BLOCKED_GATEWAY_CONNECTIVITY_READONLY_NOT_STARTED",
-  "current_gate": "H1_REAL_THREE_CAMERA",
+  "state": "H1_COMPLETE_BLOCKED_H2_PHYSICAL_COLLISION_AND_H3_DDS",
+  "current_gate": "H2_REAL_JOINT_FK_SOURCE_PARITY",
   "strict_order": [
     "H1",
     "H2",
@@ -12,7 +12,7 @@
     "H5",
     "H6"
   ],
-  "resolved_gate_count": 0,
+  "resolved_gate_count": 1,
   "total_gate_count": 6,
   "safety_baseline": {
     "damping_confirmed_by_operator": true,
@@ -28,22 +28,53 @@
     {
       "id": "H1",
       "name": "real_three_camera_observation",
-      "status": "BLOCKED_IMAGE_SERVER_NOT_RUNNING",
-      "completed": false,
+      "status": "REAL_THREE_CAMERA_FRESHNESS_PASSED",
+      "completed": true,
       "evidence": [
         "g1_camera_readonly_probe.py",
-        "results/g1_three_camera_readonly_probe_20260824.json"
+        "results/g1_three_camera_readonly_probe_20260824.json",
+        "results/g1_three_camera_readonly_probe_20260828.json",
+        "g1_camera_readonly_soak.py",
+        "results/g1_three_camera_freshness_soak_10s_15hz_20260828.json",
+        "results/g1_camera_readonly_reconnect_session_20260828.json"
       ],
       "observed": {
         "all_three_configs_present": true,
         "all_three_enable_zmq": true,
         "camera_related_process_found": false,
         "expected_port_listener_found": false,
-        "all_three_frames_available": false,
+        "all_three_frames_available": true,
         "source_color_order": "BGR",
-        "true_simultaneous_snapshot": false
+        "true_simultaneous_snapshot": false,
+        "single_frame_shapes": {
+          "head": [
+            480,
+            640,
+            3
+          ],
+          "left_wrist": [
+            480,
+            640,
+            3
+          ],
+          "right_wrist": [
+            480,
+            640,
+            3
+          ]
+        },
+        "single_sequential_capture_span_ms": 7.823808,
+        "continuous_freshness_soak_completed": true,
+        "freshness_duration_s": 10.000936791,
+        "freshness_cycles": 150,
+        "freshness_sample_hz": 15.0,
+        "all_three_availability_rate": 1.0,
+        "all_three_unique_hash_fraction": 1.0,
+        "all_three_maximum_identical_run": 1,
+        "maximum_cycle_gap_ms": 67.194821,
+        "camera_cleanup_verified_after_soak": true
       },
-      "next_action": "Audit and start only the camera image-server entrypoint after proving it contains no robot publisher or mode switch; rerun the fixed three-frame probe.",
+      "next_action": "H1 is complete for real visual observation only. Keep the camera server stopped when not actively testing; do not infer synchronization because getters were sequential.",
       "permission_after_pass": "real_visual_observation_only",
       "offline_observation_boundary_implemented": true,
       "offline_observation_boundary_evidence": [
@@ -54,14 +85,15 @@
     {
       "id": "H2",
       "name": "real_joint_fk_source_parity",
-      "status": "OFFLINE_CORE_COMPLETED_LIVE_PHYSICAL_PARITY_PENDING",
+      "status": "FULL29_CAPTURE_PASSED_MODEL_COLLISION_AND_PHYSICAL_PARITY_PENDING",
       "completed": false,
       "evidence": [
         "results/g1_lowstate_current_pose_sample_20260824.json",
         "g1_real_lowstate_offline_parity.py",
         "results/g1_real_lowstate_offline_parity_20260824.json",
         "g1_yuhao_fk_source_parity.py",
-        "results/g1_yuhao_pinocchio_mujoco_fk_source_parity_20260824.json"
+        "results/g1_yuhao_pinocchio_mujoco_fk_source_parity_20260824.json",
+        "results/g1_full29_readonly_analysis_20260828.json"
       ],
       "observed": {
         "real_joint_to_mujoco_mapping_passed": true,
@@ -76,21 +108,29 @@
         "maximum_waist_induced_position_difference_m": 0.012115975782587184,
         "maximum_waist_induced_orientation_difference_deg": 2.9294030836378484,
         "zero_waist_is_safe_approximation_at_current_pose": false,
-        "dual_fk_view_required": true
+        "dual_fk_view_required": true,
+        "full29_capture_completed": true,
+        "full29_samples": 1000,
+        "missing_leg_state_blocker_resolved": true,
+        "samples_with_initial_model_collision": 1000,
+        "initial_model_collision_resolved": false,
+        "physical_contact_verified": false
       },
-      "next_action": "Use zero-waist FK only for frozen policy-contract observation, measured waist for safety/IK, and hold on excessive divergence; physical EEF parity remains live-only.",
+      "next_action": "Physically inspect hand/wrist-to-hip contact with an onsite operator; do not allowlist the 2.1-9.0 mm modeled penetrations. Physical EEF parity remains pending.",
       "permission_after_pass": "freeze_shadow_fk_boundary_only",
       "offline_work_completed": true
     },
     {
       "id": "H3",
       "name": "dds_freshness_and_stale_threshold",
-      "status": "OFFLINE_FORENSIC_COMPLETED_LIVE_QUALIFICATION_PENDING",
+      "status": "REPEAT_FULL29_WITH_CAMERA_LOAD_DDS_FRESHNESS_FAILED",
       "completed": false,
       "evidence": [
         "results/g1_lowstate_readonly_capture_300_20260824.json",
         "g1_dds_freshness.py",
-        "results/g1_dds_freshness_offline_analysis_20260824.json"
+        "results/g1_dds_freshness_offline_analysis_20260824.json",
+        "results/g1_full29_readonly_analysis_20260828.json",
+        "results/g1_full29_dds_with_camera_load_20260828.json"
       ],
       "observed": {
         "captured_samples": 300,
@@ -101,9 +141,19 @@
         "tick_decreases": 0,
         "maximum_positive_tick_increment": 15,
         "median_callback_gap_ms": 1.397231,
-        "maximum_callback_gap_ms": 3.228279
+        "maximum_callback_gap_ms": 3.228279,
+        "latest_captured_samples": 1000,
+        "latest_unique_ticks": 963,
+        "latest_duplicate_ticks": 37,
+        "latest_reader_errors": 0,
+        "latest_maximum_receive_gap_ms": 56.241959,
+        "latest_maximum_positive_tick_increment": 109,
+        "provisional_50ms_stale_hold_trigger_count": 1,
+        "latest_duplicate_tick_q29_identical_count": 0,
+        "latest_duplicate_tick_q29_changed_count": 37,
+        "tick_is_unique_sample_identity": false
       },
-      "next_action": "Instrument exact CycloneDDS exception/sample identity and repeat bounded live captures before freezing hardware thresholds.",
+      "next_action": "Do not run H4. Instrument DDS sequence/sample identity below the application tick and correlate the repeatable >50 ms receive gap with camera and scheduler load; retain the provisional 50 ms stale hold.",
       "permission_after_pass": "freeze_watchdog_timing_only",
       "offline_work_completed": true,
       "offline_analysis": {
@@ -210,7 +260,7 @@
     "continue_with_h1_camera_only_audit": false,
     "zero_motion_policy_shadow_eligible": false,
     "robot_motion_allowed": false,
-    "reason": "The operator requested the real read-only phase, but the gateway TCP probe timed out, no established SSH session exists, and no local address on the prior robot gateway subnet was detected. No remote command, SDK, Publisher, or robot command was attempted. Restore the approved network path, reconfirm trial-day Damping/support/E-stop, then resume subscriber-only capture.",
+    "reason": "H1 real three-camera freshness passed 150/150 cycles per camera and the camera server then completed full cleanup. H2 retains unresolved modeled hand/wrist-to-hip collision and no physical EEF parity. H3 failed again under camera load with one 56.24 ms gap over the provisional 50 ms stale-hold threshold; 37 repeated ticks all had changed q29 payloads, proving tick alone is not a unique sample identity. H4 and motion remain locked.",
     "offline_five_task_plan_completed": true,
     "offline_speed_checkpoint_ready_for_commit": true,
     "real_task_speedup_passed": false,
@@ -221,7 +271,17 @@
     "stable_multi_scenario_candidate_found": false,
     "minimum_30_trajectory_fast_preflight_corpus_passed": true,
     "restore_gateway_connectivity_then_resume_readonly_only": true,
-    "latest_readonly_start_succeeded": false
+    "latest_readonly_start_succeeded": false,
+    "next_connection_cleanup_required": false,
+    "next_connection_cleanup_verified": true,
+    "full29_capture_passed": true,
+    "initial_model_collision_resolved": false,
+    "three_camera_single_frame_core_passed": true,
+    "camera_freshness_soak_passed": true,
+    "dds_freshness_fully_qualified": false,
+    "real_15_hz_policy_shadow_passed": false,
+    "real_three_camera_passed": true,
+    "camera_server_cleanup_verified": true
   },
   "g1_execution_enabled": false,
   "hardware_execution_performed": false,
@@ -295,5 +355,40 @@
     "real_15_hz_policy_shadow_started": false,
     "live_gate_promoted": false,
     "local_robot_subnet_address_present": false
+  },
+  "next_connection_interlock": {
+    "status": "COMPLETE",
+    "evidence": "results/g1_next_connection_mandatory_interlock_20260828.json",
+    "camera_termination_verified": true,
+    "cleanup_verified": true,
+    "blocks_all_new_hardware_tests": false,
+    "completion_evidence": "results/g1_next_connection_cleanup_20260828.json"
+  },
+  "latest_real_readonly_session": {
+    "operator_safety_confirmed_at_start": true,
+    "operator_present_now": true,
+    "full29_capture_evidence": "results/g1_full29_readonly_analysis_20260828.json",
+    "full29_samples": "1000/1000",
+    "three_camera_evidence": "results/g1_three_camera_readonly_probe_20260828.json",
+    "all_three_single_frames_available": true,
+    "camera_continuous_freshness_soak_completed": true,
+    "unattended_shutdown_evidence": "results/g1_unattended_shutdown_status_20260828.json",
+    "policy_shadow_started": false,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "operator_safety_reconfirmed_on_reconnect": true,
+    "reconnect_cleanup_evidence": "results/g1_next_connection_cleanup_20260828.json",
+    "reconnect_cleanup_verified": true,
+    "lowstate_smoke_evidence": "results/g1_reconnect_full29_smoke_20_20260828.json",
+    "lowstate_smoke_samples": "20/20",
+    "camera_freshness_evidence": "results/g1_three_camera_freshness_soak_10s_15hz_20260828.json",
+    "camera_server_cleanup_verified_after_soak": true,
+    "dds_camera_load_evidence": "results/g1_full29_dds_with_camera_load_20260828.json",
+    "hardware_session_active": false,
+    "camera_server_running": false,
+    "lowstate_subscriber_running": false,
+    "robot_ssh_connected": false,
+    "gateway_ssh_connected": false,
+    "session_shutdown_evidence": "results/g1_reconnect_session_shutdown_20260828.json"
   }
 }

@@ -1,0 +1,63 @@
+{
+  "schema_version": "g1_camera_readonly_reconnect_session_v1",
+  "scope": "Audited camera-only restart, 10-second 15 Hz freshness/freeze soak, concurrent subscriber-only DDS capture, and verified graceful cleanup.",
+  "source": {
+    "wrapper_sha256": "c8ef99bc11a3811ba94ada5f73b011b00c4a92611c9b97809e7f91ec9143044d",
+    "soak_sha256": "bfb9b6cccbc6cd1a26cde43b63662e1ac50f69eb927e1e840162034c5d481d1b",
+    "teleimager_commit": "57cf2a40572227273fa001cd17833b755331ec97",
+    "camera_config_sha256": "a76de3f98e435bb48d097e15f85f6c7307519cfa4bb641e60f8bf4d2048337d9"
+  },
+  "start": {
+    "all_three_cameras_ready": true,
+    "camera_shapes": {
+      "head": [480, 640],
+      "left_wrist": [480, 640],
+      "right_wrist": [480, 640]
+    },
+    "configured_fps": 30,
+    "listener_ports": [55555, 55556, 55557, 60000],
+    "camera_webrtc_enabled": false,
+    "uvc_driver_reload_skipped": true,
+    "sudo_invoked": false,
+    "unitree_dds_imported": false,
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "freshness_soak": {
+    "evidence": "results/g1_three_camera_freshness_soak_10s_15hz_20260828.json",
+    "duration_s": 10.000936791,
+    "sample_hz": 15,
+    "cycles": 150,
+    "all_three_availability_rate": 1.0,
+    "all_three_unique_hash_fraction": 1.0,
+    "all_three_maximum_identical_run": 1,
+    "maximum_cycle_gap_ms": 67.194821,
+    "maximum_cycle_gap_threshold_ms": 200.0,
+    "image_bytes_saved": false,
+    "true_simultaneous_snapshot": false,
+    "success": true
+  },
+  "shutdown": {
+    "pid_identity_match": true,
+    "pid_owner_match": true,
+    "sigterm_sent": true,
+    "pid_alive_after": false,
+    "camera_process_count_after": 0,
+    "lowstate_process_count_after": 0,
+    "listener_ports_after": [],
+    "upstream_full_cleanup_observed": true,
+    "all_three_camera_release_observed": true,
+    "cleanup_verified": true
+  },
+  "decision": {
+    "h1_real_three_camera_completed": true,
+    "permission_after_pass": "real_visual_observation_only",
+    "real_policy_shadow_allowed": false,
+    "live_gate_promoted_to_motion": false,
+    "robot_motion_allowed": false,
+    "reason": "All three streams passed the predeclared 10-second metadata/hash freshness test and cleanup completed. H2 physical/model parity and H3 DDS freshness remain unresolved, so H4 and motion stay locked."
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

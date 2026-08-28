@@ -1,0 +1,87 @@
+{
+  "schema_version": "g1_three_camera_readonly_probe_v1",
+  "scope": "Read-only teleimager configuration query and one sequential frame per camera.",
+  "source_color_order": "BGR",
+  "true_simultaneous_snapshot": false,
+  "safety": {
+    "camera_read_only": true,
+    "unitree_dds_imported": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "connect_and_config_ms": 12.46526,
+  "config": {
+    "head_camera": {
+      "present": true,
+      "enable_zmq": true,
+      "binocular": false
+    },
+    "left_wrist_camera": {
+      "present": true,
+      "enable_zmq": true,
+      "binocular": false
+    },
+    "right_wrist_camera": {
+      "present": true,
+      "enable_zmq": true,
+      "binocular": false
+    }
+  },
+  "frames": {
+    "head": {
+      "success": true,
+      "shape": [
+        480,
+        640,
+        3
+      ],
+      "dtype": "uint8",
+      "finite": true,
+      "request_ms": 40.351798,
+      "attempts": 3,
+      "frame_timeout_s": 5.0,
+      "received_unix_ns": 1787931709824053400,
+      "received_monotonic_ns": 2457598257740,
+      "sha256": "e45f88256b0a63a6a3896a714106dee8aa12055138d79e2d2cbdf3b45f139b4a",
+      "source_metadata": {}
+    },
+    "left_wrist": {
+      "success": true,
+      "shape": [
+        480,
+        640,
+        3
+      ],
+      "dtype": "uint8",
+      "finite": true,
+      "request_ms": 0.068417,
+      "attempts": 1,
+      "frame_timeout_s": 5.0,
+      "received_unix_ns": 1787931709826023960,
+      "received_monotonic_ns": 2457604851096,
+      "sha256": "29126a0d041b36a8cb82284ec621dceb1c75d9269155307dac6019b51c34ffed",
+      "source_metadata": {}
+    },
+    "right_wrist": {
+      "success": true,
+      "shape": [
+        480,
+        640,
+        3
+      ],
+      "dtype": "uint8",
+      "finite": true,
+      "request_ms": 0.038912,
+      "attempts": 1,
+      "frame_timeout_s": 5.0,
+      "received_unix_ns": 1787931709827146763,
+      "received_monotonic_ns": 2457606081548,
+      "sha256": "aef0154aefffa62bea0ee5a6f20714ea7d1cbe08534bdfdb5fafb7bccbd39a23",
+      "source_metadata": {}
+    }
+  },
+  "all_three_frames_available": true,
+  "sequential_capture_span_ms": 7.823808,
+  "success": true
+}

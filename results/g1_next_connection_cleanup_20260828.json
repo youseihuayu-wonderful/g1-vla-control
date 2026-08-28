@@ -1,0 +1,46 @@
+{
+  "schema_version": "g1_next_connection_camera_cleanup_v1",
+  "scope": "Mandatory first remote operation after reconnect; process and TCP-listener inspection only, with no Unitree SDK or DDS import.",
+  "remote": {
+    "user": "unitree",
+    "boot_id_sha256": "36fd428dc4c426b97304c362cd6b96617d57afe25bde576bc00c5860ed3b7f58",
+    "uptime_seconds": 572.74,
+    "robot_rebooted_since_prior_camera_session": true
+  },
+  "saved_camera_pid": {
+    "pid_file_present": true,
+    "pid_recorded": 8234,
+    "pid_alive_before_cleanup": false,
+    "pid_identity_match": false,
+    "pid_owner_match": false,
+    "sigterm_sent": false,
+    "interpretation": "The PID file was stale after reboot. No process was killed because the recorded PID was not alive."
+  },
+  "postcheck": {
+    "saved_pid_alive": false,
+    "camera_wrapper_process_count": 0,
+    "lowstate_capture_process_count": 0,
+    "camera_listener_ports": [],
+    "checked_camera_ports": [55555, 55556, 55557, 60000],
+    "robot_command_process_count": 0
+  },
+  "decision": {
+    "cleanup_verified": true,
+    "mandatory_next_connection_interlock_cleared": true,
+    "camera_or_lowstate_test_started": false,
+    "real_policy_shadow_started": false,
+    "robot_motion_allowed": false,
+    "reason": "The robot had rebooted; the saved camera PID was stale, no camera/LowState/robot-command process remained, and all four camera ports were closed."
+  },
+  "safety": {
+    "sudo_invoked": false,
+    "unitree_sdk_imported": false,
+    "dds_participant_created": false,
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "hardware_motion_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

@@ -58,6 +58,9 @@ G1_29DOF_JOINT_INDEX = {
     "right_wrist_yaw_joint": 28,
 }
 
+FULL_BODY_JOINTS = tuple(G1_29DOF_JOINT_INDEX)
+FULL_BODY_INDICES = tuple(G1_29DOF_JOINT_INDEX[name] for name in FULL_BODY_JOINTS)
+
 CONTRACT_WAIST_JOINTS = (
     "waist_yaw_joint",
     "waist_roll_joint",
@@ -114,6 +117,7 @@ class LowStateSnapshot:
     imu_accelerometer: tuple[float, float, float]
     imu_rpy: tuple[float, float, float]
     imu_temperature: int
+    full_body_motor_state: tuple[ArmMotorState, ...]
     waist_motor_state: tuple[ArmMotorState, ...]
     arm_motor_state: tuple[ArmMotorState, ...]
 
@@ -179,6 +183,10 @@ def extract_lowstate_snapshot(
             motor_state=int(state.motorstate),
         )
 
+    full_body = tuple(
+        copy_motor(name, index)
+        for name, index in zip(FULL_BODY_JOINTS, FULL_BODY_INDICES)
+    )
     waist = tuple(
         copy_motor(name, index)
         for name, index in zip(CONTRACT_WAIST_JOINTS, CONTRACT_WAIST_INDICES)
@@ -205,6 +213,7 @@ def extract_lowstate_snapshot(
         imu_accelerometer=_float_vector(imu.accelerometer, 3, "imu.accelerometer"),
         imu_rpy=_float_vector(imu.rpy, 3, "imu.rpy"),
         imu_temperature=int(imu.temperature),
+        full_body_motor_state=full_body,
         waist_motor_state=waist,
         arm_motor_state=arm,
     )
@@ -280,7 +289,7 @@ def capture_lowstate(
 
     success = len(snapshots) == sample_count
     return {
-        "schema_version": "g1_unitree_lowstate_readonly_v2",
+        "schema_version": "g1_unitree_lowstate_readonly_v3",
         "success": success,
         "source": {
             "repository": OFFICIAL_SDK_REPOSITORY,

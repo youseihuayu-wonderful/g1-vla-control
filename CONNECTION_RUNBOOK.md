@@ -71,6 +71,23 @@ Remote long jobs must use `setsid`, a PID file, an independent log, and a
 status JSON. They must not depend on the lifetime of an interactive Herdr/SSH
 pane. Never terminate or alter another workload to free a GPU.
 
+## Mandatory next real-G1 connection interlock
+
+Before any new LowState, camera, DDS, policy, or Shadow work, read
+`G1_NEXT_CONNECTION_INTERLOCK_CN.md`. The previous camera-only process received
+a stop request, but termination could not be verified after network loss.
+
+The first connected operation must verify the saved PID identity, stop only a
+matching `g1_camera_server_readonly.py` process if it remains alive, and prove
+that ports `55555/55556/55557/60000` are closed. No later step is eligible until
+a result records `cleanup_verified=true`.
+
+Completion note (2026-08-28): this interlock passed. The robot had rebooted, the
+saved PID was stale and not alive, no matching process or listener remained,
+and `results/g1_next_connection_cleanup_20260828.json` records
+`cleanup_verified=true`. This clears only the reconnect cleanup blocker; H2/H3,
+Policy Shadow, and motion remain locked.
+
 ## Robot connection is separate
 
 The authenticated read-only robot route is currently:

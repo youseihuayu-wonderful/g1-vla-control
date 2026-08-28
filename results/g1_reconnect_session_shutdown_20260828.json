@@ -1,0 +1,31 @@
+{
+  "schema_version": "g1_reconnect_session_shutdown_v1",
+  "scope": "Final remote process/port verification and SSH closure after reconnect read-only tests.",
+  "remote_postcheck": {
+    "camera_wrapper_process_count": 0,
+    "lowstate_capture_process_count": 0,
+    "robot_command_process_count": 0,
+    "camera_listener_ports": [],
+    "checked_camera_ports": [55555, 55556, 55557, 60000]
+  },
+  "connection": {
+    "robot_interactive_shell_exited": true,
+    "robot_control_master_closed": true,
+    "gateway_control_master_closed": true,
+    "herdr_pane_returned_to_local_shell": true
+  },
+  "decision": {
+    "session_shutdown_verified": true,
+    "real_policy_shadow_started": false,
+    "robot_motion_allowed": false,
+    "reason": "H1 passed, but H2 physical/model parity remains unresolved and H3 repeated a receive gap over the provisional 50 ms stale threshold. The camera was fully released and all SSH sessions were closed."
+  },
+  "safety": {
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "hardware_motion_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

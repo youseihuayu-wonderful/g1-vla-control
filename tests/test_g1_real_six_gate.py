@@ -65,10 +65,16 @@ class RealG1SixGateTests(unittest.TestCase):
     def test_six_gates_are_strictly_ordered_and_motion_locked(self):
         status = json.loads(GATE_STATUS.read_text())
         self.assertEqual(status["strict_order"], [f"H{i}" for i in range(1, 7)])
-        self.assertEqual(status["resolved_gate_count"], 0)
-        self.assertEqual(status["current_gate"], "H1_REAL_THREE_CAMERA")
-        self.assertEqual(status["gates"][0]["status"], "BLOCKED_IMAGE_SERVER_NOT_RUNNING")
-        self.assertTrue(all(not gate["completed"] for gate in status["gates"]))
+        self.assertEqual(status["resolved_gate_count"], 1)
+        self.assertEqual(status["current_gate"], "H2_REAL_JOINT_FK_SOURCE_PARITY")
+        self.assertEqual(
+            status["gates"][0]["status"],
+            "REAL_THREE_CAMERA_FRESHNESS_PASSED",
+        )
+        self.assertFalse(status["next_connection_interlock"]["blocks_all_new_hardware_tests"])
+        self.assertTrue(status["next_connection_interlock"]["cleanup_verified"])
+        self.assertTrue(status["gates"][0]["completed"])
+        self.assertTrue(all(not gate["completed"] for gate in status["gates"][1:]))
         self.assertFalse(status["decision"]["robot_motion_allowed"])
         self.assertFalse(status["safety_baseline"]["publisher_created"])
         self.assertFalse(status["hardware_execution_performed"])

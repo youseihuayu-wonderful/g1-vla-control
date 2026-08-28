@@ -1,0 +1,47 @@
+{
+  "schema_version": "g1_next_connection_mandatory_interlock_v1",
+  "created_at": "2026-08-28T12:08:59-04:00",
+  "status": "COMPLETE",
+  "trigger": "Camera-only server termination could not be verified after the operator left and the network path disconnected.",
+  "must_run_before": [
+    "lowstate_capture",
+    "camera_probe_or_soak",
+    "dds_capture",
+    "frozen_lgg100_inference",
+    "policy_shadow",
+    "fault_injection",
+    "any_motion_review"
+  ],
+  "required_first_actions": [
+    "reconfirm operator Damping, mechanical support, and E-stop readiness",
+    "read the saved camera PID",
+    "if alive, verify cmdline exactly matches g1_camera_server_readonly.py",
+    "send SIGTERM only to the verified camera-only process",
+    "verify ports 55555, 55556, 55557, and 60000 have no listeners",
+    "verify no g1_unitree_lowstate_full29.py process remains",
+    "write a cleanup result with cleanup_verified=true"
+  ],
+  "current": {
+    "camera_sigterm_requested": true,
+    "camera_termination_verified": true,
+    "cleanup_verified": true,
+    "robot_network_available": true,
+    "robot_ssh_connected": true
+  },
+  "decision": {
+    "next_hardware_test_blocked_until_cleanup": false,
+    "real_policy_shadow_allowed": false,
+    "robot_motion_allowed": false,
+    "reason": "The next robot boot was observed, the saved PID was stale, no camera/LowState/robot-command process remained, and ports 55555/55556/55557/60000 were closed. Other H1-H5 blockers remain."
+  },
+  "safety": {
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "hardware_motion_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false,
+  "completed_at": "2026-08-28T23:24:00+00:00",
+  "completion_evidence": "results/g1_next_connection_cleanup_20260828.json"
+}

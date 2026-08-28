@@ -10,6 +10,8 @@ from g1_unitree_lowstate import (
     CONTRACT_ARM_JOINTS,
     CONTRACT_WAIST_INDICES,
     CONTRACT_WAIST_JOINTS,
+    FULL_BODY_INDICES,
+    FULL_BODY_JOINTS,
     G1_29DOF_JOINT_INDEX,
     LOWSTATE_TOPIC,
     extract_lowstate_snapshot,
@@ -61,6 +63,8 @@ class UnitreeLowStateTests(unittest.TestCase):
         self.assertEqual(CONTRACT_ARM_JOINTS, tuple(LEFT_JOINTS + RIGHT_JOINTS))
         self.assertEqual(CONTRACT_ARM_INDICES, tuple(range(15, 29)))
         self.assertEqual(len(G1_29DOF_JOINT_INDEX), 29)
+        self.assertEqual(FULL_BODY_JOINTS, tuple(G1_29DOF_JOINT_INDEX))
+        self.assertEqual(FULL_BODY_INDICES, tuple(range(29)))
         self.assertEqual(LOWSTATE_TOPIC, "rt/lowstate")
 
     def test_extracts_arm_state_in_contract_order(self):
@@ -71,6 +75,17 @@ class UnitreeLowStateTests(unittest.TestCase):
         self.assertEqual(snapshot.received_monotonic_ns, 20)
         self.assertEqual(snapshot.tick, 1234)
         self.assertEqual(snapshot.version, (1, 2))
+        self.assertEqual(len(snapshot.full_body_motor_state), 29)
+        self.assertEqual(
+            tuple(state.index for state in snapshot.full_body_motor_state),
+            tuple(range(29)),
+        )
+        self.assertEqual(
+            tuple(state.name for state in snapshot.full_body_motor_state),
+            FULL_BODY_JOINTS,
+        )
+        self.assertEqual(snapshot.full_body_motor_state[0].q, 0.0)
+        self.assertEqual(snapshot.full_body_motor_state[-1].q, 2.8)
         self.assertEqual(len(snapshot.waist_motor_state), 3)
         self.assertEqual(tuple(state.index for state in snapshot.waist_motor_state), (12, 13, 14))
         self.assertEqual(snapshot.waist_motor_state[0].q, 1.2)

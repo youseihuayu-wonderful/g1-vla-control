@@ -1730,5 +1730,91 @@
       "results/g1_robot_readonly_start_attempt_20260827.json",
       "publisher_created=false; robot_command_sent=false; hardware_execution_performed=false"
     ]
+  },
+  {
+    "time": "2026-08-28 12:08 EDT",
+    "title": "完成真实full29与三相机单帧只读阶段并冻结下次连接interlock",
+    "status": "partial",
+    "summary": "现场操作员确认Damping/支撑/E-stop后，完成1000/1000 full29 subscriber-only capture与三路480x640 BGR有限帧。DDS出现39 duplicate ticks、1 Reader error和54.40 ms最大gap；1000/1000真实姿态模型重建仍有手/腕到髋部非相邻自碰撞。操作员离开时camera SIGTERM无法经断网验证，因此下次连接cleanup interlock为PENDING。",
+    "done": [
+      "SSH inventory确认Jetson Orin、pinned SDK和隔离CycloneDDS环境。",
+      "扩展LowState adapter保存完整0–28共29关节并通过1000-sample capture。",
+      "审计Teleimager上游sudo modprobe路径，使用无sudo、无WebRTC、无Unitree DDS的camera-only wrapper。",
+      "读取head、left wrist、right wrist三路480x640x3 BGR有限帧。",
+      "现场离开后停止新工作、关闭SSH并建立强制下次连接cleanup interlock。"
+    ],
+    "conclusions": [
+      "缺失腿部状态阻塞已解决，但1000/1000模型姿态仍报告约2.1–9.0 mm手/腕到髋部penetration，禁止白名单。",
+      "H3未通过：39 duplicates、1 Reader error、最大gap 54.397 ms，暂定50 ms hold会触发1次。",
+      "H1只支持单次三帧核心通过，continuous freshness soak尚未完成。",
+      "真实Policy Shadow未启动，live Gate没有提升。",
+      "camera进程终止未验证，下次连接必须首先cleanup。"
+    ],
+    "fixes": [
+      "LowState snapshot新增full_body_motor_state并保持subscriber-only。",
+      "用安全wrapper跳过Teleimager无条件sudo UVC reload。",
+      "camera probe增加有限5秒ZMQ slow-join重试。",
+      "将下次连接cleanup写入runbook、计划、tracker和独立JSON。"
+    ],
+    "remaining": [
+      "下次连接首先验证并停止残留camera-only进程，确认四个端口关闭。",
+      "现场物理检查手/腕到髋部接触，不允许软件自洽替代。",
+      "完成三相机continuous freshness soak和instrumented DDS Reader分析。",
+      "只有这些通过后运行无Publisher real Policy Shadow。"
+    ],
+    "next": [
+      "机器人再次开机并现场安全确认后，先完成cleanup_verified=true，再进行任何测试。"
+    ],
+    "evidence": [
+      "results/g1_robot_ssh_inventory_20260828.json",
+      "results/g1_full29_readonly_analysis_20260828.json",
+      "results/g1_camera_server_readonly_status_20260828.json",
+      "results/g1_three_camera_readonly_probe_20260828.json",
+      "results/g1_unattended_shutdown_status_20260828.json",
+      "results/g1_next_connection_mandatory_interlock_20260828.json",
+      "robot command Publisher=false; mode change=false; robot command=false"
+    ]
+  },
+  {
+    "time": "2026-08-28 14:26 EDT",
+    "title": "重新连接后完成强制cleanup、H1三相机freshness与重复DDS诊断",
+    "status": "partial",
+    "summary": "现场重新确认Damping/支撑/E-stop后，首先完成camera残留interlock；随后20/20 full29 smoke和三相机10秒15 Hz soak通过。camera负载下1000-sample DDS仍有一次56.24 ms gap，H3未通过；camera已完整cleanup，SSH已关闭。",
+    "done": [
+      "机器人重启后确认旧PID stale且不存活，camera/LowState/command进程和四个camera端口均为0。",
+      "20/20 full29 subscriber-only smoke通过，最大gap 4.04 ms。",
+      "修正camera wrapper SIGTERM路径，使用Teleimager server.wait()执行完整线程、socket和设备cleanup。",
+      "三相机150 cycles、15 Hz、10秒freshness soak通过；每路availability和unique hash fraction均100%。",
+      "camera负载下完成1000/1000 full29 DDS capture；Reader error本次未复现。",
+      "停止camera后观察到三路设备Released和Clean up completed，最终相关进程与端口均为0。"
+    ],
+    "conclusions": [
+      "H1真实三相机freshness完成，但只授权real visual observation，不代表同步快照或运动权限。",
+      "H3仍失败：最大receive gap 56.241959 ms，超过暂定50 ms stale-hold一次。",
+      "37次重复tick的q29 payload全部变化，tick不能作为唯一sample identity。",
+      "H2手/腕到髋部模型碰撞与physical EEF parity仍未解决，因此H4真实Policy Shadow保持锁定。"
+    ],
+    "fixes": [
+      "camera wrapper由wrapper-only event改为upstream server.wait()，SIGTERM后执行完整cleanup。",
+      "新增metadata/hash-only g1_camera_readonly_soak.py及冻结threshold。",
+      "强制下次连接interlock从PENDING更新为COMPLETE，并保留独立cleanup证据。"
+    ],
+    "remaining": [
+      "现场物理检查手/腕到髋部接触并完成真实EEF parity/标定。",
+      "在DDS层获取sequence/sample identity并解释重复出现的>50 ms gap。",
+      "H2/H3通过前不得运行真实Policy Shadow或任何动作。"
+    ],
+    "next": [
+      "离线分析scheduler/camera负载与DDS长gap；准备不创建Publisher的更低层DDS sequence instrumentation。"
+    ],
+    "evidence": [
+      "results/g1_next_connection_cleanup_20260828.json",
+      "results/g1_reconnect_full29_smoke_20_20260828.json",
+      "results/g1_three_camera_freshness_soak_10s_15hz_20260828.json",
+      "results/g1_camera_readonly_reconnect_session_20260828.json",
+      "results/g1_full29_dds_with_camera_load_20260828.json",
+      "robot command Publisher=false; mode change=false; robot command=false",
+      "results/g1_reconnect_session_shutdown_20260828.json"
+    ]
   }
 ]

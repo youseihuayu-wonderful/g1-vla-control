@@ -1,0 +1,40 @@
+{
+  "schema_version": "g1_reconnect_full29_smoke_summary_v1",
+  "scope": "Subscriber-only full29 smoke after mandatory reconnect cleanup and operator safety confirmation.",
+  "capture": {
+    "success": true,
+    "requested_samples": 20,
+    "captured_samples": 20,
+    "full29_all_samples": true,
+    "finite_all_samples": true,
+    "first_tick": 819195,
+    "last_tick": 819213,
+    "callback_overflow": 0,
+    "maximum_receive_gap_ms": 4.042281,
+    "mode_pr_values": [
+      0
+    ],
+    "mode_machine_values": [
+      5
+    ]
+  },
+  "raw_evidence": {
+    "private_not_public_git": true,
+    "sha256": "a41863d290921bf5b75e3457457c4887d90ac77afba7d06571317bc734c151a3"
+  },
+  "safety": {
+    "subscriber_only": true,
+    "send_channel_created": false,
+    "robot_command_sent": false,
+    "mode_change_requested": false,
+    "robot_command_publisher_created": false,
+    "hardware_motion_performed": false
+  },
+  "decision": {
+    "smoke_passed": true,
+    "camera_test_eligible": true,
+    "robot_motion_allowed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

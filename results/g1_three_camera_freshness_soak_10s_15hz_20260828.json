@@ -1,0 +1,115 @@
+{
+  "schema_version": "g1_three_camera_readonly_freshness_soak_v1",
+  "scope": "Bounded sequential metadata/hash-only camera freshness soak.",
+  "source_color_order": "BGR",
+  "true_simultaneous_snapshot": false,
+  "image_bytes_saved": false,
+  "requested": {
+    "duration_s": 10.0,
+    "sample_hz": 15.0,
+    "initial_wait_s": 5.0
+  },
+  "thresholds": {
+    "minimum_availability_rate": 0.99,
+    "minimum_unique_hash_fraction": 0.8,
+    "maximum_consecutive_identical_hashes": 3,
+    "maximum_cycle_gap_ms": 200.0,
+    "expected_shape": [
+      480,
+      640,
+      3
+    ],
+    "expected_dtype": "uint8"
+  },
+  "safety": {
+    "camera_read_only": true,
+    "unitree_dds_imported": false,
+    "publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false
+  },
+  "config": {
+    "head_camera": {
+      "present": true,
+      "enable_zmq": true
+    },
+    "left_wrist_camera": {
+      "present": true,
+      "enable_zmq": true
+    },
+    "right_wrist_camera": {
+      "present": true,
+      "enable_zmq": true
+    }
+  },
+  "initial_frames_available": {
+    "head": true,
+    "left_wrist": true,
+    "right_wrist": true
+  },
+  "observed": {
+    "cycles": 150,
+    "elapsed_s": 10.000936791,
+    "cycle_gap_ms": {
+      "minimum": 66.208149,
+      "median": 66.667055,
+      "maximum": 67.194821
+    }
+  },
+  "camera_summary": {
+    "head": {
+      "attempted_samples": 150,
+      "available_samples": 150,
+      "missing_samples": 0,
+      "availability_rate": 1.0,
+      "all_expected_shape": true,
+      "all_uint8": true,
+      "all_finite": true,
+      "unique_hash_count": 150,
+      "unique_hash_fraction": 1.0,
+      "max_consecutive_identical_hashes": 1,
+      "source_fps_median": 29.99874152328712
+    },
+    "left_wrist": {
+      "attempted_samples": 150,
+      "available_samples": 150,
+      "missing_samples": 0,
+      "availability_rate": 1.0,
+      "all_expected_shape": true,
+      "all_uint8": true,
+      "all_finite": true,
+      "unique_hash_count": 150,
+      "unique_hash_fraction": 1.0,
+      "max_consecutive_identical_hashes": 1,
+      "source_fps_median": 29.999887755426748
+    },
+    "right_wrist": {
+      "attempted_samples": 150,
+      "available_samples": 150,
+      "missing_samples": 0,
+      "availability_rate": 1.0,
+      "all_expected_shape": true,
+      "all_uint8": true,
+      "all_finite": true,
+      "unique_hash_count": 150,
+      "unique_hash_fraction": 1.0,
+      "max_consecutive_identical_hashes": 1,
+      "source_fps_median": 29.998636052027337
+    }
+  },
+  "decision": {
+    "initial_all_three_available": true,
+    "availability_passed": true,
+    "shape_dtype_finite_passed": true,
+    "freeze_check_passed": true,
+    "cycle_gap_passed": true,
+    "live_gate_promoted": false,
+    "robot_motion_allowed": false
+  },
+  "success": true,
+  "raw_evidence": {
+    "private_not_public_git": true,
+    "sha256": "b02f75c2e6407eaeab2250f98dccc40e333e4f02537003204cd2eb14ac4c1824",
+    "image_bytes_saved": false
+  }
+}

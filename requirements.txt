@@ -6,3 +6,4 @@ pyarrow>=16,<20
 imageio-ffmpeg>=0.5,<1
 msgpack>=1,<2
 websockets>=11,<18
+PyYAML>=6,<7

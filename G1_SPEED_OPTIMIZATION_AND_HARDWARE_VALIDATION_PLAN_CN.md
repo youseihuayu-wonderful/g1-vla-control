@@ -180,15 +180,18 @@ waist compensation、Fast IK、swept path和mock sink的离线fixture集成已�
 | 第一次free-space动作 | 是 | 仅H1–H5全部通过后单独审批 | 支撑、单臂、极低速、小位移、无接触 |
 | 任务级paired A/B | 是，最后 | 经独立审批 | 最终证明相对Yuhao的真实任务速度 |
 
-### 联网后的第一次真机工作
+### 重新联网后的强制第一动作（已完成）
 
-只读执行：
+已执行`G1_NEXT_CONNECTION_INTERLOCK_CN.md`。机器人重启后保存的camera PID为stale且不存活；camera/LowState/robot-command匹配进程均为0；`55555/55556/55557/60000`无listener；`cleanup_verified=true`。证据：`results/g1_next_connection_cleanup_20260828.json`。
 
-1. capture完整29关节，替换当前缺失的12个腿部关节；
-2. 重判 Dex1/wrist 与 hip 的初始碰撞；
-3. 读取 head-left、left wrist、right wrist；
-4. instrument Reader exception、tick和monotonic gap；
-5. 在机器人计算机运行无Publisher latency benchmark。
+### 本轮真机只读结果
+
+1. 已重新确认Damping、机械支撑和E-stop；
+2. subscriber-only full29 smoke为20/20，最大gap 4.04 ms；
+3. 三相机freshness soak为150/150 cycles、三路availability与unique hash fraction均100%，H1完成；
+4. camera负载下1000-sample DDS诊断仍出现一次56.24 ms gap，超过暂定50 ms stale-hold；37次重复tick的q29均发生变化，因此tick不是唯一sample identity；
+5. H2物理碰撞/EEF parity和H3 freshness未解决，禁止运行真实Policy Shadow；
+6. camera server已通过修正后的`server.wait()`路径完整释放，所有相关进程和端口为0。
 
 输出必须继续满足：
 
