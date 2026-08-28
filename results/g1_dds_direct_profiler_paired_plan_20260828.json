@@ -1,0 +1,108 @@
+{
+  "schema_version": "g1_dds_direct_profiler_paired_plan_v1",
+  "status": "OFFLINE_PLAN_ONLY_HARDWARE_NOT_AUTHORIZED",
+  "goal": "Separate publisher/source gaps, DDS receive backlog, Unitree SDK listener/BQueue delay, Python scheduling, and camera-load effects without creating a robot command path.",
+  "fixed_contract": {
+    "topic": "rt/lowstate",
+    "sample_count_per_run": 1000,
+    "timeout_s_per_run": 30,
+    "provisional_stale_hold_ms": 50.0,
+    "threshold_relaxation_allowed": false,
+    "raw_hardware_evidence_public_git_allowed": false
+  },
+  "phases": [
+    {
+      "id": "D0",
+      "name": "deployment_static_gate",
+      "requirements": [
+        "local and remote profiler SHA-256 match",
+        "pinned Unitree SDK and CycloneDDS versions match",
+        "AST and token scan finds no send channel, command publisher, mode switch, motion client, subprocess, or shell API",
+        "--help passes without starting DDS"
+      ],
+      "hardware_dds_started": false
+    },
+    {
+      "id": "D1",
+      "name": "direct_reader_smoke",
+      "condition": "camera_off",
+      "sample_count": 100,
+      "pass_requirements": [
+        "100/100 finite full29 samples",
+        "sample_info source_timestamp and publication_handle available",
+        "no sample_lost or sample_rejected status",
+        "no network receive drop/error delta",
+        "no DDS or cleanup error"
+      ],
+      "promotes_h3": false
+    },
+    {
+      "id": "D2",
+      "name": "four_condition_paired_diagnostic",
+      "blocks": 5,
+      "conditions": [
+        "sdk_callback_camera_off",
+        "direct_waitset_camera_off",
+        "sdk_callback_camera_on",
+        "direct_waitset_camera_on"
+      ],
+      "total_runs": 20,
+      "total_requested_samples": 20000,
+      "frozen_block_order": [
+        ["sdk_callback_camera_off", "direct_waitset_camera_off", "direct_waitset_camera_on", "sdk_callback_camera_on"],
+        ["sdk_callback_camera_on", "direct_waitset_camera_on", "direct_waitset_camera_off", "sdk_callback_camera_off"],
+        ["direct_waitset_camera_off", "sdk_callback_camera_off", "sdk_callback_camera_on", "direct_waitset_camera_on"],
+        ["direct_waitset_camera_on", "sdk_callback_camera_on", "sdk_callback_camera_off", "direct_waitset_camera_off"],
+        ["sdk_callback_camera_off", "direct_waitset_camera_off", "sdk_callback_camera_on", "direct_waitset_camera_on"]
+      ],
+      "camera_lifecycle": "Start only for camera_on segments; verify all three streams before each segment and full process/port/device cleanup after each segment."
+    }
+  ],
+  "root_cause_rules": [
+    {
+      "observation": "application gap >50 ms, source gap <=50 ms, direct batch size >1",
+      "classification": "reader or process scheduling backlog candidate"
+    },
+    {
+      "observation": "source timestamp gap >50 ms in both direct and SDK paths",
+      "classification": "publisher or transport delivery gap candidate"
+    },
+    {
+      "observation": "SDK path >50 ms while direct path remains <=50 ms under matched camera state",
+      "classification": "SDK listener/BQueue or callback-thread candidate"
+    },
+    {
+      "observation": "camera_on materially increases paired gap or backlog metrics in both paths",
+      "classification": "camera CPU/USB/scheduler load candidate"
+    },
+    {
+      "observation": "publication_handle plus source_timestamp repeats",
+      "classification": "candidate identity is insufficient; do not claim sample uniqueness"
+    }
+  ],
+  "fail_closed_requirements": {
+    "any_capture_error": "stop current phase and keep H3 false",
+    "any_sample_lost_or_rejected": "keep H3 false",
+    "any_receive_gap_over_50ms": "record provisional stale hold and keep Policy Shadow locked",
+    "any_camera_cleanup_failure": "stop all later runs and verify cleanup",
+    "any_forbidden_api_or process": "do not deploy"
+  },
+  "qualification_boundary": {
+    "diagnostic_plan_alone_can_pass_h3": false,
+    "h3_requires_identified_root_cause": true,
+    "h3_requires_zero_unexplained_stale_hold_events_in_qualification_corpus": true,
+    "h3_requires_frozen_watchdog_behavior": true,
+    "h2_must_still_pass_before_h4": true,
+    "robot_motion_allowed": false
+  },
+  "safety": {
+    "subscriber_only": true,
+    "camera_read_only": true,
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "hardware_motion_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

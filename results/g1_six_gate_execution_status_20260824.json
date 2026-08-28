@@ -123,14 +123,17 @@
     {
       "id": "H3",
       "name": "dds_freshness_and_stale_threshold",
-      "status": "REPEAT_FULL29_WITH_CAMERA_LOAD_DDS_FRESHNESS_FAILED",
+      "status": "DDS_FRESHNESS_FAILED_DIRECT_PROFILER_OFFLINE_READY",
       "completed": false,
       "evidence": [
         "results/g1_lowstate_readonly_capture_300_20260824.json",
         "g1_dds_freshness.py",
         "results/g1_dds_freshness_offline_analysis_20260824.json",
         "results/g1_full29_readonly_analysis_20260828.json",
-        "results/g1_full29_dds_with_camera_load_20260828.json"
+        "results/g1_full29_dds_with_camera_load_20260828.json",
+        "g1_dds_direct_readonly_profiler.py",
+        "results/g1_dds_direct_profiler_offline_readiness_20260828.json",
+        "results/g1_dds_direct_profiler_paired_plan_20260828.json"
       ],
       "observed": {
         "captured_samples": 300,
@@ -153,7 +156,7 @@
         "latest_duplicate_tick_q29_changed_count": 37,
         "tick_is_unique_sample_identity": false
       },
-      "next_action": "Do not run H4. Instrument DDS sequence/sample identity below the application tick and correlate the repeatable >50 ms receive gap with camera and scheduler load; retain the provisional 50 ms stale hold.",
+      "next_action": "After full regression and a new onsite read-only authorization, run D0 static deployment and D1 100-sample direct-reader smoke. Do not start the 20-run paired corpus unless D1 passes; retain the 50 ms hold and keep H4 locked.",
       "permission_after_pass": "freeze_watchdog_timing_only",
       "offline_work_completed": true,
       "offline_analysis": {
@@ -166,7 +169,14 @@
         "candidate_disconnect_ms": 200.0,
         "final_hardware_threshold_frozen": false,
         "exact_reader_error_cause_identified": false,
-        "duplicate_tick_origin_identified": false
+        "duplicate_tick_origin_identified": false,
+        "direct_waitset_profiler_implemented": true,
+        "direct_waitset_profiler_hardware_run_completed": false,
+        "sample_info_source_timestamp_available_in_pinned_cyclonedds": true,
+        "sample_info_publication_handle_available_in_pinned_cyclonedds": true,
+        "sample_info_explicit_sequence_number_available": false,
+        "sdk_bqueue_drop_observable_by_existing_callback_overflow": false,
+        "paired_sdk_direct_camera_off_on_plan_frozen": true
       }
     },
     {
@@ -260,7 +270,7 @@
     "continue_with_h1_camera_only_audit": false,
     "zero_motion_policy_shadow_eligible": false,
     "robot_motion_allowed": false,
-    "reason": "H1 real three-camera freshness passed 150/150 cycles per camera and the camera server then completed full cleanup. H2 retains unresolved modeled hand/wrist-to-hip collision and no physical EEF parity. H3 failed again under camera load with one 56.24 ms gap over the provisional 50 ms stale-hold threshold; 37 repeated ticks all had changed q29 payloads, proving tick alone is not a unique sample identity. H4 and motion remain locked.",
+    "reason": "H1 passed. H2 physical/model parity remains unresolved. H3 failed twice over the provisional 50 ms threshold; an offline direct WaitSet/DataReader profiler is now mock-tested to expose source timestamps, publication handles, receive batches, SDK queue bypass, process scheduling, and NIC deltas, but it has not run on hardware. H4 and motion remain locked.",
     "offline_five_task_plan_completed": true,
     "offline_speed_checkpoint_ready_for_commit": true,
     "real_task_speedup_passed": false,

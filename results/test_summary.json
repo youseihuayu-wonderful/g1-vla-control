@@ -1,7 +1,7 @@
 {
-  "passed": 181,
+  "passed": 189,
   "failed": 0,
-  "total": 181,
+  "total": 189,
   "success": true,
-  "scope": "Local tests including stable 5 mm/3 degree continuous-250-ms completion, Fast preflight correctness and near-limit rejection, finite action/timestamp schema rejection, Yuhao/project layered evidence, waist-compensated offline Shadow, full29 subscriber-only extraction and analysis, audited camera-only startup/cleanup, bounded three-camera freshness/freeze soak, reconnect cleanup interlock, DDS fail-closed evidence, public redaction, and strict H1-H6 motion locks; GitHub Actions rerun pending."
+  "scope": "Local tests including stable task completion, Fast preflight correctness, full29 extraction, real-camera freshness and cleanup, reconnect interlock, DDS fail-closed evidence, and the mock-only direct CycloneDDS WaitSet/DataReader profiler with source timestamp, candidate identity, batching, scheduling, and NIC diagnostics; hardware profiler execution and GitHub Actions rerun pending."
 }

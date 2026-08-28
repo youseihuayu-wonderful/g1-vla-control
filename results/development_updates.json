@@ -1816,5 +1816,44 @@
       "robot command Publisher=false; mode change=false; robot command=false",
       "results/g1_reconnect_session_shutdown_20260828.json"
     ]
+  },
+  {
+    "time": "2026-08-28 15:05 EDT",
+    "title": "完成subscriber-only CycloneDDS direct-reader profiler离线实现",
+    "status": "pass",
+    "summary": "审计冻结Unitree SDK与CycloneDDS 0.10.2后，实现不经过SDK Listener/BQueue的DataReader+WaitSet诊断路径。该工具仅接收rt/lowstate，记录source timestamp、publication handle、batch backlog、wait/take timing、q29 hash、DDS状态、调度与NIC计数；尚未连接或部署到机器人。",
+    "done": [
+      "确认SDK Listener每次reader.take(1)，随后进入容量10的BQueue。",
+      "确认BQueue满时Put返回false，但SDK Listener不检查返回值；现有adapter callback_overflow不能证明SDK BQueue无drop。",
+      "确认CycloneDDS 0.10.2 SampleInfo提供source_timestamp与publication_handle，但不提供显式sequence number。",
+      "实现direct WaitSet/DataReader profiler，绕过SDK callback queue。",
+      "完成8项targeted tests，包括20-sample receive-only mock backend。",
+      "冻结5-block、四条件SDK/direct×camera OFF/ON paired诊断计划。",
+      "完整仓库回归189 passed、0 failed。"
+    ],
+    "conclusions": [
+      "此前callback_overflow=0只能覆盖adapter第二层queue，不能排除SDK BQueue drop。",
+      "publication_handle+source_timestamp只是待验证candidate identity，不能在真机结果前宣称唯一。",
+      "direct profiler可区分source gap、application scheduling gap和reader backlog，但离线结果不提升H3。",
+      "H3、H4和运动权限保持false。"
+    ],
+    "fixes": [
+      "新增g1_dds_direct_readonly_profiler.py。",
+      "新增source attestation、mock readiness和paired hardware plan。",
+      "所有DDS与Unitree导入保持lazy；非法参数在DDS import前拒绝。"
+    ],
+    "remaining": [
+      "新的现场审批后仅先运行D0和100-sample D1 smoke。",
+      "D1通过后才评审20-run paired corpus。"
+    ],
+    "next": [
+      "等待独立静态复核与新的现场只读D0/D1授权；当前不连接机器人。"
+    ],
+    "evidence": [
+      "g1_dds_direct_readonly_profiler.py",
+      "results/g1_dds_direct_profiler_offline_readiness_20260828.json",
+      "results/g1_dds_direct_profiler_paired_plan_20260828.json",
+      "robot command Publisher=false; hardware execution=false"
+    ]
   }
 ]

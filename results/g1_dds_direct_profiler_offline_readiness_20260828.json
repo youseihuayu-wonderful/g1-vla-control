@@ -1,0 +1,70 @@
+{
+  "schema_version": "g1_dds_direct_profiler_offline_readiness_v1",
+  "scope": "Offline source audit and mock-only readiness for a direct subscriber-side CycloneDDS profiler; no robot connection or hardware execution.",
+  "pinned_sources": {
+    "unitree_sdk_commit": "65691c8a8bc53b98d3976dba4dbf9d5d20b2e7f5",
+    "unitree_channel_py_sha256": "8a58eea2bc6bb8792e5b5fa76949407bd8c2ef8af07172d1a3a465bcc544e247",
+    "unitree_bqueue_py_sha256": "0ea1299b91f2d3c6f4ed8605064ebc3e079c1439cdf111bd30881d560166fc3f",
+    "cyclonedds_version": "0.10.2",
+    "cyclonedds_sdist_sha256": "f834962eabbdcdf4e9cd75cf87222f3c5ef22d9cb9e7ed651d9a8710fe984a30",
+    "profiler_sha256": "b09a6396dba666affcf4d1899a1dc5ea6b2bf90b8249b48abef95df787ce37bf"
+  },
+  "source_audit": {
+    "sdk_listener_take_maximum_samples": 1,
+    "sdk_callback_queue_capacity_in_current_adapter": 10,
+    "sdk_bqueue_put_returns_false_when_full": true,
+    "sdk_listener_checks_bqueue_put_result": false,
+    "adapter_callback_overflow_observes_sdk_bqueue_drop": false,
+    "cyclonedds_take_annotates_sample_info": true,
+    "sample_info_source_timestamp_available": true,
+    "sample_info_publication_handle_available": true,
+    "sample_info_explicit_sequence_number_available": false,
+    "direct_waitset_reader_bypasses_sdk_listener_and_bqueue": true,
+    "interpretation": "The previous adapter callback_overflow=0 does not prove that the upstream SDK BQueue never dropped a sample. A direct WaitSet/DataReader path can separate publisher source-timestamp gaps, application scheduling gaps, and receive backlog without adding a command path."
+  },
+  "profiler_observability": {
+    "source_timestamp_ns": true,
+    "publication_handle": true,
+    "sample_and_instance_state": true,
+    "application_unix_and_monotonic_ns": true,
+    "wait_duration_ms": true,
+    "take_duration_ms": true,
+    "batch_size_and_backlog": true,
+    "tick": true,
+    "q29_and_payload_hash": true,
+    "sample_lost_and_rejected_status": true,
+    "process_context_switch_delta": true,
+    "network_rx_packet_drop_error_delta": true
+  },
+  "offline_validation": {
+    "targeted_tests_passed": 8,
+    "targeted_tests_failed": 0,
+    "mock_direct_reader_samples": 20,
+    "mock_direct_reader_completed": true,
+    "invalid_arguments_fail_before_dds_import": true,
+    "full_repository_regression_pending": false,
+    "full_repository_tests_passed": 189,
+    "full_repository_tests_failed": 0
+  },
+  "safety": {
+    "subscriber_only_design": true,
+    "unitree_channel_subscriber_used": false,
+    "sdk_callback_queue_bypassed": true,
+    "send_channel_api_present": false,
+    "robot_command_publisher_api_present": false,
+    "mode_switch_api_present": false,
+    "process_execution_api_present": false,
+    "robot_command_sent": false,
+    "hardware_motion_performed": false
+  },
+  "decision": {
+    "offline_profiler_implementation_ready": true,
+    "hardware_profiler_run_authorized": false,
+    "dds_freshness_fully_qualified": false,
+    "real_policy_shadow_allowed": false,
+    "robot_motion_allowed": false,
+    "next_action": "Request independent static review, then a new onsite bounded D0/D1 subscriber-only diagnostic session; do not run the paired corpus until D1 passes."
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}
