@@ -1,6 +1,6 @@
 {
   "schema_version": "g1_dds_direct_profiler_paired_plan_v1",
-  "status": "OFFLINE_PLAN_ONLY_HARDWARE_NOT_AUTHORIZED",
+  "status": "D0_D1_COMPLETE_D2_REVIEW_REQUIRED",
   "goal": "Separate publisher/source gaps, DDS receive backlog, Unitree SDK listener/BQueue delay, Python scheduling, and camera-load effects without creating a robot command path.",
   "fixed_contract": {
     "topic": "rt/lowstate",
@@ -20,7 +20,9 @@
         "AST and token scan finds no send channel, command publisher, mode switch, motion client, subprocess, or shell API",
         "--help passes without starting DDS"
       ],
-      "hardware_dds_started": false
+      "hardware_dds_started": false,
+      "completed": true,
+      "passed": true
     },
     {
       "id": "D1",
@@ -34,7 +36,9 @@
         "no network receive drop/error delta",
         "no DDS or cleanup error"
       ],
-      "promotes_h3": false
+      "promotes_h3": false,
+      "completed": true,
+      "passed": true
     },
     {
       "id": "D2",
@@ -49,13 +53,40 @@
       "total_runs": 20,
       "total_requested_samples": 20000,
       "frozen_block_order": [
-        ["sdk_callback_camera_off", "direct_waitset_camera_off", "direct_waitset_camera_on", "sdk_callback_camera_on"],
-        ["sdk_callback_camera_on", "direct_waitset_camera_on", "direct_waitset_camera_off", "sdk_callback_camera_off"],
-        ["direct_waitset_camera_off", "sdk_callback_camera_off", "sdk_callback_camera_on", "direct_waitset_camera_on"],
-        ["direct_waitset_camera_on", "sdk_callback_camera_on", "sdk_callback_camera_off", "direct_waitset_camera_off"],
-        ["sdk_callback_camera_off", "direct_waitset_camera_off", "sdk_callback_camera_on", "direct_waitset_camera_on"]
+        [
+          "sdk_callback_camera_off",
+          "direct_waitset_camera_off",
+          "direct_waitset_camera_on",
+          "sdk_callback_camera_on"
+        ],
+        [
+          "sdk_callback_camera_on",
+          "direct_waitset_camera_on",
+          "direct_waitset_camera_off",
+          "sdk_callback_camera_off"
+        ],
+        [
+          "direct_waitset_camera_off",
+          "sdk_callback_camera_off",
+          "sdk_callback_camera_on",
+          "direct_waitset_camera_on"
+        ],
+        [
+          "direct_waitset_camera_on",
+          "sdk_callback_camera_on",
+          "sdk_callback_camera_off",
+          "direct_waitset_camera_off"
+        ],
+        [
+          "sdk_callback_camera_off",
+          "direct_waitset_camera_off",
+          "sdk_callback_camera_on",
+          "direct_waitset_camera_on"
+        ]
       ],
-      "camera_lifecycle": "Start only for camera_on segments; verify all three streams before each segment and full process/port/device cleanup after each segment."
+      "camera_lifecycle": "Start only for camera_on segments; verify all three streams before each segment and full process/port/device cleanup after each segment.",
+      "completed": false,
+      "authorized": false
     }
   ],
   "root_cause_rules": [
@@ -104,5 +135,14 @@
     "hardware_motion_performed": false
   },
   "g1_execution_enabled": false,
-  "hardware_execution_performed": false
+  "hardware_execution_performed": false,
+  "hardware_progress": {
+    "d0_completed": true,
+    "d0_passed": true,
+    "d1_completed": true,
+    "d1_passed": true,
+    "d1_evidence": "results/g1_dds_direct_d0_d1_hardware_20260829.json",
+    "d2_started": false,
+    "d2_authorized": false
+  }
 }

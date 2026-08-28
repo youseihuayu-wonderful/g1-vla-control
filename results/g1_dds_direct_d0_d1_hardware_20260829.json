@@ -1,0 +1,169 @@
+{
+  "schema_version": "g1_dds_direct_d0_d1_hardware_v1",
+  "scope": "Onsite-confirmed, camera-OFF, subscriber-only D0 static deployment gate and D1 100-sample direct CycloneDDS smoke. No camera, policy, command transport, or motion.",
+  "d0": {
+    "passed": true,
+    "profiler_sha256": "b09a6396dba666affcf4d1899a1dc5ea6b2bf90b8249b48abef95df787ce37bf",
+    "unitree_sdk_commit": "65691c8a8bc53b98d3976dba4dbf9d5d20b2e7f5",
+    "sdk_channel_sha256": "8a58eea2bc6bb8792e5b5fa76949407bd8c2ef8af07172d1a3a465bcc544e247",
+    "sdk_bqueue_sha256": "0ea1299b91f2d3c6f4ed8605064ebc3e079c1439cdf111bd30881d560166fc3f",
+    "canonical_adapter_sha256": "3407dafa753af943357791fe442fde647c5f72525508c65352c67bdd70e78e0c",
+    "canonical_adapter_matches_previously_tested_full29_adapter": true,
+    "forbidden_identifiers": [],
+    "subprocess_import": false,
+    "os_import": false,
+    "top_level_cyclonedds_import": false,
+    "help_without_dds_start": true,
+    "initial_fail_closed_event": {
+      "occurred": true,
+      "reason": "The remote canonical g1_unitree_lowstate.py was the prior schema and did not export FULL_BODY_INDICES.",
+      "dds_started": false,
+      "d1_started": false,
+      "resolution": "Replaced only the user-owned canonical adapter with the already tested full29 source, confirmed an exact match with g1_unitree_lowstate_full29.py, and repeated D0."
+    },
+    "shell_postcheck_retry": {
+      "occurred": true,
+      "reason": "With pipefail enabled, pgrep returning no match ended the first status-only shell after printing a zero count.",
+      "robot_or_dds_failure": false,
+      "resolution": "Repeated the read-only process/port postcheck with no-match handled explicitly."
+    }
+  },
+  "d1": {
+    "passed": true,
+    "condition": "camera_off_d1",
+    "requested_samples": 100,
+    "captured_samples": 100,
+    "elapsed_s": 0.223625346,
+    "full29_all_samples": true,
+    "errors": [],
+    "application_gap_ms": {
+      "count": 99,
+      "minimum": 1.409489,
+      "median": 1.446386,
+      "p95": 1.544531,
+      "maximum": 3.047303,
+      "over_provisional_50ms_count": 0
+    },
+    "source_timestamp_positive_gap_ms": {
+      "count": 99,
+      "minimum": 0.733841,
+      "median": 1.744477,
+      "p95": 2.009313,
+      "maximum": 2.877613,
+      "over_provisional_50ms_count": 0
+    },
+    "source_timestamp_available_count": 100,
+    "source_timestamp_unique_count": 100,
+    "source_timestamp_decreasing_transition_count": 0,
+    "source_clock_age_ms": {
+      "count": 100,
+      "minimum": -53.203069,
+      "median": -52.57142,
+      "p95": -52.090444,
+      "maximum": -50.849455,
+      "over_provisional_50ms_count": 0
+    },
+    "source_clock_age_interpretation": "Source timestamps were approximately 51-53 ms ahead of the subscriber wall clock; therefore clock age is not interpreted as transport latency. Only adjacent source timestamp gaps are used.",
+    "candidate_identity": {
+      "publication_handle_count": 1,
+      "publication_handle_source_timestamp_unique_count": 100,
+      "identity_available_count": 100,
+      "publication_handle_source_timestamp_duplicate_count": 0,
+      "identity_pair_is_unique": true
+    },
+    "tick": {
+      "unique_count": 98,
+      "duplicate_transition_count": 2,
+      "decreasing_transition_count": 0,
+      "positive_increment_minimum": 1,
+      "positive_increment_maximum": 3,
+      "duplicate_tick_same_q29_count": 0,
+      "duplicate_tick_changed_q29_count": 2,
+      "tick_is_unique_sample_identity": false
+    },
+    "reader_batches": {
+      "count": 100,
+      "maximum_batch_size": 1,
+      "multi_sample_batch_count": 0,
+      "samples_in_multi_sample_batches": 0,
+      "wait_duration_ms": {
+        "count": 100,
+        "minimum": 0.009536,
+        "median": 0.010496,
+        "p95": 0.012128,
+        "maximum": 0.272643,
+        "over_provisional_50ms_count": 0
+      },
+      "take_duration_ms": {
+        "count": 100,
+        "minimum": 0.859531,
+        "median": 0.8859630000000001,
+        "p95": 0.96334,
+        "maximum": 2.448191,
+        "over_provisional_50ms_count": 0
+      }
+    },
+    "dds_status": {
+      "sample_lost_total_count": 0,
+      "sample_rejected_total_count": 0,
+      "subscription_matched_total_count": 1,
+      "subscription_current_count": 1
+    },
+    "network_delta": {
+      "rx_packets": 1224,
+      "rx_dropped": 0,
+      "rx_errors": 0,
+      "rx_missed_errors": 0
+    },
+    "process_delta": {
+      "user_cpu_s": 0.228703,
+      "system_cpu_s": 0.021848,
+      "maximum_rss": 5172,
+      "voluntary_context_switches": 1011,
+      "involuntary_context_switches": 12
+    }
+  },
+  "raw_evidence": {
+    "private_not_public_git": true,
+    "image_or_audio_saved": false,
+    "capture_sha256": "1770dd4ddfd6304b72b1fbf7ae13575881ae2dd3e30daff29f5d7e470d505261",
+    "stdout_sha256": "f92b0573815c417b1396f79dc3d7ed3ad0ae5f8f096e25e9b93e3c78f23b6507",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "d0_baseline_sha256": "95ae20d18b52e6fb769e79424621270ebda754b22930ac5d6f271a2304736322",
+    "d0_initial_static_sha256": "0b32dc3d6f4f101c47ebe3c709d3366c261f6bf196902beb8173bd2c62030ca4",
+    "d0_adapter_retry_sha256": "46a67f01a28890f50ccc998da6e3d1e1de11fdd8b537149ea64974ca92f97b87",
+    "d0_final_postcheck_sha256": "cd4a810aaa12157ab3fefcb3f0667e739dbf3683104d989e2abb5b4d8f1b8554"
+  },
+  "session_shutdown": {
+    "profiler_process_count": 0,
+    "lowstate_process_count": 0,
+    "camera_process_count": 0,
+    "robot_command_process_count": 0,
+    "camera_listener_ports": [],
+    "robot_ssh_closed": true,
+    "gateway_ssh_closed": true,
+    "cleanup_verified": true
+  },
+  "decision": {
+    "d0_passed": true,
+    "d1_passed": true,
+    "candidate_identity_unique_in_d1": true,
+    "tick_is_unique_sample_identity": false,
+    "paired_20_run_corpus_authorized": false,
+    "dds_freshness_fully_qualified": false,
+    "real_policy_shadow_allowed": false,
+    "robot_motion_allowed": false,
+    "reason": "D1 had no >50 ms application or source gap and no backlog/loss in 100 samples. This short smoke validates the profiler but is too small to explain the prior 54-56 ms tail events or qualify H3. The paired corpus requires a separate review."
+  },
+  "safety": {
+    "subscriber_only": true,
+    "camera_started": false,
+    "send_channel_created": false,
+    "robot_command_publisher_created": false,
+    "mode_change_requested": false,
+    "robot_command_sent": false,
+    "hardware_motion_performed": false
+  },
+  "g1_execution_enabled": false,
+  "hardware_execution_performed": false
+}

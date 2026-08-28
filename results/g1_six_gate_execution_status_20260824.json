@@ -1,6 +1,6 @@
 {
   "schema_version": "g1_six_gate_execution_status_v2",
-  "timestamp": "2026-08-28T14:25:43-04:00",
+  "timestamp": "2026-08-29T02:20:00+00:00",
   "owner": "Shihua Yu",
   "state": "H1_COMPLETE_BLOCKED_H2_PHYSICAL_COLLISION_AND_H3_DDS",
   "current_gate": "H2_REAL_JOINT_FK_SOURCE_PARITY",
@@ -123,7 +123,7 @@
     {
       "id": "H3",
       "name": "dds_freshness_and_stale_threshold",
-      "status": "DDS_FRESHNESS_FAILED_DIRECT_PROFILER_OFFLINE_READY",
+      "status": "DIRECT_D1_CAMERA_OFF_PASSED_H3_STILL_FAILED",
       "completed": false,
       "evidence": [
         "results/g1_lowstate_readonly_capture_300_20260824.json",
@@ -133,7 +133,8 @@
         "results/g1_full29_dds_with_camera_load_20260828.json",
         "g1_dds_direct_readonly_profiler.py",
         "results/g1_dds_direct_profiler_offline_readiness_20260828.json",
-        "results/g1_dds_direct_profiler_paired_plan_20260828.json"
+        "results/g1_dds_direct_profiler_paired_plan_20260828.json",
+        "results/g1_dds_direct_d0_d1_hardware_20260829.json"
       ],
       "observed": {
         "captured_samples": 300,
@@ -154,9 +155,23 @@
         "provisional_50ms_stale_hold_trigger_count": 1,
         "latest_duplicate_tick_q29_identical_count": 0,
         "latest_duplicate_tick_q29_changed_count": 37,
-        "tick_is_unique_sample_identity": false
+        "tick_is_unique_sample_identity": false,
+        "direct_d0_passed": true,
+        "direct_d1_passed": true,
+        "direct_d1_samples": 100,
+        "direct_d1_application_gap_maximum_ms": 3.047303,
+        "direct_d1_source_gap_maximum_ms": 2.877613,
+        "direct_d1_over_50ms_count": 0,
+        "direct_d1_source_timestamp_available_count": 100,
+        "direct_d1_candidate_identity_unique": true,
+        "direct_d1_tick_unique_count": 98,
+        "direct_d1_tick_duplicate_count": 2,
+        "direct_d1_duplicate_tick_changed_q29_count": 2,
+        "direct_d1_maximum_batch_size": 1,
+        "direct_d1_sample_lost_total_count": 0,
+        "direct_d1_sample_rejected_total_count": 0
       },
-      "next_action": "After full regression and a new onsite read-only authorization, run D0 static deployment and D1 100-sample direct-reader smoke. Do not start the 20-run paired corpus unless D1 passes; retain the 50 ms hold and keep H4 locked.",
+      "next_action": "Review the 100-sample D1 evidence. It validates direct instrumentation but is too short to explain prior 54-56 ms tails. D2 remains unauthorized; if approved later, execute the frozen 5-block SDK/direct × camera OFF/ON corpus with per-segment cleanup.",
       "permission_after_pass": "freeze_watchdog_timing_only",
       "offline_work_completed": true,
       "offline_analysis": {
@@ -171,7 +186,7 @@
         "exact_reader_error_cause_identified": false,
         "duplicate_tick_origin_identified": false,
         "direct_waitset_profiler_implemented": true,
-        "direct_waitset_profiler_hardware_run_completed": false,
+        "direct_waitset_profiler_hardware_run_completed": true,
         "sample_info_source_timestamp_available_in_pinned_cyclonedds": true,
         "sample_info_publication_handle_available_in_pinned_cyclonedds": true,
         "sample_info_explicit_sequence_number_available": false,
@@ -270,7 +285,7 @@
     "continue_with_h1_camera_only_audit": false,
     "zero_motion_policy_shadow_eligible": false,
     "robot_motion_allowed": false,
-    "reason": "H1 passed. H2 physical/model parity remains unresolved. H3 failed twice over the provisional 50 ms threshold; an offline direct WaitSet/DataReader profiler is now mock-tested to expose source timestamps, publication handles, receive batches, SDK queue bypass, process scheduling, and NIC deltas, but it has not run on hardware. H4 and motion remain locked.",
+    "reason": "H1 passed and H2 remains unresolved. H3 direct D1 camera-OFF smoke passed 100/100 with maximum 3.05 ms application and 2.88 ms source gap, unique candidate DDS identities, no backlog/loss, and two repeated ticks with changed q29. This validates the profiler but does not explain the prior 54-56 ms tails; D2 is not authorized, H3 remains false, and H4/motion stay locked.",
     "offline_five_task_plan_completed": true,
     "offline_speed_checkpoint_ready_for_commit": true,
     "real_task_speedup_passed": false,
@@ -399,6 +414,8 @@
     "lowstate_subscriber_running": false,
     "robot_ssh_connected": false,
     "gateway_ssh_connected": false,
-    "session_shutdown_evidence": "results/g1_reconnect_session_shutdown_20260828.json"
+    "session_shutdown_evidence": "results/g1_reconnect_session_shutdown_20260828.json",
+    "direct_dds_d0_d1_evidence": "results/g1_dds_direct_d0_d1_hardware_20260829.json",
+    "direct_dds_d1_passed": true
   }
 }

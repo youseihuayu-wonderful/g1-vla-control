@@ -1855,5 +1855,44 @@
       "results/g1_dds_direct_profiler_paired_plan_20260828.json",
       "robot command Publisher=false; hardware execution=false"
     ]
+  },
+  {
+    "time": "2026-08-29 02:20 UTC",
+    "title": "真机完成DDS direct profiler D0/D1 camera-OFF短时验证",
+    "status": "partial",
+    "summary": "现场重新确认Damping/支撑/E-stop后，仅执行D0静态部署和D1 camera-OFF 100-sample direct DataReader/WaitSet smoke。D1无>50 ms gap、backlog、DDS loss或NIC drop，但样本量不足以解释此前54–56 ms tail；D2未启动。",
+    "done": [
+      "D0核对profiler、SDK channel/BQueue和full29 adapter hash。",
+      "D0禁用API AST扫描通过，--help未启动DDS。",
+      "发现远端canonical adapter仍是旧schema并在DDS启动前fail-closed；同步已测试full29 source后重试通过。",
+      "D1读取100/100 full29 direct samples；application/source最大gap为3.047/2.878 ms。",
+      "100个source timestamp和publication-handle candidate identity唯一；无sample lost/rejected。",
+      "tick仅98 unique；2次重复tick的q29均变化。",
+      "最终camera/LowState/profiler/command进程和camera端口均为0，双SSH关闭。",
+      "本轮结果加入完整回归：190 passed、0 failed。"
+    ],
+    "conclusions": [
+      "direct profiler真机路径可用，短时D1没有复现长尾。",
+      "source timestamp约领先subscriber wall clock 51–53 ms，因此clock age不能当transport latency；只比较相邻source gap。",
+      "tick再次被证实不是唯一sample identity。",
+      "100 samples不能通过H3或授权Policy Shadow。"
+    ],
+    "fixes": [
+      "远端canonical g1_unitree_lowstate.py更新为已测试full29 hash 3407dafa…，与full29副本逐字节一致。",
+      "修正D0状态shell对pgrep no-match与pipefail的处理；仅影响诊断shell，不影响DDS。"
+    ],
+    "remaining": [
+      "独立评审D2的20-run硬件负担与停止条件。",
+      "D2未授权、未开始。",
+      "H2物理碰撞/EEF parity和H3长尾root cause仍未解决。"
+    ],
+    "next": [
+      "离线分析D1并决定是否缩减/执行D2；当前不连接机器人。"
+    ],
+    "evidence": [
+      "results/g1_dds_direct_d0_d1_hardware_20260829.json",
+      "private raw SHA-256 1770dd4ddfd6304b72b1fbf7ae13575881ae2dd3e30daff29f5d7e470d505261",
+      "robot command Publisher=false; hardware motion=false"
+    ]
   }
 ]

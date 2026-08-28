@@ -260,7 +260,36 @@ class G1DDSDirectReadonlyProfilerTests(unittest.TestCase):
             "f834962eabbdcdf4e9cd75cf87222f3c5ef22d9cb9e7ed651d9a8710fe984a30",
         )
 
-    def test_offline_readiness_and_paired_plan_keep_hardware_locked(self):
+    def test_d0_d1_hardware_smoke_passes_without_qualifying_h3(self):
+        report = json.loads((
+            ROOT / "results" / "g1_dds_direct_d0_d1_hardware_20260829.json"
+        ).read_text())
+        self.assertTrue(report["d0"]["passed"])
+        self.assertTrue(report["d0"]["initial_fail_closed_event"]["occurred"])
+        self.assertFalse(report["d0"]["initial_fail_closed_event"]["dds_started"])
+        self.assertTrue(report["d1"]["passed"])
+        self.assertEqual(report["d1"]["captured_samples"], 100)
+        self.assertTrue(report["d1"]["full29_all_samples"])
+        self.assertLess(report["d1"]["application_gap_ms"]["maximum"], 50.0)
+        self.assertLess(
+            report["d1"]["source_timestamp_positive_gap_ms"]["maximum"], 50.0
+        )
+        self.assertEqual(report["d1"]["candidate_identity"]["identity_available_count"], 100)
+        self.assertTrue(report["d1"]["candidate_identity"]["identity_pair_is_unique"])
+        self.assertFalse(report["d1"]["tick"]["tick_is_unique_sample_identity"])
+        self.assertEqual(report["d1"]["tick"]["duplicate_tick_changed_q29_count"], 2)
+        self.assertEqual(report["d1"]["reader_batches"]["maximum_batch_size"], 1)
+        self.assertEqual(report["d1"]["dds_status"]["sample_lost_total_count"], 0)
+        self.assertEqual(report["d1"]["network_delta"]["rx_dropped"], 0)
+        self.assertTrue(report["session_shutdown"]["cleanup_verified"])
+        self.assertFalse(report["decision"]["paired_20_run_corpus_authorized"])
+        self.assertFalse(report["decision"]["dds_freshness_fully_qualified"])
+        self.assertFalse(report["decision"]["real_policy_shadow_allowed"])
+        self.assertFalse(report["decision"]["robot_motion_allowed"])
+        self.assertFalse(report["safety"]["robot_command_publisher_created"])
+        self.assertFalse(report["safety"]["robot_command_sent"])
+
+    def test_readiness_and_paired_plan_keep_d2_hardware_locked(self):
         readiness = json.loads((
             ROOT / "results" / "g1_dds_direct_profiler_offline_readiness_20260828.json"
         ).read_text())
@@ -280,9 +309,13 @@ class G1DDSDirectReadonlyProfilerTests(unittest.TestCase):
         self.assertFalse(
             readiness["source_audit"]["sample_info_explicit_sequence_number_available"]
         )
+        self.assertTrue(readiness["hardware_followup"]["d1_passed"])
+        self.assertFalse(readiness["hardware_followup"]["d2_paired_corpus_authorized"])
         self.assertFalse(readiness["decision"]["hardware_profiler_run_authorized"])
         self.assertFalse(readiness["decision"]["real_policy_shadow_allowed"])
-        self.assertEqual(plan["status"], "OFFLINE_PLAN_ONLY_HARDWARE_NOT_AUTHORIZED")
+        self.assertEqual(plan["status"], "D0_D1_COMPLETE_D2_REVIEW_REQUIRED")
+        self.assertTrue(plan["hardware_progress"]["d1_passed"])
+        self.assertFalse(plan["hardware_progress"]["d2_authorized"])
         self.assertEqual(plan["phases"][2]["total_runs"], 20)
         self.assertEqual(plan["phases"][2]["total_requested_samples"], 20000)
         self.assertFalse(plan["qualification_boundary"]["diagnostic_plan_alone_can_pass_h3"])

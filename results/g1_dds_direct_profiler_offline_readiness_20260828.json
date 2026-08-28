@@ -43,7 +43,7 @@
     "mock_direct_reader_completed": true,
     "invalid_arguments_fail_before_dds_import": true,
     "full_repository_regression_pending": false,
-    "full_repository_tests_passed": 189,
+    "full_repository_tests_passed": 190,
     "full_repository_tests_failed": 0
   },
   "safety": {
@@ -63,8 +63,17 @@
     "dds_freshness_fully_qualified": false,
     "real_policy_shadow_allowed": false,
     "robot_motion_allowed": false,
-    "next_action": "Request independent static review, then a new onsite bounded D0/D1 subscriber-only diagnostic session; do not run the paired corpus until D1 passes."
+    "next_action": "Review D1 evidence and the D2 20-run burden before any new connection. H3 remains false.",
+    "d0_d1_hardware_completed": true,
+    "d2_hardware_authorized": false
   },
   "g1_execution_enabled": false,
-  "hardware_execution_performed": false
+  "hardware_execution_performed": false,
+  "hardware_followup": {
+    "d0_completed": true,
+    "d1_completed": true,
+    "d1_passed": true,
+    "evidence": "results/g1_dds_direct_d0_d1_hardware_20260829.json",
+    "d2_paired_corpus_authorized": false
+  }
 }

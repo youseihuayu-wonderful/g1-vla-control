@@ -1,7 +1,7 @@
 {
-  "passed": 189,
+  "passed": 190,
   "failed": 0,
-  "total": 189,
+  "total": 190,
   "success": true,
-  "scope": "Local tests including stable task completion, Fast preflight correctness, full29 extraction, real-camera freshness and cleanup, reconnect interlock, DDS fail-closed evidence, and the mock-only direct CycloneDDS WaitSet/DataReader profiler with source timestamp, candidate identity, batching, scheduling, and NIC diagnostics; hardware profiler execution and GitHub Actions rerun pending."
+  "scope": "Local tests including stable task completion, Fast preflight correctness, full29 extraction, real-camera freshness and cleanup, reconnect interlocks, DDS fail-closed evidence, the direct CycloneDDS profiler, and its onsite-confirmed camera-OFF D0/D1 100-sample smoke; D2 paired hardware execution and GitHub Actions rerun pending."
 }
