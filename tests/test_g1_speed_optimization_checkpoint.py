@@ -38,6 +38,7 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
             "g1_fast_preflight_30_trajectory_corpus.py",
             "g1_fast_preflight_near_limit_fuzz.py",
             "trajectory_analyzer.py",
+            "speed_scheduler.py",
         ]
         forbidden = ("unitree_sdk", "arm_controller", "gripper_controller")
         for filename in files:
