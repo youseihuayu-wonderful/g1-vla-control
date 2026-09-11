@@ -40,6 +40,7 @@ class G1SpeedOptimizationCheckpointTests(unittest.TestCase):
             "trajectory_analyzer.py",
             "speed_scheduler.py",
             "offline_replay_comparison.py",
+            "g1_speed_low_risk_hardware_check.py",
         ]
         forbidden = ("unitree_sdk", "arm_controller", "gripper_controller")
         for filename in files:

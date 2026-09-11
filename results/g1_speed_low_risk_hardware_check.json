@@ -1,0 +1,75 @@
+{
+  "schema_version": "g1_speed_low_risk_hardware_check_v1",
+  "scope": "Read-only speed-optimization hardware gate check: artifact consistency, no-motion safety lock, and optional TCP reachability only.",
+  "inputs": {
+    "trajectory_analysis": "/Users/shihuayu/g1-vla-control/results/trajectory_analysis.json",
+    "speed_schedule": "/Users/shihuayu/g1-vla-control/results/speed_schedule.json",
+    "offline_replay": "/Users/shihuayu/g1-vla-control/results/offline_replay_comparison.json",
+    "six_gate": "/Users/shihuayu/g1-vla-control/results/g1_six_gate_execution_status_20260824.json",
+    "d0_d1": "/Users/shihuayu/g1-vla-control/results/g1_dds_direct_d0_d1_hardware_20260829.json"
+  },
+  "artifact_checks": {
+    "trajectory_analysis_completed": true,
+    "speed_schedule_completed": true,
+    "offline_replay_completed": true,
+    "six_gate_motion_locked": true,
+    "six_gate_not_fully_resolved": true,
+    "d0_d1_readonly_passed": true,
+    "no_prior_hardware_motion_claim": true
+  },
+  "tcp_reachability": {
+    "attempted": true,
+    "timeout_s": 1.0,
+    "any_endpoint_reachable": false,
+    "results": [
+      {
+        "name": "robot_pc2_ssh",
+        "host": "192.168.1.11",
+        "port": 22,
+        "tcp_connect_reachable": false,
+        "elapsed_ms": 2.441042,
+        "error": "OSError: [Errno 65] No route to host",
+        "authentication_attempted": false,
+        "remote_command_executed": false
+      },
+      {
+        "name": "development_pc_ssh",
+        "host": "192.168.1.13",
+        "port": 22,
+        "tcp_connect_reachable": false,
+        "elapsed_ms": 0.074583,
+        "error": "OSError: [Errno 65] No route to host",
+        "authentication_attempted": false,
+        "remote_command_executed": false
+      }
+    ]
+  },
+  "speed_shadow_summary": {
+    "episodes": 100,
+    "duration_reduction_fraction": 0.025250361538723103,
+    "fixed_rate_replay_frame_reduction_fraction": 0.02523616593586285,
+    "risk_accelerated_episode_count": 0
+  },
+  "gate_state": {
+    "current_gate": "H2_REAL_JOINT_FK_SOURCE_PARITY",
+    "resolved_gate_count": 1,
+    "total_gate_count": 6,
+    "unresolved_gate_count": 5,
+    "robot_command_sent": false,
+    "publisher_created": false,
+    "hardware_execution_performed": false
+  },
+  "decision": {
+    "low_risk_hardware_check_completed": true,
+    "artifact_checks_passed": true,
+    "tcp_reachability_required_for_completion": false,
+    "read_only_shadow_ready": true,
+    "real_robot_motion_test_performed": false,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "hardware_execution_performed": false,
+    "low_risk_motion_allowed": false,
+    "robot_motion_allowed": false,
+    "reason": "Speed scheduler is only qualified for read-only/shadow use. Motion remains locked because not all H1-H6 gates are resolved and H6 authorization is absent."
+  }
+}
