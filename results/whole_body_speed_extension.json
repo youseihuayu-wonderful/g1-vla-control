@@ -1,0 +1,201 @@
+{
+  "schema_version": "g1_whole_body_speed_extension_v1",
+  "scope": "Shadow/design extension from standing dual-arm speed scheduling to whole-body squat/reach phases. No RL command, no Publisher, no robot motion.",
+  "inputs": {
+    "low_risk": "/Users/shihuayu/g1-vla-control/results/g1_speed_low_risk_hardware_check.json",
+    "offline_replay": "/Users/shihuayu/g1-vla-control/results/offline_replay_comparison.json",
+    "six_gate": "/Users/shihuayu/g1-vla-control/results/g1_six_gate_execution_status_20260824.json"
+  },
+  "config": {
+    "upright_free_space_scale": 1.2,
+    "upright_task_scale": 1.0,
+    "lower_scale": 0.55,
+    "reach_scale": 0.45,
+    "recover_scale": 0.4,
+    "rise_scale": 0.35,
+    "payload_scale_cap": 0.3,
+    "minimum_body_height_m": 0.6,
+    "maximum_body_pitch_abs_rad": 0.25,
+    "hard_minimum_torque_margin": 0.2,
+    "hard_minimum_pelvis_stability": 0.7
+  },
+  "nominal_phase_policy": [
+    {
+      "body_phase": "UPRIGHT",
+      "arm_task_phase": "free_space",
+      "nominal_body_height_m": 0.75,
+      "nominal_body_pitch_rad": 0.0,
+      "nominal_scale_no_payload": 1.2,
+      "nominal_scale_with_payload": 0.3,
+      "description": "stable standing / free-space arm motion"
+    },
+    {
+      "body_phase": "LOWER",
+      "arm_task_phase": "approach",
+      "nominal_body_height_m": 0.63,
+      "nominal_body_pitch_rad": 0.0,
+      "nominal_scale_no_payload": 0.55,
+      "nominal_scale_with_payload": 0.3,
+      "description": "height transition; no acceleration"
+    },
+    {
+      "body_phase": "REACH",
+      "arm_task_phase": "approach",
+      "nominal_body_height_m": 0.63,
+      "nominal_body_pitch_rad": 0.2,
+      "nominal_scale_no_payload": 0.45,
+      "nominal_scale_with_payload": 0.3,
+      "description": "forward lean; precision and balance critical"
+    },
+    {
+      "body_phase": "REACH",
+      "arm_task_phase": "grasp",
+      "nominal_body_height_m": 0.63,
+      "nominal_body_pitch_rad": 0.2,
+      "nominal_scale_no_payload": 0.45,
+      "nominal_scale_with_payload": 0.3,
+      "description": "near-object grasp; gripper/contact critical"
+    },
+    {
+      "body_phase": "RECOVER",
+      "arm_task_phase": "lift",
+      "nominal_body_height_m": 0.63,
+      "nominal_body_pitch_rad": 0.0,
+      "nominal_scale_no_payload": 0.4,
+      "nominal_scale_with_payload": 0.3,
+      "description": "recover pitch before standing"
+    },
+    {
+      "body_phase": "RISE",
+      "arm_task_phase": "lift",
+      "nominal_body_height_m": 0.75,
+      "nominal_body_pitch_rad": 0.0,
+      "nominal_scale_no_payload": 0.35,
+      "nominal_scale_with_payload": 0.3,
+      "description": "payload-aware stand-up"
+    }
+  ],
+  "execution_locked_phase_decisions": [
+    {
+      "hold": true,
+      "target_scale": 0.0,
+      "reasons": [
+        "rl_controller_not_active",
+        "h_gates_unresolved",
+        "torque_margin_below_minimum",
+        "pelvis_stability_below_minimum"
+      ],
+      "body_phase": "UPRIGHT",
+      "arm_task_phase": "free_space",
+      "execution_authorized": false
+    },
+    {
+      "hold": true,
+      "target_scale": 0.0,
+      "reasons": [
+        "rl_controller_not_active",
+        "h_gates_unresolved",
+        "torque_margin_below_minimum",
+        "pelvis_stability_below_minimum"
+      ],
+      "body_phase": "LOWER",
+      "arm_task_phase": "approach",
+      "execution_authorized": false
+    },
+    {
+      "hold": true,
+      "target_scale": 0.0,
+      "reasons": [
+        "rl_controller_not_active",
+        "h_gates_unresolved",
+        "torque_margin_below_minimum",
+        "pelvis_stability_below_minimum"
+      ],
+      "body_phase": "REACH",
+      "arm_task_phase": "approach",
+      "execution_authorized": false
+    },
+    {
+      "hold": true,
+      "target_scale": 0.0,
+      "reasons": [
+        "rl_controller_not_active",
+        "h_gates_unresolved",
+        "torque_margin_below_minimum",
+        "pelvis_stability_below_minimum",
+        "contact_during_balance_critical_phase"
+      ],
+      "body_phase": "REACH",
+      "arm_task_phase": "grasp",
+      "execution_authorized": false
+    },
+    {
+      "hold": true,
+      "target_scale": 0.0,
+      "reasons": [
+        "rl_controller_not_active",
+        "h_gates_unresolved",
+        "torque_margin_below_minimum",
+        "pelvis_stability_below_minimum"
+      ],
+      "body_phase": "RECOVER",
+      "arm_task_phase": "lift",
+      "execution_authorized": false
+    },
+    {
+      "hold": true,
+      "target_scale": 0.0,
+      "reasons": [
+        "rl_controller_not_active",
+        "h_gates_unresolved",
+        "torque_margin_below_minimum",
+        "pelvis_stability_below_minimum"
+      ],
+      "body_phase": "RISE",
+      "arm_task_phase": "lift",
+      "execution_authorized": false
+    }
+  ],
+  "speed_shadow_summary": {
+    "arm_only_duration_reduction_fraction": 0.025250361538723103,
+    "arm_only_replay_frame_reduction_fraction": 0.02523616593586285,
+    "risk_accelerated_episode_count": 0
+  },
+  "gate_state": {
+    "current_gate": "H2_REAL_JOINT_FK_SOURCE_PARITY",
+    "resolved_gate_count": 1,
+    "total_gate_count": 6,
+    "low_risk_read_only_shadow_ready": true,
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "hardware_execution_performed": false
+  },
+  "missing_whole_body_prerequisites": {
+    "rl_balance_controller_live_and_logged": false,
+    "torque_margin_stream_available": false,
+    "pelvis_stability_metric_live": false,
+    "whole_body_collision_model_physical_parity": false,
+    "squat_reach_real_shadow_dataset_available": false,
+    "h1_to_h5_motion_prerequisites_passed": false,
+    "h6_single_motion_authorization_present": false
+  },
+  "decision": {
+    "whole_body_extension_completed": true,
+    "shadow_design_ready": true,
+    "whole_body_execution_ready": false,
+    "all_execution_decisions_hold": true,
+    "execution_lock_reasons": [
+      "contact_during_balance_critical_phase",
+      "h_gates_unresolved",
+      "pelvis_stability_below_minimum",
+      "rl_controller_not_active",
+      "torque_margin_below_minimum"
+    ],
+    "publisher_created": false,
+    "robot_command_sent": false,
+    "hardware_execution_performed": false,
+    "whole_body_motion_allowed": false,
+    "robot_motion_allowed": false,
+    "reason": "Whole-body speed policy is defined for shadow/design review only. Execution is locked until live RL stability, torque margins, full H1-H5 gates, and H6 single-motion authorization exist."
+  }
+}
